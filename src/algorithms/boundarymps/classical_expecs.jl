@@ -36,11 +36,11 @@ function local_expectations(ob::LocalClassicalObservers, blk::SquareTNBlock, alg
 	return rH	
 end
 
-function row_expectations(U::AbstractVector{M}, i::Int, peps::SquareTN, alg::BoundaryMPS) where {M <: AbstractArray{<:Number, 4}, Nothing} 
+function row_expectations(U::AbstractVector{M}, i::Int, peps::SquareTN, alg::BoundaryMPS) where {M <: Union{AbstractArray{<:Number, 4}, Nothing}}
 	is_nonperiodic(peps) || throw(ArgumentError("BoundaryMPS only supports OBC, use BoundaryMPO instead"))
 	return row_expectations(U, i, SquareTNBlock(peps), get_mult_alg(alg))
 end
-function row_expectations(U::AbstractVector{M}, i::Int, blk::SquareTNBlock, alg::AbstractMPSArith) where {M <: AbstractArray{<:Number, 4}, Nothing}
+function row_expectations(U::AbstractVector{M}, i::Int, blk::SquareTNBlock, alg::AbstractMPSArith) where {M <: Union{AbstractArray{<:Number, 4}, Nothing}}
 	row_i = row(blk, i, alg)
 	return row_magnetizations(row_i, U)
 end

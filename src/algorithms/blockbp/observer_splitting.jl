@@ -168,7 +168,7 @@ function check_observer_splitting(x::LocalObservers{M}, blks::Vector{BlockLocalO
 end
 
 
-function check_local_observers(V::LocalObservers, partition::SquareLatticePartition) where M
+function check_local_observers(V::LocalObservers, partition::SquareLatticePartition) 
 	m, n = size(partition)
 	rows = Set(hbonds_rowcenterindices(partition))
 	cols = Set(vbonds_colcenterindices(partition))
