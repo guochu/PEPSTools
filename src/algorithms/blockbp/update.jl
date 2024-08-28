@@ -3,7 +3,7 @@
 
 
 
-sweep!(peps::PEPS, U::SquareLatticeOperatorBase, alg::BlockBP) = sweep!(peps, default_splitting(U, alg.block_size), alg)
+sweep!(peps::PEPS, U::SquareLatticeOperator, alg::BlockBP) = sweep!(peps, default_splitting(U, alg.block_size), alg)
 function sweep!(peps::PEPS, Us::Vector{<:BlockOperator}, alg::BlockBP)
 	for U in Us
 		blk = BeliefPEPSBlock(peps, U.partition)
@@ -15,7 +15,7 @@ function sweep!(blk::BeliefPEPSBlock, U::BlockOperator, alg::BlockBP)
 	@assert blk.partition == U.partition
 	compute_messages!(blk, alg)
 	# println("block rows $(nrows(blk)), cols $(ncols(blk))")
-	# println("nontrial terms $(nontrivial_terms(U))")
+	# println("nontrial terms $(n_nontrivial_terms(U))")
 	# println(collect(rowindices(blk, 1)))
 	# println(collect(colindices(blk, 1)))
 	for i in 1:nrows(blk)

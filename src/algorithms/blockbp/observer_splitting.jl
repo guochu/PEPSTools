@@ -18,7 +18,7 @@ Base.size(x::BlockLocalOperator) = size(x.data)
 nrows(x::BlockLocalOperator) = nrows(x.partition)
 ncols(x::BlockLocalOperator) = ncols(x.partition)
 
-nontrivial_terms(x::BlockLocalOperator) = nontrivial_terms(x.data) 
+n_nontrivial_terms(x::BlockLocalOperator) = n_nontrivial_terms(x.data) 
 
 function subblock(blk::BlockLocalOperator, i::Int, j::Int) 
 	@assert (i <= nrows(blk)) && (j <= ncols(blk))
@@ -76,7 +76,7 @@ function operator_splitting(U::LocalObservers{M}, pts::Vector{SquareLatticeParti
 	for pt in pts
 		Uk = _empty_local_observables(M, m, n)
 		fill_observer!(Uk, U, pt, Htable)
-		if nontrivial_terms(Uk) > 0
+		if n_nontrivial_terms(Uk) > 0
 			push!(blks, BlockLocalOperator(Uk, pt))
 		end
 	end
@@ -132,7 +132,7 @@ center_splitting(U::LocalObservers, block_size::Tuple{Int, Int}; center::Tuple{I
 # 					end
 # 				end
 # 			end
-# 			if nontrivial_terms(Uk) > 0
+# 			if n_nontrivial_terms(Uk) > 0
 # 				push!(blks, BlockLocalOperator(Uk, partition) )
 # 			end
 # 		end
@@ -163,8 +163,8 @@ function _empty_local_observables(::Type{M}, m::Int, n::Int) where M
 end
 
 function check_observer_splitting(x::LocalObservers{M}, blks::Vector{BlockLocalOperator{M}}) where {M}
-	# return nontrivial_terms(x) == sum(nontrivial_terms.(blks)) 
-	return nontrivial_terms(x) == sum(nontrivial_terms.(blks)) == sum([sum(nontrivial_terms.(subblocks(blk))) for blk in blks])
+	# return n_nontrivial_terms(x) == sum(n_nontrivial_terms.(blks)) 
+	return n_nontrivial_terms(x) == sum(n_nontrivial_terms.(blks)) == sum([sum(n_nontrivial_terms.(subblocks(blk))) for blk in blks])
 end
 
 

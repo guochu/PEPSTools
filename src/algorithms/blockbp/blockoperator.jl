@@ -21,7 +21,7 @@ Base.size(x::BlockOperator) = size(x.data)
 nrows(x::BlockOperator) = nrows(x.partition)
 ncols(x::BlockOperator) = ncols(x.partition)
 
-nontrivial_terms(x::BlockOperator) = nontrivial_terms(x.data) 
+n_nontrivial_terms(x::BlockOperator) = n_nontrivial_terms(x.data) 
 
 
 function subblock(blk::BlockOperator{M}, i::Int, j::Int) where {M}

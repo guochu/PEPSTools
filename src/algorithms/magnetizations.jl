@@ -18,7 +18,7 @@ Base.repeat(x::LocalObservers, i::Int...) = LocalObservers(repeat(x.data.data, i
 Base.getindex(x::LocalObservers, i::ValidIndices, j::ValidIndices) = getindex(x.data, i, j)
 Base.setindex!(x::LocalObservers, v, i::ValidIndices, j::ValidIndices) = setindex!(x.data, v, i, j)
 
-nontrivial_terms(x::LocalObservers) = nontrivial_terms(x.data)
+n_nontrivial_terms(x::LocalObservers) = n_nontrivial_terms(x.data)
 
 
 const LocalClassicalObservers{T} = LocalObservers{Array{T, 4}}

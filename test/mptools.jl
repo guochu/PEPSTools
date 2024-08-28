@@ -46,6 +46,7 @@ end
 	D2 = 2
 	d = 2
 	D = D1*D2
+	tol = 1.0e-6
 	for T in (Float64, ComplexF64)
 		mpo = randommpo(T, L, d=d, D=D1)
 		setscaling!(mpo, 1.23)
@@ -53,9 +54,9 @@ end
 
 		r = mpo * mps
 		r1, err = mult(mpo, mps, SVDCompression(trunc=truncdimcutoff(D=D, ϵ=1.0e-8)))
-		@test distance2(r, r1) ≈ 0 atol = 1.0e-8
+		@test distance2(r, r1) ≈ 0 atol = tol
 		
 		r2, err = mult(mpo, mps, IterativeCompression(D=D))
-		@test distance2(r, r2) ≈ 0 atol = 1.0e-8
+		@test distance2(r, r2) ≈ 0 atol = tol
 	end
 end

@@ -4,9 +4,14 @@ module PEPSTools
 using LinearAlgebra, TensorOperations
 
 # # some basic definitions
-# export PEPS, randompeps, prodpeps
+export scalartype
+export SquareLattice, SquareLatticeHamiltonian, SquareLatticeOperator, is_periodic, is_nonperiodic
+
+
+export PEPS, randompeps, prodpeps
+export bond_dimensions, physical_dimensions, bond_dimension
 # export SquareTN, randomsquaretn
-# export SquareLatticeHamiltonian, SquareLatticeOperator, squeeze, exponential, nontrivial_terms
+# export SquareLatticeHamiltonian, SquareLatticeOperator, squeeze, exponential, n_nontrivial_terms
 
 
 

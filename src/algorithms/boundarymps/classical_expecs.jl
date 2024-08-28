@@ -17,7 +17,7 @@ function local_expectations(ob::LocalClassicalObservers, blk::SquareTNBlock, alg
 
 	rH = zeros(scalartype(blk), m, n)
 	
-	if nontrivial_terms(ob) > 0
+	if n_nontrivial_terms(ob) > 0
 		mpsstorage = compute_H_mpsstorages(blk, alg)
 
 		up = up_boundary(blk)

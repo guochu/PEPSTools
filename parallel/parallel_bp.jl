@@ -5,7 +5,7 @@ using Distributed
 @everywhere using QuantumSpins, PeriodicMPS, PEPSTools
 
 
-function parallel_ground_state!(peps::PEPS, h::PEPSTools.SquareLatticeHamiltonianBase, alg::ImaginaryTimePEPS)
+function parallel_ground_state!(peps::PEPS, h::PEPSTools.SquareLatticeHamiltonian, alg::ImaginaryTimePEPS)
 	isa(alg.stepper, BlockBP) || error("only BlockBP algorithm support parallelization currently")
 	isa(alg.measure_alg, BlockBP) || println("Warning! Only BlockBP algorithm support parallelized measurement")
 
@@ -57,14 +57,14 @@ function parallel_ground_state!(peps::PEPS, h::PEPSTools.SquareLatticeHamiltonia
 	return energies, (iter, err)
 end
 
-parallel_expectation(U::PEPSTools.SquareLatticeHamiltonianBase, peps::PEPS, alg::BlockBP) = parallel_expectation(squeeze(U), peps, alg)
-parallel_expectation(U::PEPSTools.SquareLatticeOperatorBase, peps::PEPS, alg::BlockBP) = parallel_expectation(center_splitting(U, alg.block_size), peps, alg)
+parallel_expectation(U::PEPSTools.SquareLatticeHamiltonian, peps::PEPS, alg::BlockBP) = parallel_expectation(squeeze(U), peps, alg)
+parallel_expectation(U::PEPSTools.SquareLatticeOperator, peps::PEPS, alg::BlockBP) = parallel_expectation(center_splitting(U, alg.block_size), peps, alg)
 
 # this is not parallelized
-parallel_expectation(U::PEPSTools.SquareLatticeHamiltonianBase, peps::PEPS, alg::BoundaryMPS) = parallel_expectation(squeeze(U), peps, alg)
-parallel_expectation(U::PEPSTools.SquareLatticeOperatorBase, peps::PEPS, alg::BoundaryMPS) = parallel_expectation(U, PEPSBlock(peps), alg)
+parallel_expectation(U::PEPSTools.SquareLatticeHamiltonian, peps::PEPS, alg::BoundaryMPS) = parallel_expectation(squeeze(U), peps, alg)
+parallel_expectation(U::PEPSTools.SquareLatticeOperator, peps::PEPS, alg::BoundaryMPS) = parallel_expectation(U, PEPSBlock(peps), alg)
 # use at most two processes
-function parallel_expectation(U::PEPSTools.SquareLatticeOperatorBase, blk::PEPSBlock, alg::BoundaryMPS) 
+function parallel_expectation(U::PEPSTools.SquareLatticeOperator, blk::PEPSBlock, alg::BoundaryMPS) 
 	PEPSTools.is_nonperiodic(U) || error("BoundaryMPS does not support periodic boundary, using BlockBP instead.")
 	@assert size(blk) == size(U)
 	mult_alg = PEPSTools.get_mult_alg(alg)
@@ -159,7 +159,7 @@ function parallel_local_expectations(U::PEPSTools.BlockLocalOperator, blk::PEPST
 end
 
 
-parallel_sweep!(peps::PEPS, U::PEPSTools.SquareLatticeOperatorBase, alg::BlockBP) = parallel_sweep!(peps, default_splitting(U, alg.block_size), alg)
+parallel_sweep!(peps::PEPS, U::PEPSTools.SquareLatticeOperator, alg::BlockBP) = parallel_sweep!(peps, default_splitting(U, alg.block_size), alg)
 function parallel_sweep!(peps::PEPS, Us::Vector{<:BlockOperator}, alg::BlockBP)
 	for U in Us
 		blk = BeliefPEPSBlock(peps, U.partition)

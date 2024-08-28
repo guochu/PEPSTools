@@ -15,23 +15,23 @@ Base.size(x::SquareLattice, i::Int) = size(x.H, i)
 Base.repeat(x::SquareLattice, i::Int...) = SquareLattice(repeat(x.V.data, i...), repeat(x.H.data, i...))
 
 
-const SquareLatticeHamiltonianBase{T<:Number} = SquareLattice{Vector{Tuple{Matrix{T}, Matrix{T}}}}
-const SquareLatticeOperatorBase{T<:Number} = SquareLattice{Union{Array{T, 4}, Nothing}}
+const SquareLatticeHamiltonian{T<:Number} = SquareLattice{Vector{Tuple{Matrix{T}, Matrix{T}}}}
+const SquareLatticeOperator{T<:Number} = SquareLattice{Union{Array{T, 4}, Nothing}}
 
-scalartype(::Type{SquareLatticeHamiltonianBase{T}}) where T = T
-scalartype(x::SquareLatticeHamiltonianBase) = scalartype(typeof(x))
-scalartype(::Type{SquareLatticeOperatorBase{T}}) where T = T
-scalartype(x::SquareLatticeOperatorBase) = scalartype(typeof(x))
+scalartype(::Type{SquareLatticeHamiltonian{T}}) where T = T
+scalartype(x::SquareLatticeHamiltonian) = scalartype(typeof(x))
+scalartype(::Type{SquareLatticeOperator{T}}) where T = T
+scalartype(x::SquareLatticeOperator) = scalartype(typeof(x))
 
 
-is_h_periodic(x::SquareLatticeOperatorBase) = (size(x, 2)==1) || (!any(isnothing.(x.H[:, end])))
-is_h_nonperiodic(x::SquareLatticeOperatorBase) = (size(x, 2)==1) || all(isnothing.(x.H[:, end]))
-is_v_periodic(x::SquareLatticeOperatorBase) = (size(x, 1)==1) || (!any(isnothing.(x.V[end, :])))
-is_v_nonperiodic(x::SquareLatticeOperatorBase) = (size(x, 1)==1) || all(isnothing.(x.V[end, :]))
+is_h_periodic(x::SquareLatticeOperator) = (size(x, 2)==1) || (!any(isnothing.(x.H[:, end])))
+is_h_nonperiodic(x::SquareLatticeOperator) = (size(x, 2)==1) || all(isnothing.(x.H[:, end]))
+is_v_periodic(x::SquareLatticeOperator) = (size(x, 1)==1) || (!any(isnothing.(x.V[end, :])))
+is_v_nonperiodic(x::SquareLatticeOperator) = (size(x, 1)==1) || all(isnothing.(x.V[end, :]))
 
-is_periodic(x::SquareLatticeOperatorBase) = is_h_periodic(x) && is_v_periodic(x)
-is_nonperiodic(x::SquareLatticeOperatorBase) = is_h_nonperiodic(x) && is_v_nonperiodic(x)
-nontrivial_terms(x::SquareLattice{Union{M, Nothing}}) where M = nontrivial_terms(x.H) + nontrivial_terms(x.V)
+is_periodic(x::SquareLatticeOperator) = is_h_periodic(x) && is_v_periodic(x)
+is_nonperiodic(x::SquareLatticeOperator) = is_h_nonperiodic(x) && is_v_nonperiodic(x)
+n_nontrivial_terms(x::SquareLattice{Union{M, Nothing}}) where M = n_nontrivial_terms(x.H) + n_nontrivial_terms(x.V)
 
 function SquareLatticeHamiltonian(::Type{T}, m::Int, n::Int) where {T <: Number}
 	H = PeriodicArray{Vector{Tuple{Matrix{T}, Matrix{T}}}, 2}(undef, m, n)
@@ -42,16 +42,16 @@ function SquareLatticeHamiltonian(::Type{T}, m::Int, n::Int) where {T <: Number}
 	for i in 1:length(V)
 		V[i] = Vector{Tuple{Matrix{T}, Matrix{T}}}()
 	end
-	return SquareLatticeHamiltonianBase{T}(V, H)
+	return SquareLatticeHamiltonian{T}(V, H)
 end
 
 function SquareLatticeOperator(::Type{T}, m::Int, n::Int) where {T <: Number}
 	H = PeriodicArray{Union{Array{T, 4}, Nothing}, 2}(nothing, m, n)
 	V = PeriodicArray{Union{Array{T, 4}, Nothing}, 2}(nothing, m, n)
-	return SquareLatticeOperatorBase{T}(V, H)
+	return SquareLatticeOperator{T}(V, H)
 end
 
-function exponential(h::SquareLatticeHamiltonianBase{T}, dt::Number) where {T <: Number}
+function exponential(h::SquareLatticeHamiltonian{T}, dt::Number) where {T <: Number}
 	m, n = size(h)
 	_T = promote_type(T, typeof(dt))
 	# r = SquareLatticeOperator(promote_type(T, typeof(dt)), m, n)
@@ -69,7 +69,7 @@ function exponential(h::SquareLatticeHamiltonianBase{T}, dt::Number) where {T <:
 	end
 	return SquareLattice(V, H)
 end
-function exponential(h::SquareLatticeOperatorBase{T}, dt::Number) where {T <: Number}
+function exponential(h::SquareLatticeOperator{T}, dt::Number) where {T <: Number}
 	m, n = size(h)
 	_T = promote_type(T, typeof(dt))
 	H = PeriodicArray{Union{Array{_T, 4}, Nothing}, 2}(nothing, size(h.H))
@@ -90,7 +90,7 @@ function exponential(h::SquareLatticeOperatorBase{T}, dt::Number) where {T <: Nu
 
 end
 
-function squeeze(h::SquareLatticeHamiltonianBase{T}) where {T <: Number}
+function squeeze(h::SquareLatticeHamiltonian{T}) where {T <: Number}
 	m, n = size(h)
 	H = PeriodicArray{Union{Array{T, 4}, Nothing}, 2}(nothing, size(h.H))
 	V = PeriodicArray{Union{Array{T, 4}, Nothing}, 2}(nothing, size(h.V))
@@ -125,5 +125,5 @@ function _get_mat_exp(m::Vector{Tuple{Matrix{T}, Matrix{T}}}, dt::Number) where 
 	return reshape(a2, s)
 end
 
-nontrivial_terms(x::AbstractArray{Union{M, Nothing}}) where M = sum((!).(isnothing.(x)))
+n_nontrivial_terms(x::AbstractArray{Union{M, Nothing}}) where M = sum((!).(isnothing.(x)))
 

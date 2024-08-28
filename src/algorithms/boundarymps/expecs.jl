@@ -1,21 +1,21 @@
 
 
-expectation(U::SquareLatticeOperatorBase, peps::PEPS, alg::BoundaryMPS) = expectation(U, PEPSBlock(peps), get_mult_alg(alg))
-expectation(U::SquareLatticeOperatorBase, blk::PEPSBlock, alg::BoundaryMPS) = expectation(U, blk, get_mult_alg(alg))
-expectation(h::SquareLatticeHamiltonianBase, blk::PEPSBlock, alg::MPSCompression) = expectation(squeeze(h), blk, alg)
-expectation(h::SquareLatticeHamiltonianBase, blk::PEPSBlock, alg::BoundaryMPS) = expectation(h, blk, get_mult_alg(alg))
-expectation(h::SquareLatticeHamiltonianBase, peps::PEPS, alg::MPSCompression) = expectation(h, PEPSBlock(peps), alg)
-expectation(h::SquareLatticeHamiltonianBase, peps::PEPS, alg::BoundaryMPS) = expectation(h, peps, get_mult_alg(alg))
+expectation(U::SquareLatticeOperator, peps::PEPS, alg::BoundaryMPS) = expectation(U, PEPSBlock(peps), get_mult_alg(alg))
+expectation(U::SquareLatticeOperator, blk::PEPSBlock, alg::BoundaryMPS) = expectation(U, blk, get_mult_alg(alg))
+expectation(h::SquareLatticeHamiltonian, blk::PEPSBlock, alg::MPSCompression) = expectation(squeeze(h), blk, alg)
+expectation(h::SquareLatticeHamiltonian, blk::PEPSBlock, alg::BoundaryMPS) = expectation(h, blk, get_mult_alg(alg))
+expectation(h::SquareLatticeHamiltonian, peps::PEPS, alg::MPSCompression) = expectation(h, PEPSBlock(peps), alg)
+expectation(h::SquareLatticeHamiltonian, peps::PEPS, alg::BoundaryMPS) = expectation(h, peps, get_mult_alg(alg))
 
 
-function expectation(U::SquareLatticeOperatorBase, blk::PEPSBlock, alg::MPSCompression)
+function expectation(U::SquareLatticeOperator, blk::PEPSBlock, alg::MPSCompression)
 	is_nonperiodic(U) || error("BoundaryMPS does not support periodic boundary, using BlockBP instead.")
 	@assert size(blk) == size(U)
 	# m, n = size(blk)
 	return sum(_expect_H(U.H, blk, alg)) + sum(_expect_V(U.V, blk, alg))
 end
 
-function expectationfull(U::SquareLatticeOperatorBase, blk::PEPSBlock, alg::MPSCompression)
+function expectationfull(U::SquareLatticeOperator, blk::PEPSBlock, alg::MPSCompression)
 	is_nonperiodic(U) || error("BoundaryMPS does not support periodic boundary, using BlockBP instead.")
 	@assert size(blk) == size(U)
 	# m, n = size(blk)
@@ -28,7 +28,7 @@ function _expect_H(H, blk::PEPSBlock, alg::MPSCompression)
 	m, n = size(blk)
 
 	rH = zeros(scalartype(blk), size(H, 1), size(H, 2))
-	if nontrivial_terms(H) > 0
+	if n_nontrivial_terms(H) > 0
 		mpsstorage = compute_H_mpsstorages(blk, alg)
 		up = up_boundary(blk)
 		for i in 1:m
@@ -50,7 +50,7 @@ function _expect_V(V, blk::PEPSBlock, alg::MPSCompression)
 
 	rV= zeros(scalartype(blk), size(V, 1), size(V, 2))
 	# update all the vertical terms
-	if nontrivial_terms(V) > 0
+	if n_nontrivial_terms(V) > 0
 		mpsstorage = compute_V_mpsstorages(blk, alg)
 		left = left_boundary(blk)
 		for i in 1:n

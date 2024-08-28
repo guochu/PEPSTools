@@ -10,11 +10,11 @@ end
 PEPSSimpleUpdate(; D2::Int=3, ϵ::Real=1.0e-8, als_tol::Real=1.0e-6, als_maxiter::Int=5, verbosity::Int=1) = PEPSSimpleUpdate(
 				D2, convert(Float64, ϵ), convert(Float64, als_tol), als_maxiter, verbosity)
 
-expectation(U::Union{SquareLatticeOperatorBase, SquareLatticeHamiltonianBase}, peps::CanonicalPEPS, alg::AbstractPEPSUpdateAlgorithm) = expectation(
+expectation(U::Union{SquareLatticeOperator, SquareLatticeHamiltonian}, peps::CanonicalPEPS, alg::AbstractPEPSUpdateAlgorithm) = expectation(
 	U, PEPS(peps), alg)
 
 
-function sweep!(peps::CanonicalPEPS, U::SquareLatticeOperatorBase, alg::PEPSSimpleUpdate)
+function sweep!(peps::CanonicalPEPS, U::SquareLatticeOperator, alg::PEPSSimpleUpdate)
 	@assert size(peps) == size(U)
 	m, n = size(peps)
 	trunc = truncdimcutoff(D=alg.D2, ϵ=alg.ϵ)

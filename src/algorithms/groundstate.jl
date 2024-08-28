@@ -18,7 +18,7 @@ ImaginaryTimePEPS(paras::Vector{<:Tuple{Int, <:Real}}=[(1000, -0.01), (1000, -0.
 	tol::Real=1.0e-6, kwargs...) = ImaginaryTimePEPS([(item[1], item[2], tol) for item in paras]; kwargs...)
 
 
-function ground_state!(peps::AbstractPEPS, h::SquareLatticeHamiltonianBase, alg::ImaginaryTimePEPS)
+function ground_state!(peps::AbstractPEPS, h::SquareLatticeHamiltonian, alg::ImaginaryTimePEPS)
 	sh = squeeze(h)
 	ntail = 10
 	expec_alg = alg.measure_alg
@@ -68,7 +68,7 @@ function ground_state!(peps::AbstractPEPS, h::SquareLatticeHamiltonianBase, alg:
 	return energies, (iter, err)
 end
 
-# function ground_state!(peps::PEPS, h::SquareLatticeHamiltonianBase, alg::ImaginaryTimePEPS{PEPSSimpleUpdate})
+# function ground_state!(peps::PEPS, h::SquareLatticeHamiltonian, alg::ImaginaryTimePEPS{PEPSSimpleUpdate})
 # 	cpeps = CanonicalPEPS(peps)
 # 	res = ground_state!(cpeps, h, alg)
 # 	r = PEPS(cmps)

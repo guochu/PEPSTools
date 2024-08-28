@@ -4,7 +4,7 @@ using LinearAlgebra, TensorOperations
 # # some basic definitions
 # export PEPS, randompeps, prodpeps
 # export SquareTN, randomsquaretn
-# export SquareLatticeHamiltonian, SquareLatticeOperator, squeeze, exponential, nontrivial_terms
+# export SquareLatticeHamiltonian, SquareLatticeOperator, squeeze, exponential, n_nontrivial_terms
 
 
 

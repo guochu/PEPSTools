@@ -53,7 +53,7 @@ function operator_splitting(x::SquareLattice{Union{M, Nothing}}, pts::Vector{Squ
 		Uk = _empty_square_lattice(M, m, n)
 		fill_block!(Uk, x, pt, Htable, Vtable)
 
-		if nontrivial_terms(Uk) > 0
+		if n_nontrivial_terms(Uk) > 0
 			push!(blks, BlockOperator(Uk, pt))
 		end
 	end
@@ -144,8 +144,8 @@ end
 # 	end
 
 # 	blks = [BlockOperator(even, even_partition), BlockOperator(odd, odd_partition)]
-# 	# @assert nontrivial_terms(even) + nontrivial_terms(odd) == nontrivial_terms(x)
-# 	# (sum(nontrivial_terms.(subblocks(even))) + sum(nontrivial_terms.(subblocks(odd))) == nontrivial_terms(x)) || error("incompatible partition.")
+# 	# @assert n_nontrivial_terms(even) + n_nontrivial_terms(odd) == n_nontrivial_terms(x)
+# 	# (sum(n_nontrivial_terms.(subblocks(even))) + sum(n_nontrivial_terms.(subblocks(odd))) == n_nontrivial_terms(x)) || error("incompatible partition.")
 
 # 	check_operator_splitting(x, blks) || error("incompatible splitting.")
 # 	return blks
@@ -178,7 +178,7 @@ end
 # 					end
 # 				end
 # 			end
-# 			if nontrivial_terms(Uk) > 0
+# 			if n_nontrivial_terms(Uk) > 0
 # 				push!(blks, BlockOperator(Uk, partition) )
 # 			end
 # 		end
@@ -226,7 +226,7 @@ end
 
 
 function check_operator_splitting(x::SquareLattice{Union{M, Nothing}}, blks::Vector{BlockOperator{M}}) where {M}
-	return nontrivial_terms(x) == sum(nontrivial_terms.(blks)) == sum([sum(nontrivial_terms.(subblocks(blk))) for blk in blks])
+	return n_nontrivial_terms(x) == sum(n_nontrivial_terms.(blks)) == sum([sum(n_nontrivial_terms.(subblocks(blk))) for blk in blks])
 end
 
 function get_table(H::AbstractMatrix{Union{M, Nothing}}) where M

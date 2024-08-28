@@ -30,10 +30,10 @@
 
 
 
-expectation(U::SquareLatticeHamiltonianBase, peps::PEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm) = expectation(squeeze(U), peps, alg)
-# expectation(U::SquareLatticeOperatorBase, peps::PEPS, alg::BlockBPSimpleExp) = expectation(default_splitting(U, alg.block_size), peps, alg)
-# expectation(U::SquareLatticeOperatorBase, peps::PEPS, alg::BlockBPCentralExp) = expectation(center_splitting(U, alg.block_size), peps, alg)
-expectation(U::SquareLatticeOperatorBase, peps::PEPS, alg::BlockBP) = expectation(center_splitting(U, alg.block_size), peps, alg)
+expectation(U::SquareLatticeHamiltonian, peps::PEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm) = expectation(squeeze(U), peps, alg)
+# expectation(U::SquareLatticeOperator, peps::PEPS, alg::BlockBPSimpleExp) = expectation(default_splitting(U, alg.block_size), peps, alg)
+# expectation(U::SquareLatticeOperator, peps::PEPS, alg::BlockBPCentralExp) = expectation(center_splitting(U, alg.block_size), peps, alg)
+expectation(U::SquareLatticeOperator, peps::PEPS, alg::BlockBP) = expectation(center_splitting(U, alg.block_size), peps, alg)
 
 
 function expectation(Us::Vector{<:BlockOperator}, peps::PEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm)
@@ -155,7 +155,7 @@ function _rdm1s(U::LocalObservers{Int}, blk::PEPSBlock, alg::MPSCompression)
 
 	rH = Matrix{Union{Matrix{scalartype(blk)}, Nothing}}(nothing, size(blk))
 
-	if nontrivial_terms(U) > 0
+	if n_nontrivial_terms(U) > 0
 		mpsstorage = compute_H_mpsstorages(blk, alg)
 		up = up_boundary(blk)
 		for i in 1:m
@@ -252,7 +252,7 @@ function _rdm2sH(H, blk::PEPSBlock, alg::MPSCompression)
 
 	rH = Matrix{Union{Array{scalartype(blk), 4}, Nothing}}(nothing, size(blk))
 
-	if nontrivial_terms(H) > 0
+	if n_nontrivial_terms(H) > 0
 		mpsstorage = compute_H_mpsstorages(blk, alg)
 		up = up_boundary(blk)
 		for i in 1:m
@@ -275,7 +275,7 @@ function _rdm2sV(V, blk::PEPSBlock, alg::MPSCompression)
 
 	rV= Matrix{Union{Array{scalartype(blk), 4}, Nothing}}(nothing, size(blk))
 	
-	if nontrivial_terms(V) > 0
+	if n_nontrivial_terms(V) > 0
 		mpsstorage = compute_V_mpsstorages(blk, alg)
 		left = left_boundary(blk)
 		for i in 1:n
