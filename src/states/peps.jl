@@ -81,6 +81,7 @@ function is_v_nonperiodic(peps::PEPS)
     return true
 end
 is_nonperiodic(peps::PEPS) = is_h_nonperiodic(peps) && is_v_nonperiodic(peps)
+is_periodic(peps::PEPS) = (!is_h_nonperiodic(peps)) && (!is_v_nonperiodic(peps))
 
 check(peps::PEPS; periodic::Bool=false) = periodic ? check_periodic(peps) : check_non_periodic(peps)
 function check_non_periodic(peps::PEPS)

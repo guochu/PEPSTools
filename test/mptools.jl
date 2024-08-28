@@ -52,10 +52,10 @@ end
 		mps = randommps(T, L, d=d, D=D2)
 
 		r = mpo * mps
-		r1 = mult(mpo, mps, SVDCompression(trunc=truncdimcutoff(D=D, ϵ=1.0e-8)))
+		r1, err = mult(mpo, mps, SVDCompression(trunc=truncdimcutoff(D=D, ϵ=1.0e-8)))
 		@test distance2(r, r1) ≈ 0 atol = 1.0e-8
 		
-		r2 = mult(mpo, mps, IterativeCompression(D=D))
+		r2, err = mult(mpo, mps, IterativeCompression(D=D))
 		@test distance2(r, r2) ≈ 0 atol = 1.0e-8
 	end
 end
