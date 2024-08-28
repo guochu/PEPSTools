@@ -4,16 +4,19 @@ module PEPSTools
 using LinearAlgebra, TensorOperations
 
 # # some basic definitions
+
+# simple definition of Hamiltonian and operators
 export scalartype
 export SquareLattice, SquareLatticeHamiltonian, SquareLatticeOperator, is_periodic, is_nonperiodic
+export squeeze, exponential
 
 
-export PEPS, randompeps, prodpeps
+# definition of PEPS
+export PEPS, randompeps, prodpeps, randomsquaretn
 export bond_dimensions, physical_dimensions, bond_dimension
-# export SquareTN, randomsquaretn
-# export SquareLatticeHamiltonian, SquareLatticeOperator, squeeze, exponential, n_nontrivial_terms
 
 
+# environments
 
 # export SquareLatticePartition, block_partition, peps_partition
 

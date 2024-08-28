@@ -59,6 +59,7 @@ function is_v_nonperiodic(peps::SquareTN)
     return true
 end
 is_nonperiodic(peps::SquareTN) = is_h_nonperiodic(peps) && is_v_nonperiodic(peps)
+is_periodic(peps::SquareTN) = (!is_h_nonperiodic(peps)) && (!is_v_nonperiodic(peps))
 
 check(peps::SquareTN; periodic::Bool=false) = periodic ? check_periodic(peps) : check_non_periodic(peps)
 function check_non_periodic(peps::SquareTN)
