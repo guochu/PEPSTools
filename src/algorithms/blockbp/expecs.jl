@@ -30,13 +30,13 @@
 
 
 
-QuantumSpins.expectation(U::SquareLatticeHamiltonianBase, peps::PEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm) = expectation(squeeze(U), peps, alg)
-# QuantumSpins.expectation(U::SquareLatticeOperatorBase, peps::PEPS, alg::BlockBPSimpleExp) = expectation(default_splitting(U, alg.block_size), peps, alg)
-# QuantumSpins.expectation(U::SquareLatticeOperatorBase, peps::PEPS, alg::BlockBPCentralExp) = expectation(center_splitting(U, alg.block_size), peps, alg)
-QuantumSpins.expectation(U::SquareLatticeOperatorBase, peps::PEPS, alg::BlockBP) = expectation(center_splitting(U, alg.block_size), peps, alg)
+expectation(U::SquareLatticeHamiltonianBase, peps::PEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm) = expectation(squeeze(U), peps, alg)
+# expectation(U::SquareLatticeOperatorBase, peps::PEPS, alg::BlockBPSimpleExp) = expectation(default_splitting(U, alg.block_size), peps, alg)
+# expectation(U::SquareLatticeOperatorBase, peps::PEPS, alg::BlockBPCentralExp) = expectation(center_splitting(U, alg.block_size), peps, alg)
+expectation(U::SquareLatticeOperatorBase, peps::PEPS, alg::BlockBP) = expectation(center_splitting(U, alg.block_size), peps, alg)
 
 
-function QuantumSpins.expectation(Us::Vector{<:BlockOperator}, peps::PEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm)
+function expectation(Us::Vector{<:BlockOperator}, peps::PEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm)
 	r = 0.
 	for U in Us
 		blk = BeliefPEPSBlock(peps, U.partition)
@@ -45,7 +45,7 @@ function QuantumSpins.expectation(Us::Vector{<:BlockOperator}, peps::PEPS, alg::
 	return r
 end
 
-function QuantumSpins.expectation(U::BlockOperator, blk::BeliefPEPSBlock, alg::AbstractBlockBPPEPSUpdateAlgorithm)
+function expectation(U::BlockOperator, blk::BeliefPEPSBlock, alg::AbstractBlockBPPEPSUpdateAlgorithm)
 	@assert blk.partition == U.partition
 	mult_alg = get_msg_mult_alg(alg)
 	compute_messages!(blk, alg)
@@ -66,8 +66,8 @@ function expectationfull(U::BlockOperator, blk::BeliefPEPSBlock, alg::AbstractBl
 	mult_alg = get_msg_mult_alg(alg)
 	compute_messages!(blk, alg)
 
-	rH = PeriodicArray(zeros(eltype(blk), size(blk)))
-	rV = PeriodicArray(zeros(eltype(blk), size(blk)))
+	rH = PeriodicArray(zeros(scalartype(blk), size(blk)))
+	rV = PeriodicArray(zeros(scalartype(blk), size(blk)))
 
 	for i in 1:nrows(blk)
 		for j in 1:ncols(blk)
@@ -86,7 +86,7 @@ local_expectations(U::LocalQuantumObservers, peps::PEPS, alg::BlockBP) = local_e
 
 
 function local_expectations(Us::Vector{BlockLocalOperator{M}}, peps::PEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm) where {M<:AbstractMatrix}
-	r = zeros(eltype(peps), size(peps))
+	r = zeros(scalartype(peps), size(peps))
 	for U in Us
 		blk = BeliefPEPSBlock(peps, U.partition)
 		r += local_expectations(U, blk, alg)
@@ -98,7 +98,7 @@ function local_expectations(U::BlockLocalOperator{M}, blk::BeliefPEPSBlock, alg:
 	@assert blk.partition == U.partition
 	compute_messages!(blk, alg)
 	mult_alg = get_msg_mult_alg(alg)
-	r = PeriodicArray(zeros(eltype(blk), size(blk.peps)))
+	r = PeriodicArray(zeros(scalartype(blk), size(blk.peps)))
 	for i in 1:nrows(blk)
 		for j in 1:ncols(blk)
 			_peps, msgl, msgr, msgu, msgd = subblock(blk, i, j)
@@ -123,7 +123,7 @@ function rdm1s(peps::PEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm)
 end
 
 function rdm1s_util(Us::Vector{BlockLocalOperator{Int}}, peps::PEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm) 
-	T = eltype(peps)
+	T = scalartype(peps)
 	r = Matrix{Union{Matrix{T}, Nothing}}(nothing, size(peps))
 	for U in Us
 		blk = BeliefPEPSBlock(peps, U.partition)
@@ -137,7 +137,7 @@ function rdm1s_single_block(U::BlockLocalOperator{Int}, blk::BeliefPEPSBlock, al
 	@assert blk.partition == U.partition
 	compute_messages!(blk, alg)
 	mult_alg = get_msg_mult_alg(alg)
-	T = eltype(blk)
+	T = scalartype(blk)
 	r = PeriodicArray(Matrix{Union{Matrix{T}, Nothing}}(nothing, size(blk)))
 	for i in 1:nrows(blk)
 		for j in 1:ncols(blk)
@@ -150,10 +150,10 @@ function rdm1s_single_block(U::BlockLocalOperator{Int}, blk::BeliefPEPSBlock, al
 	return r.data
 end
 
-function _rdm1s(U::LocalObservers{Int}, blk::PEPSBlock, alg::AbstractMPSArith)
+function _rdm1s(U::LocalObservers{Int}, blk::PEPSBlock, alg::MPSCompression)
 	m, n = size(blk)
 
-	rH = Matrix{Union{Matrix{eltype(blk)}, Nothing}}(nothing, size(blk))
+	rH = Matrix{Union{Matrix{scalartype(blk)}, Nothing}}(nothing, size(blk))
 
 	if nontrivial_terms(U) > 0
 		mpsstorage = compute_H_mpsstorages(blk, alg)
@@ -164,7 +164,7 @@ function _rdm1s(U::LocalObservers{Int}, blk::PEPSBlock, alg::AbstractMPSArith)
 			if i != m
 				mpo = mpoup(blk, i) 
 				up, err = mpompsmult(mpo, up, alg)
-				normalize!(up, iscanonical=true)
+				normalize!(up)
 			end
 		end	
 	end	
@@ -195,7 +195,7 @@ end
 
 function rdm2s(peps::PEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm; periodic::Bool=!is_nonperiodic(peps))
 	U = rdm2_trivial_operator(size(peps), periodic)
-	T = eltype(peps)
+	T = scalartype(peps)
 	r = rdm2s_util(center_splitting(U, alg.block_size), peps, alg)
 	rH = r["H"]
 	rV = r["V"]
@@ -209,7 +209,7 @@ function rdm2s(peps::PEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm; periodic::Bo
 end
 
 function rdm2s_util(Us::Vector{BlockOperator{Int}}, peps::PEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm) 
-	T = eltype(peps)
+	T = scalartype(peps)
 	rH = Matrix{Union{Array{T, 4}, Nothing}}(nothing, size(peps))
 	rV = Matrix{Union{Array{T, 4}, Nothing}}(nothing, size(peps))
 	for U in Us
@@ -226,7 +226,7 @@ function rdm2s_single_block(U::BlockOperator, blk::BeliefPEPSBlock, alg::Abstrac
 	@assert blk.partition == U.partition
 	mult_alg = get_msg_mult_alg(alg)
 	compute_messages!(blk, alg)
-	T = eltype(blk)
+	T = scalartype(blk)
 	rH = PeriodicArray(Matrix{Union{Array{T, 4}, Nothing}}(nothing, size(blk)) )
 	rV = PeriodicArray(Matrix{Union{Array{T, 4}, Nothing}}(nothing, size(blk)) )
 
@@ -243,14 +243,14 @@ function rdm2s_single_block(U::BlockOperator, blk::BeliefPEPSBlock, alg::Abstrac
 	return Dict("H"=>rH.data, "V"=>rV.data)
 end
 
-_rdm2s(U::SquareLattice{Union{Int, Nothing}}, blk::PEPSBlock, alg::AbstractMPSArith) = Dict(
+_rdm2s(U::SquareLattice{Union{Int, Nothing}}, blk::PEPSBlock, alg::MPSCompression) = Dict(
 	"H"=>_rdm2sH(U.H, blk, alg), "V"=>_rdm2sV(U.V, blk, alg))
 
 
-function _rdm2sH(H, blk::PEPSBlock, alg::AbstractMPSArith)
+function _rdm2sH(H, blk::PEPSBlock, alg::MPSCompression)
 	m, n = size(blk)
 
-	rH = Matrix{Union{Array{eltype(blk), 4}, Nothing}}(nothing, size(blk))
+	rH = Matrix{Union{Array{scalartype(blk), 4}, Nothing}}(nothing, size(blk))
 
 	if nontrivial_terms(H) > 0
 		mpsstorage = compute_H_mpsstorages(blk, alg)
@@ -261,7 +261,7 @@ function _rdm2sH(H, blk::PEPSBlock, alg::AbstractMPSArith)
 			if i != m
 				mpo = mpoup(blk, i) 
 				up, err = mpompsmult(mpo, up, alg)
-				normalize!(up, iscanonical=true)
+				normalize!(up)
 			end
 		end		
 	end
@@ -270,10 +270,10 @@ function _rdm2sH(H, blk::PEPSBlock, alg::AbstractMPSArith)
 end
 
 
-function _rdm2sV(V, blk::PEPSBlock, alg::AbstractMPSArith)
+function _rdm2sV(V, blk::PEPSBlock, alg::MPSCompression)
 	m, n = size(blk)
 
-	rV= Matrix{Union{Array{eltype(blk), 4}, Nothing}}(nothing, size(blk))
+	rV= Matrix{Union{Array{scalartype(blk), 4}, Nothing}}(nothing, size(blk))
 	
 	if nontrivial_terms(V) > 0
 		mpsstorage = compute_V_mpsstorages(blk, alg)
@@ -285,7 +285,7 @@ function _rdm2sV(V, blk::PEPSBlock, alg::AbstractMPSArith)
 			if i != n
 				mpo = mpoleft(blk, i)
 				left, err = mpompsmult(mpo, left, alg)
-				normalize!(left, iscanonical=true)
+				normalize!(left)
 			end
 		end		
 	end

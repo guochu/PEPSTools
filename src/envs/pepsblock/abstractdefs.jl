@@ -5,8 +5,8 @@ abstract type AbstractSquareTNBlock{T} <: AbstractBlock{T} end
 
 Base.size(x::AbstractBlock) = size(x.peps)
 Base.size(x::AbstractBlock, i::Int) = size(x.peps, i)
-Base.eltype(x::AbstractBlock{T}) where {T<:Number} = T
-
+scalartype(::Type{<:AbstractBlock{T}}) where {T<:Number} = T
+scalartype(x::AbstractBlock) = scalartype(typeof(x))
 
 
 left_boundary(x::AbstractBlock) = _boundary_mps(x.left)
@@ -59,7 +59,7 @@ mpodown_util(x::AbstractSquareTNBlock, i::Int) = dl_mpodown_util(x, i)
 # apply mpo on the left
 function mpoleft(x::AbstractBlock, i::Int)
 	L = size(x.peps, 1)
-	r = Vector{Array{eltype(x), 4}}(undef, L+2)
+	r = Vector{Array{scalartype(x), 4}}(undef, L+2)
 	r[1] = permute(_insert_dim(x.up[i]), (1,4,3,2))
 	r[L+2] = permute(_insert_dim(x.down[i]), (3,4,1,2))
 	r[2:L+1] = mpoleft_util(x, i)
@@ -67,7 +67,7 @@ function mpoleft(x::AbstractBlock, i::Int)
 end 
 function mporight(x::AbstractBlock, i::Int)
 	L = size(x.peps, 1)
-	r = Vector{Array{eltype(x), 4}}(undef, L+2)
+	r = Vector{Array{scalartype(x), 4}}(undef, L+2)
 	r[1] = _insert_dim(x.up[i])
 	r[L+2] = permute(_insert_dim(x.down[i]), (3,2,1,4))
 	r[2:L+1] = mporight_util(x, i)
@@ -75,7 +75,7 @@ function mporight(x::AbstractBlock, i::Int)
 end 
 function mpoup(x::AbstractBlock, i::Int)
 	L = size(x.peps, 2)
-	r = Vector{Array{eltype(x), 4}}(undef, L+2)
+	r = Vector{Array{scalartype(x), 4}}(undef, L+2)
 	r[1] = permute(_insert_dim(x.left[i]), (1,4,3,2))
 	r[L+2] = permute(_insert_dim(x.right[i]), (3,4,1,2))
 	r[2:L+1] = mpoup_util(x, i)
@@ -83,7 +83,7 @@ function mpoup(x::AbstractBlock, i::Int)
 end
 function mpodown(x::AbstractBlock, i::Int)
 	L = size(x.peps, 2)
-	r = Vector{Array{eltype(x), 4}}(undef, L+2)
+	r = Vector{Array{scalartype(x), 4}}(undef, L+2)
 	r[1] = _insert_dim(x.left[i])
 	r[L+2] = permute(_insert_dim(x.right[i]), (3,2,1,4))
 	r[2:L+1] = mpodown_util(x, i)
@@ -98,7 +98,7 @@ dl_col_peps_as_row(x, i::Int) = [permute(item, (3,4,5,2)) for item in x.peps[:, 
 col_peps_as_row(x::AbstractPEPSBlock, i::Int) = sl_col_peps_as_row(x, i)
 col_peps_as_row(x::AbstractSquareTNBlock, i::Int) = dl_col_peps_as_row(x, i) 
 
-function row(x::AbstractBlock, pos::Int, mult_alg::AbstractMPSArith=StableArith())
+function row(x::AbstractBlock, pos::Int, mult_alg::MPSCompression=SVDCompression())
 	L = size(x, 1)
 
 	up = up_boundary(x)
@@ -107,18 +107,18 @@ function row(x::AbstractBlock, pos::Int, mult_alg::AbstractMPSArith=StableArith(
 	for i in L:-1:pos+1
 		mpo = mpodown(x, i) 
 		down, err = mpompsmult(mpo, down, mult_alg)
-		normalize!(down, iscanonical=true)
+		normalize!(down)
 	end
 	for i in 1:pos-1
 		mpo = mpoup(x, i) 
 		up, err = mpompsmult(mpo, up, mult_alg)
-		normalize!(up, iscanonical=true)
+		normalize!(up)
 	end
 	return row_environments(up, row_peps(x, pos), down, x.left[pos], x.right[pos])
 end
 
 
-function col(x::AbstractBlock, pos::Int, mult_alg::AbstractMPSArith=StableArith())
+function col(x::AbstractBlock, pos::Int, mult_alg::MPSCompression=SVDCompression())
 	L = size(x, 2)
 
 	left = left_boundary(x)
@@ -127,12 +127,12 @@ function col(x::AbstractBlock, pos::Int, mult_alg::AbstractMPSArith=StableArith(
 	for i in 1:pos-1
 		mpo = mpoleft(x, i)
 		left, err = mpompsmult(mpo, left, mult_alg)
-		normalize!(left, iscanonical=true)
+		normalize!(left)
 	end
 	for i in L:-1:pos+1
 		mpo = mporight(x, i)
 		right, err = mpompsmult(mpo, right, mult_alg)
-		normalize!(right, iscanonical=true)
+		normalize!(right)
 	end
 
 	return row_environments(right, col_peps_as_row(x, i), left, permute(x.up[pos], (3,2,1)), permute(x.down[pos], (3,2,1)))

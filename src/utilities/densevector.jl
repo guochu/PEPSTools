@@ -8,10 +8,10 @@ function contract_peps(x::SquareTN)
 end
 
 function _tr(a::AbstractArray, i::Int, j::Int)
-    (i == j) && error("trace dimensions can not be the same.")
-    (i >= 1 && i <= ndims(a)) || error("dim $i out of bound.")
-    (j >= 1 && j <= ndims(a)) || error("dim $j out of bound.")
-    (size(a, i)==size(a, j)) || error("dim $i and $j size mismatch.")
+    (i == j) && error("trace dimensions can not be the same")
+    (i >= 1 && i <= ndims(a)) || error("dim $i out of bound")
+    (j >= 1 && j <= ndims(a)) || error("dim $j out of bound")
+    (size(a, i)==size(a, j)) || error("dim $i and $j size mismatch")
     (ndims(a) == 2) && return tr(a)
     ranges = Any[1:size(a, l) for l in 1:ndims(a)]
     rest_sizes = [size(a, l) for l in 1:ndims(a) if ((l != i) && (l != j))]
@@ -26,7 +26,7 @@ end
 
 
 function _non_periodic_peps_todense_impl(peps::PEPS)
-    isempty(peps) && error("input peps is empty.")
+    isempty(peps) && error("input peps is empty")
     m, n = size(peps)
 
     # the first column
@@ -44,7 +44,7 @@ function _non_periodic_peps_todense_impl(peps::PEPS)
         v = contract(v, tmp, ((ndims(v),), (2,)))
     end
     
-    (ndims(v) == 2*m) || error("something wrong.")
+    (ndims(v) == 2*m) || error("something wrong")
     ss = [0 for i in 1:2*m]
     for i in 1:m
         ss[i] = 2*i-1
@@ -53,7 +53,7 @@ function _non_periodic_peps_todense_impl(peps::PEPS)
     v = permute(v, ss)
     ss = size(v)
     v = reshape(v, prod(ss[1:m]), ss[m+1:2*m]...)
-    (ndims(v) == m+1) || error("something wrong.")
+    (ndims(v) == m+1) || error("something wrong")
     if n == 1
         return reshape(v, length(v))
     end
@@ -73,7 +73,7 @@ function _non_periodic_peps_todense_impl(peps::PEPS)
             v = contract(v, tmp, ((2, ndims(v)), (2, 3)))
         end
         
-        (ndims(v) == 2*m+1) || error("something, wrong.")
+        (ndims(v) == 2*m+1) || error("something, wrong")
         ss = [0 for i in 1:2*m+1]
         ss[1] = 1
         for i in 1:m
@@ -83,7 +83,7 @@ function _non_periodic_peps_todense_impl(peps::PEPS)
         v = permute(v, ss)
         ss = size(v)
         v = reshape(v, prod(ss[1:m+1]), ss[m+2:end]...)
-        (ndims(v) == m+1) || error("something wrong.")
+        (ndims(v) == m+1) || error("something wrong")
     end
 
     # the last column
@@ -106,7 +106,7 @@ function _non_periodic_peps_todense_impl(peps::PEPS)
 end
 
 function _periodic_peps_todense_impl(peps::PEPS)
-    isempty(peps) && error("input peps is empty.")
+    isempty(peps) && error("input peps is empty")
     m, n = size(peps)
 
     # the first column

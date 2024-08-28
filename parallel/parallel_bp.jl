@@ -121,7 +121,7 @@ parallel_local_expectations(U::PEPSTools.LocalObservers, peps::SquareTN, alg::Bl
 
 
 function parallel_local_expectations(Us::Vector{<:PEPSTools.BlockLocalOperator}, peps::SquareTN, alg::PEPSTools.AbstractBlockBPPEPSUpdateAlgorithm)
-	r = zeros(eltype(peps), size(peps))
+	r = zeros(scalartype(peps), size(peps))
 	for U in Us
 		blk = PEPSTools.BeliefSquareTNBlock(peps, U.partition)
 		r += parallel_local_expectations(U, blk, alg)
@@ -141,7 +141,7 @@ function parallel_local_expectations(U::PEPSTools.BlockLocalOperator, blk::PEPST
 	nave, resi, jobs = partition_jobs(length(index), n_rank)
 
 	f_per_rank(l::Int) = begin
-		r = PeriodicArray(zeros(eltype(blk), size(blk.peps)))
+		r = PeriodicArray(zeros(scalartype(blk), size(blk.peps)))
 		for k in jobs[l]+1:jobs[l+1]
 			idx = index[k]
 			i, j = idx[1], idx[2]
@@ -237,7 +237,7 @@ function parallel_compute_messages!(blk::PEPSTools.AbstractBeliefPEPSBlock, alg:
 	return losses
 end
 
-function parallel_compute_out_message(blk::PEPSTools.AbstractBeliefPEPSBlock, alg::AbstractMPSArith)
+function parallel_compute_out_message(blk::PEPSTools.AbstractBeliefPEPSBlock, alg::MPSCompression)
 	index = CartesianIndices((nrows(blk), ncols(blk)))
 	n_rank = nworkers()
 	# (length(index) % n_rank == 0) || println("total number of jobs $(length(index)) can not be divided by number of workers $(n_rank).")

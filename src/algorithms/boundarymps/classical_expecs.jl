@@ -10,12 +10,12 @@ function local_expectations(h::LocalClassicalObservers, peps::SquareTN, alg::Bou
 	return local_expectations(h, SquareTNBlock(peps), alg)
 end 
 local_expectations(H::LocalClassicalObservers, blk::SquareTNBlock, alg::BoundaryMPS) = local_expectations(H, blk, get_mult_alg(alg))
-function local_expectations(ob::LocalClassicalObservers, blk::SquareTNBlock, alg::AbstractMPSArith)
+function local_expectations(ob::LocalClassicalObservers, blk::SquareTNBlock, alg::MPSCompression)
 	H = ob.data
 	@assert size(H) == size(blk)
 	m, n = size(blk)
 
-	rH = zeros(eltype(blk), m, n)
+	rH = zeros(scalartype(blk), m, n)
 	
 	if nontrivial_terms(ob) > 0
 		mpsstorage = compute_H_mpsstorages(blk, alg)
@@ -27,7 +27,7 @@ function local_expectations(ob::LocalClassicalObservers, blk::SquareTNBlock, alg
 			if i != m
 				mpo = mpoup(blk, i) 
 				up, err = mpompsmult(mpo, up, alg)
-				normalize!(up, iscanonical=true)
+				normalize!(up)
 			end
 		end		
 		
@@ -40,7 +40,7 @@ function row_expectations(U::AbstractVector{M}, i::Int, peps::SquareTN, alg::Bou
 	is_nonperiodic(peps) || throw(ArgumentError("BoundaryMPS only supports OBC, use BoundaryMPO instead"))
 	return row_expectations(U, i, SquareTNBlock(peps), get_mult_alg(alg))
 end
-function row_expectations(U::AbstractVector{M}, i::Int, blk::SquareTNBlock, alg::AbstractMPSArith) where {M <: Union{AbstractArray{<:Number, 4}, Nothing}}
+function row_expectations(U::AbstractVector{M}, i::Int, blk::SquareTNBlock, alg::MPSCompression) where {M <: Union{AbstractArray{<:Number, 4}, Nothing}}
 	row_i = row(blk, i, alg)
 	return row_magnetizations(row_i, U)
 end

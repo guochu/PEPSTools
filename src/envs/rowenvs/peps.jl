@@ -14,7 +14,7 @@ struct PEPSRowEnv{T, _MPS} <: AbstractPEPSRowEnv
 end
 
 function PEPSRowEnv(up::MPS, middle::Vector{<:AbstractArray}, down::MPS, left::AbstractArray{<:Number, 3}, right::AbstractArray{<:Number, 3})
-	T = eltype(up)
+	T = scalartype(up)
 	middle = convert(Vector{Array{T, 5}}, middle)
 	return PEPSRowEnv(up, middle, down, compute_hstorage_right(up, middle, down, left, right))
 end 
@@ -140,7 +140,7 @@ end
 function compute_hstorage_right(mpsu::MPS, middle::Vector, mpsd::MPS, left::AbstractArray{<:Number, 3}, right::AbstractArray{<:Number, 3})
 	@assert length(mpsu) == length(mpsd) == length(middle) + 2
 	L = length(mpsu) - 2
-	hstorage = Vector{Array{eltype(mpsu), 3}}(undef, L+1)
+	hstorage = Vector{Array{scalartype(mpsu), 3}}(undef, L+1)
 	mpsu_left = dropdims(mpsu[1], dims=1)
 	mpsd_left = dropdims(mpsd[1], dims=1)
 	@tensor tmpl[2,3,5] := mpsu_left[1,2] * left[1,3,4] * mpsd_left[4,5]

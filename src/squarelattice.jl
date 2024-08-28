@@ -10,16 +10,18 @@ end
 SquareLattice(V::AbstractMatrix{M}, H::AbstractMatrix{M}) where M = SquareLattice(PeriodicArray(V), PeriodicArray(H))
 SquareLattice(; V::AbstractMatrix{M}, H::AbstractMatrix{M}) where M = SquareLattice(V, H)
 
+Base.size(x::SquareLattice) = size(x. H)
+Base.size(x::SquareLattice, i::Int) = size(x.H, i)
+Base.repeat(x::SquareLattice, i::Int...) = SquareLattice(repeat(x.V.data, i...), repeat(x.H.data, i...))
+
+
 const SquareLatticeHamiltonianBase{T<:Number} = SquareLattice{Vector{Tuple{Matrix{T}, Matrix{T}}}}
 const SquareLatticeOperatorBase{T<:Number} = SquareLattice{Union{Array{T, 4}, Nothing}}
 
-Base.size(x::SquareLattice) = size(x. H)
-Base.size(x::SquareLattice, i::Int) = size(x.H, i)
-
-Base.repeat(x::SquareLattice, i::Int...) = SquareLattice(repeat(x.V.data, i...), repeat(x.H.data, i...))
-
-Base.eltype(x::SquareLatticeHamiltonianBase{T}) where T = T
-Base.eltype(x::SquareLatticeOperatorBase{T}) where T = T
+scalartype(::Type{SquareLatticeHamiltonianBase{T}}) where T = T
+scalartype(x::SquareLatticeHamiltonianBase) = scalartype(typeof(x))
+scalartype(::Type{SquareLatticeOperatorBase{T}}) where T = T
+scalartype(x::SquareLatticeOperatorBase) = scalartype(typeof(x))
 
 
 is_h_periodic(x::SquareLatticeOperatorBase) = (size(x, 2)==1) || (!any(isnothing.(x.H[:, end])))

@@ -53,11 +53,11 @@ random_double_layer_boundary_mps(::Type{T}, L::Int; D::Int) where {T <: Number} 
 function _random_double_layer_mps_message(::Type{T}, physpaces::Vector{Int}; Di::Int=maximum(physpaces), Do::Int=Di) where {T <: Number}
 	i = random_double_layer_boundary_mps(T, physpaces, D=Di)
 	# normalize!(i, iscanonical=false)
-	rightorth!(i, alg=SVDFact(normalize=true))
+	rightorth!(i, alg=Orthogonalize(alg=QR(), normalize=true))
 
 	o = random_double_layer_boundary_mps(T, physpaces, D=Do)
 	# normalize!(o, iscanonical=false)
-	rightorth!(o, alg=SVDFact(normalize=true))
+	rightorth!(o, alg=Orthogonalize(alg=QR(), normalize=true))
 	return Message(i, o)
 	
 end

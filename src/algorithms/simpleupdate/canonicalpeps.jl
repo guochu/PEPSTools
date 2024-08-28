@@ -2,14 +2,10 @@
 
 
 struct CanonicalPEPS{T<:Number, R<:Real} <: AbstractPEPS{T}
-	Γs::PeriodicArray{Array{T, 5},2}
+	data::PeriodicArray{Array{T, 5},2}
 	Hbonds::PeriodicArray{Vector{R},2}
 	Vbonds::PeriodicArray{Vector{R},2}
 end
-
-Base.size(x::CanonicalPEPS) = size(x.Γs)
-Base.size(x::CanonicalPEPS, i::Int) = size(x.Γs, i)
-
 
 function CanonicalPEPS(Γs::PeriodicArray{Array{T, 5},2}) where {T <: Number}
 	m, n = size(Γs)
@@ -29,9 +25,9 @@ end
 CanonicalPEPS(peps::PEPS) = CanonicalPEPS(copy(peps.data))
 
 function PEPS(x::CanonicalPEPS{T, R}) where {T, R}
-	Hbonds = PeriodicArray(QuantumSpins.diag.([sqrt.(item) for item in x.Hbonds.data]))
-	Vbonds = PeriodicArray(QuantumSpins.diag.([sqrt.(item) for item in x.Vbonds.data]))
-	Γs = x.Γs
+	Hbonds = PeriodicArray(diagm.([sqrt.(item) for item in x.Hbonds.data]))
+	Vbonds = PeriodicArray(diagm.([sqrt.(item) for item in x.Vbonds.data]))
+	Γs = x.data
 	m, n = size(x)
 	r = PEPS(T, m, n)
 	for i in 1:m

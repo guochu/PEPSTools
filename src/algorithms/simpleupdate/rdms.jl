@@ -15,7 +15,7 @@ rdm1(peps::PEPS, i::Int, j::Int, alg::PEPSSimpleUpdate) = rdm1_util(peps[i, j])
 
 function rdm1s(peps::PEPS, alg::PEPSSimpleUpdate)
 	m, n = size(peps)
-	r = Matrix{Matrix{eltype(peps)}}(undef, size(peps))
+	r = Matrix{Matrix{scalartype(peps)}}(undef, size(peps))
 	for i in 1:m
 		for j in 1:n
 			r[i, j] = rdm1_util(peps[i, j])
@@ -39,7 +39,7 @@ function rdm2sH(peps::PEPS, alg::PEPSSimpleUpdate; periodic::Bool=!is_nonperiodi
 	m, n = size(peps)
 
 	_ncols = periodic ? n : n-1
-	rH = Matrix{Array{eltype(peps), 4}}(undef, m, _ncols)
+	rH = Matrix{Array{scalartype(peps), 4}}(undef, m, _ncols)
 	for i in 1:m
 		for j in 1:_ncols
 			rH[i,j] = rdm2H_util(peps[i, j], peps[i, j+1])
@@ -61,7 +61,7 @@ function rdm2sV(peps::PEPS, alg::PEPSSimpleUpdate; periodic::Bool=!is_nonperiodi
 	m, n = size(peps)
 
 	_nrows = periodic ? m : m-1
-	rV = Matrix{Array{eltype(peps), 4}}(undef, _nrows, n)
+	rV = Matrix{Array{scalartype(peps), 4}}(undef, _nrows, n)
 	for i in 1:_nrows
 		for j in 1:n
 			rV[i,j] = rdm2V_util(peps[i, j], peps[i+1, j])

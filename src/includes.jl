@@ -1,5 +1,3 @@
-module PEPSTools
-
 
 using LinearAlgebra, TensorOperations
 
@@ -94,6 +92,3 @@ include("algorithms/groundstate.jl")
 
 # utilities
 include("utilities/utilities.jl")
-
-end
-

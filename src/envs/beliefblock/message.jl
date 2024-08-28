@@ -24,13 +24,13 @@ function random_mps_message(::Type{T}, physpaces::Vector{Int}; Di::Int=maximum(p
 	# canonicalize!(i, normalize=true)
 	# rightorth!(i, alg=QRFact())
 	# normalize!(i, iscanonical=true)
-	rightorth!(i, alg=SVDFact(normalize=true))
+	rightorth!(i, alg=Orthogonalize(alg=QR(), normalize=true))
 
 	o = random_boundary_mps(T, physpaces, D=Do)
 	# canonicalize!(o, normalize=true)
 	# rightorth!(o, alg=QRFact())
 	# normalize!(o, iscanonical=true)
-	rightorth!(o, alg=SVDFact(normalize=true))
+	rightorth!(o, alg=Orthogonalize(alg=QR(), normalize=true))
 	return Message(i, o)
 	
 end
@@ -46,7 +46,7 @@ function message_distance2(x::Message, y::Message)
 end
 
 # PEPSBlock contains all the input messages
-function compute_out_messages(blk::AbstractBlock, alg::AbstractMPSArith)
+function compute_out_messages(blk::AbstractBlock, alg::MPSCompression)
 	m, n = size(blk)
 
 	# compute left output message
@@ -54,7 +54,7 @@ function compute_out_messages(blk::AbstractBlock, alg::AbstractMPSArith)
 	for j in n:-1:1
 		mpoj = mporight(blk, j)
 		mpsl, err = mpompsmult(mpoj, mpsl, alg)
-		normalize!(mpsl, iscanonical=true)
+		setscaling!(mpsl, 1)
 		(alg.verbosity >= 3) && println("error for computing the left out message at the $j-th column is $err")
 	end
 	mpsl = _mps_rm_boundary(mpsl)
@@ -64,7 +64,7 @@ function compute_out_messages(blk::AbstractBlock, alg::AbstractMPSArith)
 	for j in 1:n
 		mpoj = mpoleft(blk, j)
 		mpsr, err = mpompsmult(mpoj, mpsr, alg)
-		normalize!(mpsr, iscanonical=true)
+		setscaling!(mpsr, 1)
 		(alg.verbosity >= 3) && println("error for computing the right out message at the $j-th column is $err")
 	end
 	mpsr = _mps_rm_boundary(mpsr)
@@ -74,7 +74,7 @@ function compute_out_messages(blk::AbstractBlock, alg::AbstractMPSArith)
 	for j in m:-1:1
 		mpoj = mpodown(blk, j)
 		mpsu, err = mpompsmult(mpoj, mpsu, alg)
-		normalize!(mpsu, iscanonical=true)
+		setscaling!(mpsu, 1)
 		(alg.verbosity >= 3) && println("error for computing the up out message at the $j-th row is $err")
 	end
 	mpsu = _mps_rm_boundary(mpsu)
@@ -84,7 +84,7 @@ function compute_out_messages(blk::AbstractBlock, alg::AbstractMPSArith)
 	for j in 1:m
 		mpoj = mpoup(blk, j)
 		mpsd, err = mpompsmult(mpoj, mpsd, alg)
-		normalize!(mpsd, iscanonical=true)
+		setscaling!(mpsd, 1)
 		(alg.verbosity >= 3) && println("error for computing the down out message at the $j-th row is $err")
 	end
 	mpsd = _mps_rm_boundary(mpsd)
@@ -103,7 +103,7 @@ function _mps_rm_boundary(mps)
 	v[end] .*= only(mps[L])
 	v[1] .*= only(mps[1])
 	v[1] ./= norm(v[1])
-	r = MPS(v)
+	r = MPS(v, scaling=scaling(mps))
 	# @assert norm(r, iscanonical=true) ≈ 1.
 	return r
 end

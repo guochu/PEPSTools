@@ -6,7 +6,8 @@ ncols(m::AbstractBeliefPEPSBlock) = ncols(m.partition)
 rowindices(blk::AbstractBeliefPEPSBlock, i::Int) = rowindices(blk.partition, i)
 colindices(blk::AbstractBeliefPEPSBlock, j::Int) = colindices(blk.partition, j)
 
-Base.eltype(x::AbstractBeliefPEPSBlock{T}) where {T<:Number} = T
+scalartype(::Type{<:AbstractBeliefPEPSBlock{T}}) where {T<:Number} = T
+scalartype(x::AbstractBeliefPEPSBlock) = scalartype(typeof(x))
 Base.size(x::AbstractBeliefPEPSBlock) = size(x.peps)
 Base.size(x::AbstractBeliefPEPSBlock, i::Int) = size(x.peps, i)
 
@@ -22,7 +23,7 @@ function subblock(m::AbstractBeliefPEPSBlock, i::Int, j::Int)
 end
 
 
-function compute_out_messages(blk::AbstractBeliefPEPSBlock, alg::AbstractMPSArith)
+function compute_out_messages(blk::AbstractBeliefPEPSBlock, alg::MPSCompression)
 	row_msgs = copy(blk.row_msgs)
 	col_msgs = copy(blk.col_msgs)
 	# a, b = nrows(blk), ncols(blk)
@@ -41,7 +42,7 @@ function compute_out_messages(blk::AbstractBeliefPEPSBlock, alg::AbstractMPSArit
 	return row_msgs, col_msgs
 end
 
-function compute_messages!(blk::AbstractBeliefPEPSBlock, mult_alg::AbstractMPSArith; maxiter::Int, tol::Real, verbosity::Int)
+function compute_messages!(blk::AbstractBeliefPEPSBlock, mult_alg::MPSCompression; maxiter::Int, tol::Real, verbosity::Int)
 	iter = 1
 	losses = Float64[]
 	err = -1.
@@ -71,7 +72,7 @@ function compute_messages!(blk::AbstractBeliefPEPSBlock, mult_alg::AbstractMPSAr
 end
 
 
-# function compute_out_messages_serial(blk::AbstractBeliefPEPSBlock, alg::AbstractMPSArith)
+# function compute_out_messages_serial(blk::AbstractBeliefPEPSBlock, alg::MPSCompression)
 # 	row_msgs = blk.row_msgs
 # 	col_msgs = blk.col_msgs
 # 	# a, b = nrows(blk), ncols(blk)
@@ -90,7 +91,7 @@ end
 # 	return row_msgs, col_msgs
 # end
 
-# function compute_messages_serial!(blk::AbstractBeliefPEPSBlock, mult_alg::AbstractMPSArith; maxiter::Int, tol::Real, verbosity::Int)
+# function compute_messages_serial!(blk::AbstractBeliefPEPSBlock, mult_alg::MPSCompression; maxiter::Int, tol::Real, verbosity::Int)
 # 	iter = 1
 # 	losses = Float64[]
 # 	err = -1.

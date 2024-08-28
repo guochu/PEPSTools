@@ -3,15 +3,15 @@
 
 
 
-QuantumSpins.sweep!(peps::PEPS, U::SquareLatticeOperatorBase, alg::BlockBP) = sweep!(peps, default_splitting(U, alg.block_size), alg)
-function QuantumSpins.sweep!(peps::PEPS, Us::Vector{<:BlockOperator}, alg::BlockBP)
+sweep!(peps::PEPS, U::SquareLatticeOperatorBase, alg::BlockBP) = sweep!(peps, default_splitting(U, alg.block_size), alg)
+function sweep!(peps::PEPS, Us::Vector{<:BlockOperator}, alg::BlockBP)
 	for U in Us
 		blk = BeliefPEPSBlock(peps, U.partition)
 		sweep!(blk, U, alg)
 	end
 end
 
-function QuantumSpins.sweep!(blk::BeliefPEPSBlock, U::BlockOperator, alg::BlockBP) 
+function sweep!(blk::BeliefPEPSBlock, U::BlockOperator, alg::BlockBP) 
 	@assert blk.partition == U.partition
 	compute_messages!(blk, alg)
 	# println("block rows $(nrows(blk)), cols $(ncols(blk))")

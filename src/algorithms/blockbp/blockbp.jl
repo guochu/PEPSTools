@@ -17,7 +17,7 @@ BlockBP(; block_size::Tuple{Int, Int}=(3,3), msg_maxiter::Int=10, msg_tol::Real=
 # We may want to use different (smaller) bond dimension to compute messages to reduce the complexity
 function get_msg_mult_alg(x::AbstractBlockBPPEPSUpdateAlgorithm)
 	mult_alg = get_mult_alg(x.update_alg)
-	return QuantumSpins.changeD(mult_alg, D=x.msg_D) 
+	return changeD(mult_alg, D=x.msg_D) 
 end 
 
 

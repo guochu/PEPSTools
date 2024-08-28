@@ -18,7 +18,7 @@ ImaginaryTimePEPS(paras::Vector{<:Tuple{Int, <:Real}}=[(1000, -0.01), (1000, -0.
 	tol::Real=1.0e-6, kwargs...) = ImaginaryTimePEPS([(item[1], item[2], tol) for item in paras]; kwargs...)
 
 
-function QuantumSpins.ground_state!(peps::AbstractPEPS, h::SquareLatticeHamiltonianBase, alg::ImaginaryTimePEPS)
+function ground_state!(peps::AbstractPEPS, h::SquareLatticeHamiltonianBase, alg::ImaginaryTimePEPS)
 	sh = squeeze(h)
 	ntail = 10
 	expec_alg = alg.measure_alg
@@ -49,7 +49,7 @@ function QuantumSpins.ground_state!(peps::AbstractPEPS, h::SquareLatticeHamilton
 				end
 				push!(energies_tmp, real(expec_peps))
 				if length(energies_tmp) >= ntail
-					err = QuantumSpins.iterative_error_2(energies_tmp[end-ntail+1:end])
+					err = iterative_error_2(energies_tmp[end-ntail+1:end])
 					(verbosity > 2) &&println("error at the $iter-th sweep is $err")
 					if err < tol
 						(verbosity > 1) && println("early converge in $iter sweeps with error $err.")
@@ -68,7 +68,7 @@ function QuantumSpins.ground_state!(peps::AbstractPEPS, h::SquareLatticeHamilton
 	return energies, (iter, err)
 end
 
-# function QuantumSpins.ground_state!(peps::PEPS, h::SquareLatticeHamiltonianBase, alg::ImaginaryTimePEPS{PEPSSimpleUpdate})
+# function ground_state!(peps::PEPS, h::SquareLatticeHamiltonianBase, alg::ImaginaryTimePEPS{PEPSSimpleUpdate})
 # 	cpeps = CanonicalPEPS(peps)
 # 	res = ground_state!(cpeps, h, alg)
 # 	r = PEPS(cmps)

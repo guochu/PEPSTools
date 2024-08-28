@@ -8,7 +8,7 @@ struct SquareTNRowEnv{T, _MPS} <: AbstractSquareTNRowEnv
 end
 
 function SquareTNRowEnv(up::MPS, middle::Vector{<:AbstractArray}, down::MPS, left::AbstractArray{<:Number, 3}, right::AbstractArray{<:Number, 3})
-	T = eltype(up)
+	T = scalartype(up)
 	middle = convert(Vector{Array{T, 4}}, middle)
 	return SquareTNRowEnv(up, middle, down, compute_hstorage_right(up, middle, down, left, right))
 end 

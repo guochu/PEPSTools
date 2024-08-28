@@ -1,6 +1,7 @@
-
-
-struct SquareTN{T<:Number} <: AbstractPEPS{T}
+"""
+    struct SquareTN{T<:Number}
+"""
+struct SquareTN{T<:Number} <: Abstract2DTN{T}
 	data::PeriodicArray{Array{T, 4}, 2}
 end
 
@@ -14,9 +15,7 @@ Base.complex(x::SquareTN) = SquareTN(complex.(x.data))
 Base.conj(x::SquareTN) = SquareTN(conj(x.data))
 Base.copy(x::SquareTN) = SquareTN(copy(x.data))
 
-Base.repeat(x::SquareTN, i::Int...) = SquareTN(repeat(raw_data(x), i...))
-
-Base.eltype(x::SquareTN{T}) where {T<:Number} = T
+Base.repeat(x::SquareTN, i::Int...) = SquareTN(repeat(x.data, i...))
 
 SquareTN(x::PEPS) = SquareTN(sandwich(x.data))
 
@@ -31,7 +30,7 @@ peps: ------------2-------------
 --------------1-------3---------
 ------------------4-------------
 """
-function QuantumSpins.bond_dimensions(peps::SquareTN)
+function bond_dimensions(peps::SquareTN)
     m, n = size(peps)
     Vs = Matrix{Int}(undef, m, n) 
     Hs = Matrix{Int}(undef, m, n) 
@@ -102,7 +101,7 @@ function check_periodic(peps::SquareTN)
 end
 
 
-function randomsquaretn(::Type{T}, m::Int, n::Int; periodic::Bool=false, D::Int) where {T<:Real}
+function randomsquaretn(f, ::Type{T}, m::Int, n::Int; periodic::Bool=false, D::Int) where {T<:Number}
     r = SquareTN(T, m, n)
     for j in 1:n
         for i in 1:m
@@ -113,7 +112,7 @@ function randomsquaretn(::Type{T}, m::Int, n::Int; periodic::Bool=false, D::Int)
                 s4 = j==n ? 1 : D
                 s5 = i==m ? 1 : D
             end
-            tmp = rand(T, s2, s3, s4, s5)
+            tmp = f(T, s2, s3, s4, s5)
             if D==1
                 r[i, j] = normalize!(tmp)
             else
@@ -123,6 +122,7 @@ function randomsquaretn(::Type{T}, m::Int, n::Int; periodic::Bool=false, D::Int)
     end
     return r
 end
+randomsquaretn(::Type{T}, m::Int, n::Int; kwargs...) where {T<:Number} = randomsquaretn(randn, T, m, n; kwargs...)
 randomsquaretn(m::Int, n::Int; kwargs...) = randomsquaretn(Float64, m, n; kwargs...)
 
 

@@ -6,7 +6,7 @@ local_expectations(U::LocalClassicalObservers, peps::SquareTN, alg::BlockBP) = l
 
 
 function local_expectations(Us::Vector{BlockLocalOperator{<:AbstractArray{T, 4}}}, peps::SquareTN, alg::AbstractBlockBPPEPSUpdateAlgorithm) where T
-	r = zeros(eltype(peps), size(peps))
+	r = zeros(scalartype(peps), size(peps))
 	for U in Us
 		blk = BeliefSquareTNBlock(peps, U.partition)
 		r += local_expectations(U, blk, alg)
@@ -18,7 +18,7 @@ function local_expectations(U::BlockLocalOperator{<:AbstractArray{T, 4}}, blk::B
 	@assert blk.partition == U.partition
 	compute_messages!(blk, alg)
 	mult_alg = get_msg_mult_alg(alg)
-	r = PeriodicArray(zeros(eltype(blk), size(blk.peps)))
+	r = PeriodicArray(zeros(scalartype(blk), size(blk.peps)))
 	for i in 1:nrows(blk)
 		for j in 1:ncols(blk)
 			_peps, msgl, msgr, msgu, msgd = subblock(blk, i, j)

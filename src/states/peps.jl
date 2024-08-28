@@ -1,15 +1,6 @@
-abstract type AbstractPEPS{T} end
-const ValidIndices = Union{Integer,AbstractRange{Int64}, Colon}
-
-Base.eltype(x::AbstractPEPS{T}) where {T<:Number} = T
-Base.size(x::AbstractPEPS) = size(x.data)
-Base.size(x::AbstractPEPS, i::Int) = size(x.data, i)
-Base.getindex(x::AbstractPEPS, i::ValidIndices, j::ValidIndices) = getindex(x.data, i, j)
-Base.setindex!(x::AbstractPEPS, v, i::ValidIndices, j::ValidIndices) = setindex!(x.data, v, i, j)
-Base.isempty(x::AbstractPEPS) = isempty(x.data)
-
-raw_data(x::AbstractPEPS) = x.data.data
-
+"""
+    struct PEPS{T<:Number}
+"""
 struct PEPS{T<:Number} <: AbstractPEPS{T}
 	data::PeriodicArray{Array{T, 5}, 2}
 end
@@ -22,7 +13,7 @@ Base.complex(x::PEPS) = PEPS(complex.(x.data))
 Base.conj(x::PEPS) = PEPS(conj(x.data))
 Base.copy(x::PEPS) = PEPS(copy(x.data))
 
-Base.repeat(x::PEPS, i::Int...) = PEPS(repeat(raw_data(x), i...))
+Base.repeat(x::PEPS, i::Int...) = PEPS(repeat(x, i...))
 
 """
     bond_dimensions(peps::AbstractPEPS)
@@ -34,7 +25,7 @@ peps: ------------3-------------
 --------------2---1---4---------
 ------------------5-------------
 """
-function QuantumSpins.bond_dimensions(peps::PEPS)
+function bond_dimensions(peps::PEPS)
     m, n = size(peps)
     Vs = Matrix{Int}(undef, m, n) 
     Hs = Matrix{Int}(undef, m, n) 
@@ -52,7 +43,7 @@ end
     physical_dimensions(mps::AbstractPEPS)
 Return physical dimensions of mps
 """
-function QuantumSpins.physical_dimensions(peps::PEPS)
+function physical_dimensions(peps::PEPS)
     m, n = size(peps)
     r = zeros(Int, m, n)
     for j in 1:n
@@ -67,7 +58,7 @@ end
     bond_dimension(mps::AbstractPEPS)
 Return maximum bond dimension of mps
 """
-function QuantumSpins.bond_dimension(peps::PEPS)
+function bond_dimension(peps::PEPS)
 	D = 0
 	for item in peps.data
 		D = max(D, size(item)...)
@@ -139,7 +130,7 @@ function prodpeps(::Type{T}, ds::AbstractMatrix{Int}, physectors::AbstractMatrix
     for j in 1:n
         for i in 1:m
             dj = ds[i, j]
-           r[i, j] = reshape(QuantumSpins.onehot(T, dj, physectors[i, j]), (dj, 1, 1, 1, 1))
+           r[i, j] = reshape(onehot(T, dj, physectors[i, j]), (dj, 1, 1, 1, 1))
         end
     end
     return r
@@ -148,7 +139,7 @@ prodpeps(::Type{T}, physectors::AbstractMatrix{Int}; d::Int) where {T<:Number} =
 prodpeps(ds::AbstractMatrix{Int}, physectors::AbstractMatrix{Int}) = prodpeps(Float64, ds, physectors)
 prodpeps(physectors::AbstractMatrix{Int}; kwargs...) = prodpeps(Float64, physectors; kwargs...)
 
-function randompeps(::Type{T}, ds::AbstractMatrix{Int}; periodic::Bool=false, D::Int) where {T<:Number}
+function randompeps(f, ::Type{T}, ds::AbstractMatrix{Int}; periodic::Bool=false, D::Int) where {T<:Number}
     m, n = size(ds)
     r = PEPS(T, m, n)
     for j in 1:n
@@ -161,7 +152,7 @@ function randompeps(::Type{T}, ds::AbstractMatrix{Int}; periodic::Bool=false, D:
                 s4 = j==n ? 1 : D
                 s5 = i==m ? 1 : D
             end
-            tmp = randn(T, s1, s2, s3, s4, s5)
+            tmp = f(T, s1, s2, s3, s4, s5)
             if D==1
                 r[i, j] = normalize!(tmp)
             else
@@ -172,7 +163,8 @@ function randompeps(::Type{T}, ds::AbstractMatrix{Int}; periodic::Bool=false, D:
     return r
 end
 
-randompeps(::Type{T}, m::Int, n::Int; d::Int, kwargs...) where {T<:Number} = randompeps(T, ones(Int, m, n) .* d; kwargs...)
+randompeps(f, ::Type{T}, m::Int, n::Int; d::Int, kwargs...) where {T<:Number} = randompeps(f, T, ones(Int, m, n) .* d; kwargs...)
+randompeps(::Type{T}, m::Int, n::Int; kwargs...) where {T<:Number} = randompeps(randn, T, m, n; kwargs...)
 randompeps(ds::AbstractMatrix{Int}; kwargs...) = randompeps(Float64, ds; kwargs...)
 randompeps(m::Int, n::Int; kwargs...) = randompeps(Float64, m, n; kwargs...)
 

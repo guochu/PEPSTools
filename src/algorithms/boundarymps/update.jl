@@ -1,7 +1,7 @@
 
 # full update algorithm
 
-struct BoundaryMPS{M<:AbstractMPSArith} <: AbstractPEPSUpdateAlgorithm
+struct BoundaryMPS{M<:MPSCompression} <: AbstractPEPSUpdateAlgorithm
 	D2::Int 
 	D1::Int 
 	ϵ::Float64 
@@ -12,17 +12,17 @@ struct BoundaryMPS{M<:AbstractMPSArith} <: AbstractPEPSUpdateAlgorithm
 end
 
 BoundaryMPS(; D2::Int=3, D1::Int=2*D2^2, ϵ::Real=1.0e-8, als_tol::Real=1.0e-6, als_maxiter::Int=5, verbosity::Int=1, 
-	mult_alg::AbstractMPSArith = IterativeArith(maxiter=als_maxiter, tol=als_tol, D=D1, verbosity=verbosity)) = BoundaryMPS(
+	mult_alg::MPSCompression = IterativeCompression(maxiter=als_maxiter, tol=als_tol, D=D1, verbosity=verbosity)) = BoundaryMPS(
 	D2, D1, ϵ, als_tol, als_maxiter, verbosity, mult_alg)
 
 get_mult_alg(x::BoundaryMPS) = x.mult_alg
-get_trunc(x::BoundaryMPS) = MPSTruncation(D=x.D2, ϵ=x.ϵ)
+get_trunc(x::BoundaryMPS) = truncdimcutoff(D=x.D2, ϵ=x.ϵ)
 
-function QuantumSpins.sweep!(peps::PEPS, U::SquareLatticeOperatorBase, alg::BoundaryMPS)
+function sweep!(peps::PEPS, U::SquareLatticeOperatorBase, alg::BoundaryMPS)
 	is_nonperiodic(peps) || error("BoundaryMPS does not support periodic boundary, using SimpleUpdate or BlockBP instead.")
 	sweep!(PEPSBlock(peps), U, alg)
 end 
-function QuantumSpins.sweep!(blk::PEPSBlock, U::SquareLatticeOperatorBase, alg::BoundaryMPS)
+function sweep!(blk::PEPSBlock, U::SquareLatticeOperatorBase, alg::BoundaryMPS)
 	is_nonperiodic(U) || error("BoundaryMPS does not support periodic boundary, using SimpleUpdate or BlockBP instead.")
 	@assert size(blk) == size(U)
 	m, n = size(blk)
@@ -45,7 +45,7 @@ function QuantumSpins.sweep!(blk::PEPSBlock, U::SquareLatticeOperatorBase, alg::
 			if i != m
 				mpo = mpoup(blk, i) 
 				up, err = mpompsmult(mpo, up, mult_alg)
-				normalize!(up, iscanonical=true)
+				normalize!(up)
 			end
 		end		
 	end
@@ -65,32 +65,32 @@ function QuantumSpins.sweep!(blk::PEPSBlock, U::SquareLatticeOperatorBase, alg::
 			if i != n
 				mpo = mpoleft(blk, i)
 				left, err = mpompsmult(mpo, left, mult_alg)
-				normalize!(left, iscanonical=true)
+				normalize!(left)
 			end
 		end
 	end
 end
 
-function compute_H_mpsstorages(blk::AbstractBlock, mult_alg::AbstractMPSArith)
+function compute_H_mpsstorages(blk::AbstractBlock, mult_alg::MPSCompression)
 	m = size(blk, 1)
 	mpsstorage = Vector{Any}(undef, m+1)
 	mpsstorage[m+1] = down_boundary(blk) 
 	for i in m:-1:2
 		mpo = mpodown(blk, i) 
 		mpsstorage[i], err = mpompsmult(mpo, mpsstorage[i+1], mult_alg)
-		normalize!(mpsstorage[i], iscanonical=true)
+		normalize!(mpsstorage[i])
 	end
 	return mpsstorage
 end
 
-function compute_V_mpsstorages(blk::AbstractBlock, mult_alg::AbstractMPSArith)
+function compute_V_mpsstorages(blk::AbstractBlock, mult_alg::MPSCompression)
 	n = size(blk, 2)
 	mpsstorage = Vector{Any}(undef, n+1)
 	mpsstorage[n+1] = right_boundary(blk)
 	for i in n:-1:2
 		mpo = mporight(blk, i)
 		mpsstorage[i], err = mpompsmult(mpo, mpsstorage[i+1], mult_alg)
-		normalize!(mpsstorage[i], iscanonical=true)
+		normalize!(mpsstorage[i])
 	end	
 	return mpsstorage
 end

@@ -1,22 +1,24 @@
 
 
-@with_kw struct PEPSSimpleUpdate <: AbstractPEPSUpdateAlgorithm
-	D2::Int = 3
-	ϵ::Float64 = 1.0e-8
-	als_tol::Float64 = 1.0e-6
-	als_maxiter::Int = 5
-	verbosity::Int = 1
+struct PEPSSimpleUpdate <: AbstractPEPSUpdateAlgorithm
+	D2::Int 
+	ϵ::Float64 
+	als_tol::Float64 
+	als_maxiter::Int 
+	verbosity::Int 
 end
+PEPSSimpleUpdate(; D2::Int=3, ϵ::Real=1.0e-8, als_tol::Real=1.0e-6, als_maxiter::Int=5, verbosity::Int=1) = PEPSSimpleUpdate(
+				D2, convert(Float64, ϵ), convert(Float64, als_tol), als_maxiter, verbosity)
 
-QuantumSpins.expectation(U::Union{SquareLatticeOperatorBase, SquareLatticeHamiltonianBase}, peps::CanonicalPEPS, alg::AbstractPEPSUpdateAlgorithm) = expectation(
+expectation(U::Union{SquareLatticeOperatorBase, SquareLatticeHamiltonianBase}, peps::CanonicalPEPS, alg::AbstractPEPSUpdateAlgorithm) = expectation(
 	U, PEPS(peps), alg)
 
 
-function QuantumSpins.sweep!(peps::CanonicalPEPS, U::SquareLatticeOperatorBase, alg::PEPSSimpleUpdate)
+function sweep!(peps::CanonicalPEPS, U::SquareLatticeOperatorBase, alg::PEPSSimpleUpdate)
 	@assert size(peps) == size(U)
 	m, n = size(peps)
-	trunc = MPSTruncation(D=alg.D2, ϵ=alg.ϵ)
-	Γs = peps.Γs
+	trunc = truncdimcutoff(D=alg.D2, ϵ=alg.ϵ)
+	Γs = peps.data
 	Hbonds = peps.Hbonds
 	Vbonds = peps.Vbonds
 	# update all the horizontal terms
@@ -42,19 +44,18 @@ end
 
 function evolve_h_single(U::AbstractArray{<:Number, 4}, sLl, sLu, sLd, AL, sM, AR, sRu, sRr, sRd; 
 	normalize::Bool=true, trunc::TruncationScheme, maxiter::Int, tol::Real, verbosity::Int)
-	invLl = QuantumSpins.diag(1 ./ sLl)
-	invLu = QuantumSpins.diag(1 ./ sLu)
-	invLd = QuantumSpins.diag(1 ./ sLd)
-	invRu = QuantumSpins.diag(1 ./ sRu)
-	invRr = QuantumSpins.diag(1 ./ sRr)
-	invRd = QuantumSpins.diag(1 ./ sRd)
-	sLl = QuantumSpins.diag(sLl)
-	sLu = QuantumSpins.diag(sLu)
-	sLd = QuantumSpins.diag(sLd)
-	sRr = QuantumSpins.diag(sRr)
-	sRu = QuantumSpins.diag(sRu)
-	sRd = QuantumSpins.diag(sRd)
-	# sM = QuantumSpins.diag(sM)
+	invLl = diagm(1 ./ sLl)
+	invLu = diagm(1 ./ sLu)
+	invLd = diagm(1 ./ sLd)
+	invRu = diagm(1 ./ sRu)
+	invRr = diagm(1 ./ sRr)
+	invRd = diagm(1 ./ sRd)
+	sLl = diagm(sLl)
+	sLu = diagm(sLu)
+	sLd = diagm(sLd)
+	sRr = diagm(sRr)
+	sRu = diagm(sRu)
+	sRd = diagm(sRd)
 
 	# ALn = _absorb_bonds(AL, sLl, sM, sLu, sLd) 
 	@tensor ALn[1,6,7,4,8] := AL[1,2,3,4,5] * sLl[6,2] * sLu[7,3] * sLd[8,5]
@@ -79,19 +80,18 @@ evolve_h_single(U::Nothing,sLl, sLu, sLd, AL, sM, AR, sRu, sRr, sRd;kwargs...) =
 
 function evolve_v_single(U::AbstractArray{<:Number, 4},sLl, sLu, sLr, AL, sM, AR, sRl, sRr, sRd;
 	normalize::Bool=true, trunc::TruncationScheme, maxiter::Int, tol::Real, verbosity::Int)
-	invLl = QuantumSpins.diag(1 ./ sLl)
-	invLu = QuantumSpins.diag(1 ./ sLu)
-	invLr = QuantumSpins.diag(1 ./ sLr)
-	invRl = QuantumSpins.diag(1 ./ sRl)
-	invRr = QuantumSpins.diag(1 ./ sRr)
-	invRd = QuantumSpins.diag(1 ./ sRd)
-	sLl = QuantumSpins.diag(sLl)
-	sLu = QuantumSpins.diag(sLu)
-	sLr = QuantumSpins.diag(sLr)
-	sRl = QuantumSpins.diag(sRl)
-	sRr = QuantumSpins.diag(sRr)
-	sRd = QuantumSpins.diag(sRd)
-	# sM = QuantumSpins.diag(sM)
+	invLl = diagm(1 ./ sLl)
+	invLu = diagm(1 ./ sLu)
+	invLr = diagm(1 ./ sLr)
+	invRl = diagm(1 ./ sRl)
+	invRr = diagm(1 ./ sRr)
+	invRd = diagm(1 ./ sRd)
+	sLl = diagm(sLl)
+	sLu = diagm(sLu)
+	sLr = diagm(sLr)
+	sRl = diagm(sRl)
+	sRr = diagm(sRr)
+	sRd = diagm(sRd)
 
 	# ALn = _absorb_bonds(AL, sLl, sLr, sLu, sM)
 	@tensor ALn[1,6,7,8,5] := AL[1,2,3,4,5] * sLl[6,2] * sLu[7,3] * sLr[8,4]
@@ -116,7 +116,7 @@ evolve_v_single(U::Nothing,sLl, sLu, sLr, AL, sM, AR, sRl, sRr, sRd;kwargs...) =
 
 
 function bond_evolve(aL::AbstractArray{<:Number, 3}, sM::AbstractVector, aR::AbstractArray{<:Number, 3}, U::AbstractArray{<:Number, 4}; trunc::TruncationScheme)
-	sM = QuantumSpins.diag(sM)
+	sM = diagm(sM)
 	@tensor m[1,6,7,5] := ((aL[1,2,3] * sM[3,8]) * aR[8,4,5]) * U[6,7,2,4]
 	s1, s2, s3, s4 = size(m)
 	u, s, v, err = tsvd!(reshape(m, (s1*s2, s3*s4)); trunc=trunc)
