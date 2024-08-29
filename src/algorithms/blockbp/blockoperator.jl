@@ -1,11 +1,11 @@
 
 
 struct BlockOperator{M}
-	data::SquareLattice{Union{M, Nothing}}
+	data::SquareLatticeBonds{Union{M, Nothing}}
 	partition::SquareLatticePartition
 
 
-function BlockOperator{M}(data::SquareLattice{Union{M, Nothing}}, partition::SquareLatticePartition) where M
+function BlockOperator{M}(data::SquareLatticeBonds{Union{M, Nothing}}, partition::SquareLatticePartition) where M
 	@assert size(data) == size(partition)
 	@assert check_v_block_operator(data.V, partition)
 	@assert check_h_block_operator(data.H, partition)
@@ -14,7 +14,7 @@ end
 
 end
 
-BlockOperator(data::SquareLattice{Union{M, Nothing}}, partition::SquareLatticePartition) where M = BlockOperator{M}(data, partition)
+BlockOperator(data::SquareLatticeBonds{Union{M, Nothing}}, partition::SquareLatticePartition) where M = BlockOperator{M}(data, partition)
 
 
 Base.size(x::BlockOperator) = size(x.data)
@@ -43,7 +43,7 @@ function subblock(blk::BlockOperator{M}, i::Int, j::Int) where {M}
 end
 
 function subblocks(blk::BlockOperator{M}) where {M}
-	r = Matrix{SquareLattice{Union{M, Nothing}}}(undef, nrows(blk), ncols(blk))
+	r = Matrix{SquareLatticeBonds{Union{M, Nothing}}}(undef, nrows(blk), ncols(blk))
 	for i in 1:nrows(blk)
 		for j in 1:ncols(blk)
 			r[i, j] = subblock(blk, i, j)
@@ -56,7 +56,7 @@ end
 function _empty_square_lattice(::Type{M}, m::Int, n::Int) where {M}
 	V = Matrix{Union{M, Nothing}}(nothing, m, n)
 	H = Matrix{Union{M, Nothing}}(nothing, m, n)
-	return SquareLattice(V, H)
+	return SquareLatticeBonds(V, H)
 end
 
 function check_v_block_operator(V::PeriodicArray{Union{M, Nothing}, 2}, partition::SquareLatticePartition) where M

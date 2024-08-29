@@ -35,14 +35,14 @@ function center_splitting(shape::Tuple{Int, Int}, block_size::Tuple{Int, Int}, c
 end
 
 """
-	operator_splitting(x::SquareLattice{Union{M, Nothing}}, pts::Vector{SquareLatticePartition})
+	operator_splitting(x::SquareLatticeBonds{Union{M, Nothing}}, pts::Vector{SquareLatticePartition})
 
 Spliting the Hamiltonian into block operators
 
 If block size is larger than the hamiltonian size, then the hamiltonian is embeded into 
 the center of the block, otherwise the starting point of the hamiltonian is (1,1)
 """
-function operator_splitting(x::SquareLattice{Union{M, Nothing}}, pts::Vector{SquareLatticePartition}) where M
+function operator_splitting(x::SquareLatticeBonds{Union{M, Nothing}}, pts::Vector{SquareLatticePartition}) where M
 	isempty(pts) && error("no partition.")
 	m, n = size(pts[1])
 	Htable = get_table(x.H) 
@@ -99,14 +99,14 @@ function fill_block!(Uk, U, blk, Htable, Vtable)
 
 end
 
-default_splitting(x::SquareLattice, block_size::Tuple{Int, Int}) = operator_splitting(x, default_splitting(size(x), block_size)) 
-function center_splitting(x::SquareLattice, block_size::Tuple{Int, Int}; center::Tuple{Int, Int}=(2,2))
+default_splitting(x::SquareLatticeBonds, block_size::Tuple{Int, Int}) = operator_splitting(x, default_splitting(size(x), block_size)) 
+function center_splitting(x::SquareLatticeBonds, block_size::Tuple{Int, Int}; center::Tuple{Int, Int}=(2,2))
 	pts = center_splitting(size(x), block_size, center)
 	is_valid_hamiltonian_splitting(size(x), pts) || error("invalid hamiltonian splitting.")
 	return operator_splitting(x, pts)
 end 
 
-# function default_splitting(x_ori::SquareLattice{Union{M, Nothing}}, block_size::Tuple{Int, Int}) where {M}
+# function default_splitting(x_ori::SquareLatticeBonds{Union{M, Nothing}}, block_size::Tuple{Int, Int}) where {M}
 # 	odd_partition = block_partition(size(x_ori), block_size, (1,1))
 # 	x = default_embeding(x_ori, size(odd_partition))
 
@@ -151,7 +151,7 @@ end
 # 	return blks
 # end
 
-# function center_splitting(U_ori::SquareLattice{Union{M, Nothing}}, block_size::Tuple{Int, Int}, center_size::Tuple{Int, Int}=(2,2)) where M
+# function center_splitting(U_ori::SquareLatticeBonds{Union{M, Nothing}}, block_size::Tuple{Int, Int}, center_size::Tuple{Int, Int}=(2,2)) where M
 # 	ori_partition = block_partition(size(U_ori), block_size)
 # 	U = default_embeding(U_ori, size(ori_partition))
 # 	center_size = min_shape(size(U_ori), center_size)
@@ -225,7 +225,7 @@ end
 
 
 
-function check_operator_splitting(x::SquareLattice{Union{M, Nothing}}, blks::Vector{BlockOperator{M}}) where {M}
+function check_operator_splitting(x::SquareLatticeBonds{Union{M, Nothing}}, blks::Vector{BlockOperator{M}}) where {M}
 	return n_nontrivial_terms(x) == sum(n_nontrivial_terms.(blks)) == sum([sum(n_nontrivial_terms.(subblocks(blk))) for blk in blks])
 end
 

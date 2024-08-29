@@ -7,7 +7,7 @@ using LinearAlgebra, TensorOperations
 
 # simple definition of Hamiltonian and operators
 export scalartype
-export SquareLattice, SquareLatticeHamiltonian, SquareLatticeOperator, is_periodic, is_nonperiodic
+export SquareLatticeBonds, SquareLatticeHamiltonian, SquareLatticeOperator, is_periodic, is_nonperiodic
 export squeeze, exponential
 
 

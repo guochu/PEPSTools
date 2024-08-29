@@ -243,7 +243,7 @@ function rdm2s_single_block(U::BlockOperator, blk::BeliefPEPSBlock, alg::Abstrac
 	return Dict("H"=>rH.data, "V"=>rV.data)
 end
 
-_rdm2s(U::SquareLattice{Union{Int, Nothing}}, blk::PEPSBlock, alg::MPSCompression) = Dict(
+_rdm2s(U::SquareLatticeBonds{Union{Int, Nothing}}, blk::PEPSBlock, alg::MPSCompression) = Dict(
 	"H"=>_rdm2sH(U.H, blk, alg), "V"=>_rdm2sV(U.V, blk, alg))
 
 
@@ -322,7 +322,7 @@ function rdm2_trivial_operator(shape::Tuple{Int, Int}, periodic::Bool)
 			V[i, j] = 1
 		end
 	end
-	return SquareLattice(V, H)
+	return SquareLatticeBonds(V, H)
 end
 
 
