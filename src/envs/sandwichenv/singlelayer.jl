@@ -1,29 +1,29 @@
 """
-	struct SquareTNRowEnv{T, _MPS}
+	struct ClassicalSandwichEnv{T, _MPS}
 """
-struct SquareTNRowEnv{T, _MPS} <: AbstractSingleLayerSandwichEnv
+struct ClassicalSandwichEnv{T, _MPS} <: AbstractSingleLayerSandwichEnv
 	up::_MPS
 	middle::Vector{Array{T, 4}}
 	down::_MPS
 	hstorage::Vector{Array{T, 3}}
 end
 
-function SquareTNRowEnv(up::MPS, middle::Vector{<:AbstractArray}, down::MPS, left::AbstractArray{<:Number, 3}, right::AbstractArray{<:Number, 3})
+function ClassicalSandwichEnv(up::MPS, middle::Vector{<:AbstractArray}, down::MPS, left::AbstractArray{<:Number, 3}, right::AbstractArray{<:Number, 3})
 	T = scalartype(up)
 	middle = convert(Vector{Array{T, 4}}, middle)
-	return SquareTNRowEnv(up, middle, down, compute_hstorage_right(up, middle, down, left, right))
+	return ClassicalSandwichEnv(up, middle, down, compute_hstorage_right(up, middle, down, left, right))
 end 
 
 row_environments(up::MPS, middle::Vector{<:AbstractArray{<:Number, 4}}, down::MPS, left::AbstractArray{<:Number, 3}, 
-	right::AbstractArray{<:Number, 3}) = SquareTNRowEnv(up, middle, down, left, right)
+	right::AbstractArray{<:Number, 3}) = ClassicalSandwichEnv(up, middle, down, left, right)
 
 
 # expectation values of all the sites
-function expectation_sites(x::SquareTNRowEnv{T}, obs::Vector) where T
+function expectation_sites(x::ClassicalSandwichEnv{T}, obs::Vector) where T
 	@assert length(x.middle) == length(obs)
 	return [unsafe_expectation_site(x, pos, obs[pos]) for pos in 1:length(obs)]
 end 
-function unsafe_expectation_site(x::SquareTNRowEnv, pos::Int, ob::AbstractArray{<:Number, 4})
+function unsafe_expectation_site(x::ClassicalSandwichEnv, pos::Int, ob::AbstractArray{<:Number, 4})
 	tmp = bm_update_left(x.hstorage[pos], x.up[pos+1], x.down[pos+1], x.middle[pos])
 	@tensor n = tmp[1,2,3] * x.hstorage[pos+1][1,2,3]
 	# println("norm of n is $(norm(n))")
@@ -34,7 +34,7 @@ function unsafe_expectation_site(x::SquareTNRowEnv, pos::Int, ob::AbstractArray{
 	update_storage_left!(x, pos)
 	return r / n
 end
-function expectation_site(x::SquareTNRowEnv, pos::Int, ob::AbstractArray{<:Number, 4})
+function expectation_site(x::ClassicalSandwichEnv, pos::Int, ob::AbstractArray{<:Number, 4})
 	left = compute_hleft(x, pos)
 	tmp = bm_update_left(left, x.up[pos+1], x.down[pos+1], x.middle[pos])
 	@tensor n = tmp[1,2,3] * x.hstorage[pos+1][1,2,3]
@@ -45,7 +45,7 @@ function expectation_site(x::SquareTNRowEnv, pos::Int, ob::AbstractArray{<:Numbe
 end
 
 # expectation values of a bond
-function expectation_bond(x::SquareTNRowEnv, pos::Int, ob1::AbstractArray{<:Number, 4}, ob2::AbstractArray{<:Number, 4})
+function expectation_bond(x::ClassicalSandwichEnv, pos::Int, ob1::AbstractArray{<:Number, 4}, ob2::AbstractArray{<:Number, 4})
 	@assert pos < length(x.middle)
 	left = compute_hleft(x, pos)
 	tmp = bm_update_left(left, x.up[pos+1], x.down[pos+1], x.middle[pos])
@@ -58,11 +58,11 @@ function expectation_bond(x::SquareTNRowEnv, pos::Int, ob1::AbstractArray{<:Numb
 end
 
 
-function update_storage_left!(x::SquareTNRowEnv, pos::Int)
+function update_storage_left!(x::ClassicalSandwichEnv, pos::Int)
     x.hstorage[pos+1] = normalize!(bm_update_left(x.hstorage[pos], x.up[pos+1], x.down[pos+1], x.middle[pos]))
 end
 
-function compute_hleft(x::SquareTNRowEnv, pos::Int)
+function compute_hleft(x::ClassicalSandwichEnv, pos::Int)
 	hleft = x.hstorage[1]
 	for i in 1:pos-1
 		hleft = normalize!(bm_update_left(hleft, x.up[i+1], x.down[i+1], x.middle[i]))
