@@ -1,4 +1,3 @@
-abstract type Classical2DModel end
 
 
 

@@ -77,14 +77,10 @@ include("blockbppartition/blockbppartition.jl")
 include("algorithms/simpleupdate/simpleupdate.jl")
 include("algorithms/simpleupdate/rdms.jl")
 
-# definition of classical models
-include("algorithms/classicalmodels.jl")
-include("algorithms/magnetizations.jl")
 
 # boundarymps algorithm of nonperiodic peps
 include("algorithms/boundarymps/update.jl")
 include("algorithms/boundarymps/expecs.jl")
-include("algorithms/boundarymps/classical_expecs.jl")
 
 
 # block belief propagation update
@@ -95,8 +91,9 @@ include("algorithms/blockbp/blockbp.jl")
 include("algorithms/blockbp/update.jl")
 include("algorithms/blockbp/expecs.jl")
 
-# classical
-include("algorithms/blockbp/classical_expecs.jl")
+# classical models
+include("algorithms/classicalmodels/classicalmodels.jl")
+
 
 # a high level interface
 include("algorithms/groundstate.jl")

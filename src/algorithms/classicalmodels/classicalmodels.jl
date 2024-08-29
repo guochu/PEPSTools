@@ -1,5 +1,4 @@
-
-
+abstract type Classical2DModel end
 
 MagnetizationTensors(data::AbstractMatrix{<:AbstractArray{T, 4}}) where T = SquareLatticeSites(data)
 MagnetizationTensors(::Type{T}, shape::Tuple{Int, Int}) where {T <: Number} = SquareLatticeSites(Array{T, 4}, shape)
@@ -12,3 +11,7 @@ function MagnetizationTensors(shape::Tuple{Int, Int}, op::Array{T,4}) where {T <
 end
 MagnetizationTensors(m::Int, n::Int, args...) = MagnetizationTensors((m, n), args...)
 
+
+include("ising.jl")
+include("bmps.jl")
+include("blockbp.jl")

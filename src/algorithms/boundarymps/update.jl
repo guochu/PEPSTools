@@ -19,11 +19,11 @@ get_mult_alg(x::BoundaryMPS) = x.mult_alg
 get_trunc(x::BoundaryMPS) = truncdimcutoff(D=x.D2, ϵ=x.ϵ)
 
 function sweep!(peps::PEPS, U::SquareLatticeOperator, alg::BoundaryMPS)
-	is_nonperiodic(peps) || error("BoundaryMPS does not support periodic boundary, using SimpleUpdate or BlockBP instead.")
+	is_nonperiodic(peps) || error("BoundaryMPS does not support periodic boundary, using SimpleUpdate or BlockBP instead")
 	sweep!(borderedpeps(peps), U, alg)
 end 
 function sweep!(blk::BorderedPEPS, U::SquareLatticeOperator, alg::BoundaryMPS)
-	is_nonperiodic(U) || error("BoundaryMPS does not support periodic boundary, using SimpleUpdate or BlockBP instead.")
+	is_nonperiodic(U) || error("BoundaryMPS does not support periodic boundary, using SimpleUpdate or BlockBP instead")
 	@assert size(blk) == size(U)
 	m, n = size(blk)
 

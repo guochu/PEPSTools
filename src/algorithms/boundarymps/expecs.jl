@@ -9,14 +9,14 @@ expectation(h::SquareLatticeHamiltonian, peps::PEPS, alg::BoundaryMPS) = expecta
 
 
 function expectation(U::SquareLatticeOperator, blk::BorderedPEPS, alg::MPSCompression)
-	is_nonperiodic(U) || error("BoundaryMPS does not support periodic boundary, using BlockBP instead.")
+	is_nonperiodic(U) || error("BoundaryMPS does not support periodic boundary, using BlockBP instead")
 	@assert size(blk) == size(U)
 	# m, n = size(blk)
 	return sum(_expect_H(U.H, blk, alg)) + sum(_expect_V(U.V, blk, alg))
 end
 
 function expectationfull(U::SquareLatticeOperator, blk::BorderedPEPS, alg::MPSCompression)
-	is_nonperiodic(U) || error("BoundaryMPS does not support periodic boundary, using BlockBP instead.")
+	is_nonperiodic(U) || error("BoundaryMPS does not support periodic boundary, using BlockBP instead")
 	@assert size(blk) == size(U)
 	# m, n = size(blk)
 	return Dict("H"=>_expect_H(U.H, blk, alg), "V"=>_expect_V(U.V, blk, alg))
