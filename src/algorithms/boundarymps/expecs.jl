@@ -33,7 +33,7 @@ function _expect_H(H, blk::PEPSBlock, alg::MPSCompression)
 		up = up_boundary(blk)
 		for i in 1:m
 			row_i = row_environments(up, row_peps(blk, i), mpsstorage[i+1], blk.left[i], blk.right[i]) 
-			rH[i, 1:n-1] = row_expectation(row_i, H[i, :])
+			rH[i, 1:n-1] = expectation_bonds(row_i, H[i, :])
 			if i != m
 				mpo = mpoup(blk, i) 
 				up, err = mpompsmult(mpo, up, alg)
@@ -56,7 +56,7 @@ function _expect_V(V, blk::PEPSBlock, alg::MPSCompression)
 		for i in 1:n
 			# println("expectation of the $i-th column...")
 			row_i = row_environments(mpsstorage[i+1], col_peps_as_row(blk, i), left, permute(blk.up[i], (3,2,1)), permute(blk.down[i], (3,2,1)))
-			rV[1:m-1, i] = row_expectation(row_i, V[:, i])
+			rV[1:m-1, i] = expectation_bonds(row_i, V[:, i])
 			if i != n
 				mpo = mpoleft(blk, i)
 				left, err = mpompsmult(mpo, left, alg)

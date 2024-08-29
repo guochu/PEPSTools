@@ -1,7 +1,3 @@
-
-
-
-
 magnetizations(x::Classical2DModel, alg::BoundaryMPS; β::Real) = local_expectations(
 	MagnetizationTensors(magnetization_tensors(x, β=β)), SquareTN(site_tensors(x, β=β)), alg)
 
@@ -23,7 +19,7 @@ function local_expectations(ob::LocalCObservers, blk::SquareTNBlock, alg::MPSCom
 		up = up_boundary(blk)
 		for i in 1:m
 			row_i = row_environments(up, row_peps(blk, i), mpsstorage[i+1], blk.left[i], blk.right[i]) 
-			rH[i, :] = row_magnetizations(row_i, H[i, :])
+			rH[i, :] = expectation_sites(row_i, H[i, :])
 			if i != m
 				mpo = mpoup(blk, i) 
 				up, err = mpompsmult(mpo, up, alg)
@@ -42,7 +38,7 @@ function row_expectations(U::AbstractVector{M}, i::Int, peps::SquareTN, alg::Bou
 end
 function row_expectations(U::AbstractVector{M}, i::Int, blk::SquareTNBlock, alg::MPSCompression) where {M <: Union{AbstractArray{<:Number, 4}, Nothing}}
 	row_i = row(blk, i, alg)
-	return row_magnetizations(row_i, U)
+	return expectation_sites(row_i, U)
 end
 
 function local_expectation(mT::AbstractArray{<:Number, 4}, i::Int, j::Int, peps::SquareTN, alg::BoundaryMPS)
@@ -54,7 +50,7 @@ end
 
 function local_expectation(mT::AbstractArray{<:Number, 4}, i::Int, j::Int, blk::SquareTNBlock, alg::BoundaryMPS)
 	row_i = row(blk, i, get_mult_alg(alg))
-	return row_magnetization(row_i, j, mT)
+	return expectation_site(row_i, j, mT)
 end
 
 # local magnetization
@@ -74,6 +70,6 @@ function interactionH(x::Classical2DModel, i::Int, j::Int, alg::BoundaryMPS; β:
 	mT2 = magnetization_tensor(x, i, j+1, β=β)
 
 	row_i = row(blk, i, get_mult_alg(alg))
-	return row_interaction(row_i, j, mT1, mT2)
+	return expectation_bond(row_i, j, mT1, mT2)
 	
 end

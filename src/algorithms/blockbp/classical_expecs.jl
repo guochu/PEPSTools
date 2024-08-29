@@ -44,7 +44,7 @@ function local_expectation(mT::AbstractArray{<:Number, 4}, i::Int, j::Int, peps:
 	_peps, msgl, msgr, msgu, msgd = subblock(blk, 1, 1)
 	subx = PEPSBlock(_peps, left=msgl.i, right=msgr.o, up=msgu.i, down=msgd.o)
 	row_i = row(subx, a+1, mult_alg)
-	return row_magnetization(row_i, b+1, mT)
+	return expectation_site(row_i, b+1, mT)
 
 end
 
@@ -70,7 +70,7 @@ function interactionH(x::Classical2DModel, i::Int, j::Int, alg::BlockBP; β::Rea
 	subx = PEPSBlock(_peps, left=msgl.i, right=msgr.o, up=msgu.i, down=msgd.o)
 
 	row_i = row(subx, a+1, mult_alg)
-	return row_interaction(row_i, b+1, mT1, mT2)
+	return expectation_bond(row_i, b+1, mT1, mT2)
 end
 
 

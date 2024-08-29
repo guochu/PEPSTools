@@ -24,7 +24,16 @@ row_environments(up::MPS, middle::Vector{<:AbstractArray{<:Number, 5}}, down::MP
 	right::AbstractArray{<:Number, 3}) = DoubleLayerSandwichEnv(up, middle, down, left, right)
 
 
-function update_single!(x::DoubleLayerSandwichEnv, pos::Int, U::AbstractArray{<:Number, 4}; kwargs...)
+# update all the bonds
+function update_bonds!(x::DoubleLayerSandwichEnv, Us::Vector; kwargs...)
+	# the last one is assumed to be nothing since this function is only use dto compute the energy
+	@assert length(Us) == length(x)
+	for pos in 1:length(Us)-1
+		# println("updating the $pos pair...")
+		update_bond!(x, pos, Us[pos]; kwargs...)
+	end
+end
+function update_bond!(x::DoubleLayerSandwichEnv, pos::Int, U::AbstractArray{<:Number, 4}; kwargs...)
 	Qleft, aL, Qright, aR, Xt = compute_center(x, pos)
 	aLn, aRn = center_minimization(aL, aR, Xt, U; kwargs...)	
 
@@ -32,72 +41,80 @@ function update_single!(x::DoubleLayerSandwichEnv, pos::Int, U::AbstractArray{<:
     @tensor cr[1,4,5,6,2] := aRn[1,2,3] * Qright[3,4,5,6]
     x.middle[pos] = cl
     x.middle[pos+1] = cr
-    update_left!(x, pos)
+    update_storage_left!(x, pos)
 end
-update_single!(x::DoubleLayerSandwichEnv, pos::Int, U::Nothing; kwargs...) = update_left!(x, pos)
+update_bond!(x::DoubleLayerSandwichEnv, pos::Int, U::Nothing; kwargs...) = update_storage_left!(x, pos)
 
-function row_expectation_single(x::DoubleLayerSandwichEnv, pos::Int, U::AbstractArray{<:Number, 4})
+
+# expectation values of all the bonds
+function expectation_bonds(x::DoubleLayerSandwichEnv, Us::Vector)
+	@assert length(Us) == length(x)
+	return [unsafe_expectation_bond(x, pos, Us[pos]) for pos in 1:length(Us)-1]
+end
+# the unsafe version should only be used when all the expectation values are computed
+function unsafe_expectation_bond(x::DoubleLayerSandwichEnv, pos::Int, U::AbstractArray{<:Number, 4})
 	Qleft, aL, Qright, aR, Xt = compute_center(x, pos)
 	@tensor down[2,4,6] := aL[1,2,3] * Xt[1,4,5] * aR[3,6,5] 
 	@tensor r = conj(down[1,2,3]) * U[1,3,4,5] * down[4,2,5]
-	update_left!(x, pos)
+	update_storage_left!(x, pos)
 	return r / dot(down, down)
 end
-
-function row_expectation_single(x::DoubleLayerSandwichEnv, pos::Int, U::Nothing) 
-	update_left!(x, pos)
+function unsafe_expectation_bond(x::DoubleLayerSandwichEnv, pos::Int, U::Nothing) 
+	update_storage_left!(x, pos)
 	return 0.
 end 
 
-function row_rdm2_single(x::DoubleLayerSandwichEnv, pos::Int)
-	Qleft, aL, Qright, aR, Xt = compute_center(x, pos)
-	@tensor down[2,4,6] := aL[1,2,3] * Xt[1,4,5] * aR[3,6,5] 
-	@tensor rho[4,5,1,3] := conj(down[1,2,3]) * down[4,2,5]
-	update_left!(x, pos)
-
-	return normalize_rho!(rho)
-end
-
-function update_left!(x::DoubleLayerSandwichEnv, pos::Int)
-    x.hstorage[pos+1] = normalize!(bm_update_left(x.hstorage[pos], x.up[pos+1], x.down[pos+1], x.middle[pos]))
-end
-
-# the last one is assumed to be nothing since this function is only use dto compute the energy
-function update!(x::DoubleLayerSandwichEnv, Us::Vector; kwargs...)
-	@assert length(Us) == length(x)
-	for pos in 1:length(Us)-1
-		# println("updating the $pos pair...")
-		update_single!(x, pos, Us[pos]; kwargs...)
-	end
-end
-
-
-function row_expectation(x::DoubleLayerSandwichEnv, Us::Vector)
-	@assert length(Us) == length(x)
-	return [row_expectation_single(x, pos, Us[pos]) for pos in 1:length(Us)-1]
-end
-
-
-
+# expectation values of all the sites
 function local_expectations(x::DoubleLayerSandwichEnv, Us::Vector{M}) where {M <: Union{AbstractMatrix, Nothing}}
 	@assert length(x) == length(Us)
-	# n = compute_norm(x)
-	return [local_expectation_single(x, pos, Us[pos]) for pos in 1:length(Us)]
+	return [unsafe_expectation_site(x, pos, Us[pos]) for pos in 1:length(Us)]
 end
 
-function local_expectation_single(x::DoubleLayerSandwichEnv, pos::Int, U::AbstractMatrix)
+function unsafe_expectation_site(x::DoubleLayerSandwichEnv, pos::Int, U::AbstractMatrix)
 	tnj = sandwich_single(x.middle[pos], U, x.middle[pos]) 
 	hleft = bm_update_left(x.hstorage[pos], x.up[pos+1], x.down[pos+1], tnj)
 	nleft = bm_update_left(x.hstorage[pos], x.up[pos+1], x.down[pos+1], x.middle[pos])
 	@tensor r = hleft[1,2,3] * x.hstorage[pos+1][1,2,3]
 	@tensor n = nleft[1,2,3] * x.hstorage[pos+1][1,2,3]
-	update_left!(x, pos)
+	update_storage_left!(x, pos)
 	return r / n
 end
-function local_expectation_single(x::DoubleLayerSandwichEnv, pos::Int, U::Nothing)
-	update_left!(x, pos)
+function unsafe_expectation_site(x::DoubleLayerSandwichEnv, pos::Int, U::Nothing)
+	update_storage_left!(x, pos)
 	return 0.
 end
+
+# bond rdm
+rdm2s(x::DoubleLayerSandwichEnv) = [unsafe_rdm2(x, pos) for pos in 1:length(x)-1]
+function unsafe_rdm2(x::DoubleLayerSandwichEnv, pos::Int)
+	Qleft, aL, Qright, aR, Xt = compute_center(x, pos)
+	@tensor down[2,4,6] := aL[1,2,3] * Xt[1,4,5] * aR[3,6,5] 
+	@tensor rho[4,5,1,3] := conj(down[1,2,3]) * down[4,2,5]
+	update_storage_left!(x, pos)
+
+	return normalize_rho!(rho)
+end
+
+# site rdm
+rdm1s(x::DoubleLayerSandwichEnv) = [unsafe_rdm1(x, pos) for pos in 1:length(x)]
+function unsafe_rdm1(x::DoubleLayerSandwichEnv, pos::Int)
+	AL = x.middle[pos]
+	s1, s2 = size(AL, 1), size(AL, 2)
+	@tensor tmp[10,5,1,6,2,7,3,8,4,9] := conj(AL[1,2,3,4,5]) * AL[6,7,8,9,10]
+	tmp4 = tie(tmp, (4,2,2,2))
+	hright = bm_update_right(x.hstorage[pos+1], x.up[pos+1], x.down[pos+1], tmp4)
+	hright4 = reshape(hright, (size(hright, 1), s1, s1, s2*s2, size(hright, 3) ) )
+	@tensor rho[4, 5] := x.hstorage[pos][1,2,3] * hright4[1,4,5, 2,3]
+
+	update_storage_left!(x, pos)
+	return normalize_rho!(rho)
+end
+
+
+function update_storage_left!(x::DoubleLayerSandwichEnv, pos::Int)
+    x.hstorage[pos+1] = normalize!(bm_update_left(x.hstorage[pos], x.up[pos+1], x.down[pos+1], x.middle[pos]))
+end
+
 
 # function compute_norm(x::DoubleLayerSandwichEnv)
 # 	hright = bm_update_right(x.hstorage[2], x.up[2], x.down[2], x.middle[1])
@@ -128,20 +145,6 @@ function compute_center(x::DoubleLayerSandwichEnv, pos::Int)
 	return left_q, aL, right_q, aR, X
 end
 
-rdm1s(x::DoubleLayerSandwichEnv) = [row_rdm1_single(x, pos) for pos in 1:length(x)]
-function row_rdm1_single(x::DoubleLayerSandwichEnv, pos::Int)
-	AL = x.middle[pos]
-	s1, s2 = size(AL, 1), size(AL, 2)
-	@tensor tmp[10,5,1,6,2,7,3,8,4,9] := conj(AL[1,2,3,4,5]) * AL[6,7,8,9,10]
-	tmp4 = tie(tmp, (4,2,2,2))
-	hright = bm_update_right(x.hstorage[pos+1], x.up[pos+1], x.down[pos+1], tmp4)
-	hright4 = reshape(hright, (size(hright, 1), s1, s1, s2*s2, size(hright, 3) ) )
-	@tensor rho[4, 5] := x.hstorage[pos][1,2,3] * hright4[1,4,5, 2,3]
-
-	update_left!(x, pos)
-	return normalize_rho!(rho)
-end
-rdm2s(x::DoubleLayerSandwichEnv) = [row_rdm2_single(x, pos) for pos in 1:length(x)-1]
 
 
 function normalize_rho!(rho::AbstractArray{<:Number, 4})
