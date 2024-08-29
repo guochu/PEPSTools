@@ -36,7 +36,7 @@ function local_expectation(mT::AbstractArray{<:Number, 4}, i::Int, j::Int, peps:
 	block_size = alg.block_size
 	a = div(block_size[1]-1, 2)
 	b = div(block_size[2]-1, 2)
-	odd_partition = block_partition(size(peps), block_size, (i-a, j-b), (2,2))
+	odd_partition = lattice_partition(size(peps), block_size, (i-a, j-b), (2,2))
 	blk = peps_partition(peps, odd_partition)
 
 	mult_alg = get_msg_mult_alg(alg)
@@ -61,7 +61,7 @@ function interactionH(x::Classical2DModel, i::Int, j::Int, alg::BlockBP; β::Rea
 	block_size = alg.block_size
 	a = div(block_size[1]-1, 2)
 	b = div(block_size[2]-2, 2)
-	odd_partition = block_partition(size(x), block_size, (i-a, j-b), (2,2))
+	odd_partition = lattice_partition(size(x), block_size, (i-a, j-b), (2,2))
 	blk = BeliefSquareTNBlock(peps, odd_partition)
 
 	mult_alg = get_msg_mult_alg(alg)

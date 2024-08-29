@@ -102,7 +102,7 @@ Hshift(x::SquareLatticePartition, i::Int) = SquareLatticePartition(size(x), x.ro
 VHshift(x::SquareLatticePartition, i::Int, j::Int) = SquareLatticePartition(size(x), x.rows .+ i, x.cols .+ j, x.center)
 
 
-function block_partition(shape::Tuple{Int, Int}, block_size::Tuple{Int, Int}, start::Tuple{Int, Int}, center::Tuple{Int, Int})
+function lattice_partition(shape::Tuple{Int, Int}, block_size::Tuple{Int, Int}, start::Tuple{Int, Int}, center::Tuple{Int, Int})
 	shape = max_shape(shape, block_size)
 	m, n = shape
 	a, b = block_size
@@ -110,7 +110,7 @@ function block_partition(shape::Tuple{Int, Int}, block_size::Tuple{Int, Int}, st
 	cols = compute_block_labels(n, b) 
 	return SquareLatticePartition(shape, rows .+ (start[1]-1), cols .+ (start[2]-1), center)	
 end
-block_partition(shape::Tuple{Int, Int}, block_size::Tuple{Int, Int}; start::Tuple{Int, Int}=(1,1), center::Tuple{Int, Int}=(2,2)) = block_partition(
+lattice_partition(shape::Tuple{Int, Int}, block_size::Tuple{Int, Int}; start::Tuple{Int, Int}=(1,1), center::Tuple{Int, Int}=(2,2)) = lattice_partition(
 	shape, block_size, start, center)
 
 function compute_block_labels(m::Int, a::Int)

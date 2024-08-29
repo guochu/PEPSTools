@@ -8,7 +8,7 @@
 # end
 # default_embeding(U::SquareLattice, shape::Tuple{Int, Int}) = SquareLattice(default_embeding(U.V, shape), default_embeding(U.H, shape))
 
-starting_partition(shape::Tuple{Int, Int}, block_size::Tuple{Int, Int}, center_size::Tuple{Int, Int}) = block_partition(
+starting_partition(shape::Tuple{Int, Int}, block_size::Tuple{Int, Int}, center_size::Tuple{Int, Int}) = lattice_partition(
 	shape, block_size, (1, 1), center_size)
 
 function default_splitting(shape::Tuple{Int, Int}, block_size::Tuple{Int, Int})
@@ -107,7 +107,7 @@ function center_splitting(x::SquareLatticeBonds, block_size::Tuple{Int, Int}; ce
 end 
 
 # function default_splitting(x_ori::SquareLatticeBonds{Union{M, Nothing}}, block_size::Tuple{Int, Int}) where {M}
-# 	odd_partition = block_partition(size(x_ori), block_size, (1,1))
+# 	odd_partition = lattice_partition(size(x_ori), block_size, (1,1))
 # 	x = default_embeding(x_ori, size(odd_partition))
 
 # 	m, n = size(x)
@@ -152,7 +152,7 @@ end
 # end
 
 # function center_splitting(U_ori::SquareLatticeBonds{Union{M, Nothing}}, block_size::Tuple{Int, Int}, center_size::Tuple{Int, Int}=(2,2)) where M
-# 	ori_partition = block_partition(size(U_ori), block_size)
+# 	ori_partition = lattice_partition(size(U_ori), block_size)
 # 	U = default_embeding(U_ori, size(ori_partition))
 # 	center_size = min_shape(size(U_ori), center_size)
 

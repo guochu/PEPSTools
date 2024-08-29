@@ -206,7 +206,7 @@ function _collect_peps!(blk::BeliefPEPSBlock, out)
 	end
 end
 
-function parallel_compute_messages!(blk::PEPSTools.AbstractBeliefPEPSBlock, alg::PEPSTools.AbstractBlockBPPEPSUpdateAlgorithm)
+function parallel_compute_messages!(blk::PEPSTools.AbstractBlockBPPartitionPEPS, alg::PEPSTools.AbstractBlockBPPEPSUpdateAlgorithm)
 	iter = 1
 	losses = Float64[]
 	maxiter = alg.msg_maxiter
@@ -237,7 +237,7 @@ function parallel_compute_messages!(blk::PEPSTools.AbstractBeliefPEPSBlock, alg:
 	return losses
 end
 
-function parallel_compute_out_message(blk::PEPSTools.AbstractBeliefPEPSBlock, alg::MPSCompression)
+function parallel_compute_out_message(blk::PEPSTools.AbstractBlockBPPartitionPEPS, alg::MPSCompression)
 	index = CartesianIndices((nrows(blk), ncols(blk)))
 	n_rank = nworkers()
 	# (length(index) % n_rank == 0) || println("total number of jobs $(length(index)) can not be divided by number of workers $(n_rank).")
@@ -259,7 +259,7 @@ function parallel_compute_out_message(blk::PEPSTools.AbstractBeliefPEPSBlock, al
 	return _collect_out_message(blk, vcat(r...))
 end
 
-function _collect_out_message(blk::PEPSTools.AbstractBeliefPEPSBlock, out)
+function _collect_out_message(blk::PEPSTools.AbstractBlockBPPartitionPEPS, out)
 	index = CartesianIndices((nrows(blk), ncols(blk)))
 	row_msgs = copy(blk.row_msgs)
 	col_msgs = copy(blk.col_msgs)

@@ -12,7 +12,7 @@ The index convention for site tensor of 2d tn
 --------------1-------3---------
 ------------------4-------------
 """
-struct BeliefPEPSBlock{T<:Number, _MESSAGE} <: AbstractBeliefPEPSBlock{T}
+struct BeliefPEPSBlock{T<:Number, _MESSAGE} <: AbstractBlockBPPartitionPEPS{T}
 	peps::PEPS{T}
 	partition::SquareLatticePartition
 	row_msgs::PeriodicArray{ _MESSAGE,2}

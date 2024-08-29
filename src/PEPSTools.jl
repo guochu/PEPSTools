@@ -15,7 +15,7 @@ export bond_dimensions, physical_dimensions, bond_dimension
 
 # environments
 export borderedpeps
-# export SquareLatticePartition, block_partition, peps_partition
+# export SquareLatticePartition, lattice_partition, peps_partition
 
 # # algorithms
 

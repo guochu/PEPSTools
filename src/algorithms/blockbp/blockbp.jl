@@ -21,8 +21,8 @@ function get_msg_mult_alg(x::AbstractBlockBPPEPSUpdateAlgorithm)
 end 
 
 
-compute_messages!(blk::AbstractBeliefPEPSBlock, alg::AbstractBlockBPPEPSUpdateAlgorithm) = compute_messages!(blk, 
+compute_messages!(blk::AbstractBlockBPPartitionPEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm) = compute_messages!(blk, 
 	get_msg_mult_alg(alg), maxiter=alg.msg_maxiter, tol=alg.msg_tol, verbosity=alg.verbosity )
 
-# compute_messages_serial!(blk::AbstractBeliefPEPSBlock, alg::AbstractBlockBPPEPSUpdateAlgorithm) = compute_messages_serial!(blk, 
+# compute_messages_serial!(blk::AbstractBlockBPPartitionPEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm) = compute_messages_serial!(blk, 
 # 	get_msg_mult_alg(alg), maxiter=alg.msg_maxiter, tol=alg.msg_tol, verbosity=alg.verbosity )
