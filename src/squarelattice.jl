@@ -5,8 +5,15 @@
 struct SquareLatticeBonds{M}
 	V::PeriodicArray{M,2}
 	H::PeriodicArray{M,2}
+
+function SquareLatticeBonds{M}(V::PeriodicArray, H::PeriodicArray) where {M}
+	(size(V) == size(H)) || throw(ArgumentError("V and H size mismatch"))
+	new{M}(V, H)
 end
 
+end
+
+SquareLatticeBonds(V::PeriodicArray{M, 2}, H::PeriodicArray{M, 2}) where {M} = SquareLatticeBonds{M}(V, H)
 SquareLatticeBonds(V::AbstractMatrix{M}, H::AbstractMatrix{M}) where M = SquareLatticeBonds(PeriodicArray(V), PeriodicArray(H))
 SquareLatticeBonds(; V::AbstractMatrix{M}, H::AbstractMatrix{M}) where M = SquareLatticeBonds(V, H)
 
