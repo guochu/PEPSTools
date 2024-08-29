@@ -172,15 +172,15 @@ function _rdm1s(U::SquareLatticeSites{Int}, blk::PEPSBlock, alg::MPSCompression)
 	return rH
 end
 
-function _rdm1s(Us::Vector, x::PEPSRowEnv)
+function _rdm1s(Us::Vector, x::DoubleLayerSandwichEnv)
 	@assert length(x) == length(Us)
 	return [_row_rdm1_single(x, pos, Us[pos]) for pos in 1:length(x)]
 end 
-function _row_rdm1_single(x::PEPSRowEnv, pos::Int, m::Nothing)
+function _row_rdm1_single(x::DoubleLayerSandwichEnv, pos::Int, m::Nothing)
 	update_left!(x, pos)
 	return nothing
 end 
-_row_rdm1_single(x::PEPSRowEnv, pos::Int, m::Int) = row_rdm1_single(x, pos)
+_row_rdm1_single(x::DoubleLayerSandwichEnv, pos::Int, m::Int) = row_rdm1_single(x, pos)
 
 function rdm1_trivial_operator(shape::Tuple{Int, Int})
 	data = Matrix{Union{Int, Nothing}}(nothing, shape)
@@ -293,17 +293,17 @@ function _rdm2sV(V, blk::PEPSBlock, alg::MPSCompression)
 	return rV
 end
 
-function _rdm2s(Us::Vector, x::PEPSRowEnv)
+function _rdm2s(Us::Vector, x::DoubleLayerSandwichEnv)
 	@assert length(x) == length(Us) + 1
 	return [_row_rdm2_single(x, pos, Us[pos]) for pos in 1:length(Us)]
 end 
 
 
-function _row_rdm2_single(x::PEPSRowEnv, pos::Int, m::Nothing)
+function _row_rdm2_single(x::DoubleLayerSandwichEnv, pos::Int, m::Nothing)
 	update_left!(x, pos)
 	return nothing
 end
-_row_rdm2_single(x::PEPSRowEnv, pos::Int, m::Int) = row_rdm2_single(x, pos)
+_row_rdm2_single(x::DoubleLayerSandwichEnv, pos::Int, m::Int) = row_rdm2_single(x, pos)
 
 
 function rdm2_trivial_operator(shape::Tuple{Int, Int}, periodic::Bool)

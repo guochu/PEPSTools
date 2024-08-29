@@ -3,33 +3,71 @@
 # see LubaschBanuls2014b PHYSICAL REVIEW B 90, 064425 (2014)
 
 """
-	struct PEPSRowEnv{T}
+	struct DoubleLayerSandwichEnv{T}
 	left to right (top down also converted to left right)
 """
-struct PEPSRowEnv{T, _MPS} <: AbstractPEPSRowEnv
+struct DoubleLayerSandwichEnv{T, _MPS} <: AbstractSandwichEnv
 	up::_MPS
 	middle::Vector{Array{T, 5}}
 	down::_MPS
 	hstorage::Vector{Array{T, 3}}
 end
 
-function PEPSRowEnv(up::MPS, middle::Vector{<:AbstractArray}, down::MPS, left::AbstractArray{<:Number, 3}, right::AbstractArray{<:Number, 3})
+function DoubleLayerSandwichEnv(up::MPS, middle::Vector{<:AbstractArray}, down::MPS, left::AbstractArray{<:Number, 3}, right::AbstractArray{<:Number, 3})
 	T = scalartype(up)
 	middle = convert(Vector{Array{T, 5}}, middle)
-	return PEPSRowEnv(up, middle, down, compute_hstorage_right(up, middle, down, left, right))
+	return DoubleLayerSandwichEnv(up, middle, down, compute_hstorage_right(up, middle, down, left, right))
 end 
 
 
 row_environments(up::MPS, middle::Vector{<:AbstractArray{<:Number, 5}}, down::MPS, left::AbstractArray{<:Number, 3}, 
-	right::AbstractArray{<:Number, 3}) = PEPSRowEnv(up, middle, down, left, right)
+	right::AbstractArray{<:Number, 3}) = DoubleLayerSandwichEnv(up, middle, down, left, right)
 
 
-function update_left!(x::PEPSRowEnv, pos::Int)
+compute_center(x::DoubleLayerSandwichEnv, center::Int; kwargs...) = error("compute_center not implemented for env type $(typeof(x))")
+
+update_left!(x::DoubleLayerSandwichEnv, pos::Int) = error("update_left! not implemented for env type $(typeof(x))")
+
+function update_single!(x::DoubleLayerSandwichEnv, pos::Int, U::AbstractArray{<:Number, 4}; kwargs...)
+	Qleft, aL, Qright, aR, Xt = compute_center(x, pos)
+	aLn, aRn = center_minimization(aL, aR, Xt, U; kwargs...)	
+
+    @tensor cl[1,2,6,3,5] := Qleft[1,2,3,4] * aLn[4,5,6]
+    @tensor cr[1,4,5,6,2] := aRn[1,2,3] * Qright[3,4,5,6]
+    x.middle[pos] = cl
+    x.middle[pos+1] = cr
+    update_left!(x, pos)
+end
+update_single!(x::DoubleLayerSandwichEnv, pos::Int, U::Nothing; kwargs...) = update_left!(x, pos)
+
+function row_expectation_single(x::DoubleLayerSandwichEnv, pos::Int, U::AbstractArray{<:Number, 4})
+	Qleft, aL, Qright, aR, Xt = compute_center(x, pos)
+	@tensor down[2,4,6] := aL[1,2,3] * Xt[1,4,5] * aR[3,6,5] 
+	@tensor r = conj(down[1,2,3]) * U[1,3,4,5] * down[4,2,5]
+	update_left!(x, pos)
+	return r / dot(down, down)
+end
+
+function row_expectation_single(x::DoubleLayerSandwichEnv, pos::Int, U::Nothing) 
+	update_left!(x, pos)
+	return 0.
+end 
+
+function row_rdm2_single(x::DoubleLayerSandwichEnv, pos::Int)
+	Qleft, aL, Qright, aR, Xt = compute_center(x, pos)
+	@tensor down[2,4,6] := aL[1,2,3] * Xt[1,4,5] * aR[3,6,5] 
+	@tensor rho[4,5,1,3] := conj(down[1,2,3]) * down[4,2,5]
+	update_left!(x, pos)
+
+	return normalize_rho!(rho)
+end
+
+function update_left!(x::DoubleLayerSandwichEnv, pos::Int)
     x.hstorage[pos+1] = normalize!(bm_update_left(x.hstorage[pos], x.up[pos+1], x.down[pos+1], x.middle[pos]))
 end
 
 # the last one is assumed to be nothing since this function is only use dto compute the energy
-function update!(x::PEPSRowEnv, Us::Vector; kwargs...)
+function update!(x::DoubleLayerSandwichEnv, Us::Vector; kwargs...)
 	@assert length(Us) == length(x)
 	for pos in 1:length(Us)-1
 		# println("updating the $pos pair...")
@@ -38,20 +76,20 @@ function update!(x::PEPSRowEnv, Us::Vector; kwargs...)
 end
 
 
-function row_expectation(x::PEPSRowEnv, Us::Vector)
+function row_expectation(x::DoubleLayerSandwichEnv, Us::Vector)
 	@assert length(Us) == length(x)
 	return [row_expectation_single(x, pos, Us[pos]) for pos in 1:length(Us)-1]
 end
 
 
 
-function local_expectations(x::PEPSRowEnv, Us::Vector{M}) where {M <: Union{AbstractMatrix, Nothing}}
+function local_expectations(x::DoubleLayerSandwichEnv, Us::Vector{M}) where {M <: Union{AbstractMatrix, Nothing}}
 	@assert length(x) == length(Us)
 	# n = compute_norm(x)
 	return [local_expectation_single(x, pos, Us[pos]) for pos in 1:length(Us)]
 end
 
-function local_expectation_single(x::PEPSRowEnv, pos::Int, U::AbstractMatrix)
+function local_expectation_single(x::DoubleLayerSandwichEnv, pos::Int, U::AbstractMatrix)
 	tnj = sandwich_single(x.middle[pos], U, x.middle[pos]) 
 	hleft = bm_update_left(x.hstorage[pos], x.up[pos+1], x.down[pos+1], tnj)
 	nleft = bm_update_left(x.hstorage[pos], x.up[pos+1], x.down[pos+1], x.middle[pos])
@@ -60,18 +98,18 @@ function local_expectation_single(x::PEPSRowEnv, pos::Int, U::AbstractMatrix)
 	update_left!(x, pos)
 	return r / n
 end
-function local_expectation_single(x::PEPSRowEnv, pos::Int, U::Nothing)
+function local_expectation_single(x::DoubleLayerSandwichEnv, pos::Int, U::Nothing)
 	update_left!(x, pos)
 	return 0.
 end
 
-# function compute_norm(x::PEPSRowEnv)
+# function compute_norm(x::DoubleLayerSandwichEnv)
 # 	hright = bm_update_right(x.hstorage[2], x.up[2], x.down[2], x.middle[1])
 # 	@tensor n = x.hstorage[1][1,2,3] * hright[1,2,3]
 # 	return n
 # end
 
-function compute_center(x::PEPSRowEnv, pos::Int)
+function compute_center(x::DoubleLayerSandwichEnv, pos::Int)
 	# hleft = x.hstorage[pos]
 	# hright = x.hstorage[pos+2]
 	AL = x.middle[pos]
@@ -94,8 +132,8 @@ function compute_center(x::PEPSRowEnv, pos::Int)
 	return left_q, aL, right_q, aR, X
 end
 
-rdm1s(x::PEPSRowEnv) = [row_rdm1_single(x, pos) for pos in 1:length(x)]
-function row_rdm1_single(x::PEPSRowEnv, pos::Int)
+rdm1s(x::DoubleLayerSandwichEnv) = [row_rdm1_single(x, pos) for pos in 1:length(x)]
+function row_rdm1_single(x::DoubleLayerSandwichEnv, pos::Int)
 	AL = x.middle[pos]
 	s1, s2 = size(AL, 1), size(AL, 2)
 	@tensor tmp[10,5,1,6,2,7,3,8,4,9] := conj(AL[1,2,3,4,5]) * AL[6,7,8,9,10]
@@ -107,7 +145,7 @@ function row_rdm1_single(x::PEPSRowEnv, pos::Int)
 	update_left!(x, pos)
 	return normalize_rho!(rho)
 end
-rdm2s(x::PEPSRowEnv) = [row_rdm2_single(x, pos) for pos in 1:length(x)-1]
+rdm2s(x::DoubleLayerSandwichEnv) = [row_rdm2_single(x, pos) for pos in 1:length(x)-1]
 
 
 function normalize_rho!(rho::AbstractArray{<:Number, 4})

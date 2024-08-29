@@ -1,6 +1,6 @@
 
 
-struct SquareTNRowEnv{T, _MPS} <: AbstractSquareTNRowEnv
+struct SquareTNRowEnv{T, _MPS} <: AbstractSingleLayerSandwichEnv
 	up::_MPS
 	middle::Vector{Array{T, 4}}
 	down::_MPS
@@ -33,10 +33,10 @@ end
 function row_magnetization_single(x::SquareTNRowEnv, pos::Int, ob::AbstractArray{<:Number, 4})
 	tmp = bm_update_left(x.hstorage[pos], x.up[pos+1], x.down[pos+1], x.middle[pos])
 	@tensor n = tmp[1,2,3] * x.hstorage[pos+1][1,2,3]
-	println("norm of n is $(norm(n))")
+	# println("norm of n is $(norm(n))")
 	tmp = bm_update_left(x.hstorage[pos], x.up[pos+1], x.down[pos+1], ob)
 	@tensor r = tmp[1,2,3] * x.hstorage[pos+1][1,2,3]
-	println("norm of r is $(norm(r))")
+	# println("norm of r is $(norm(r))")
 
 	update_left!(x, pos)
 	return r / n
