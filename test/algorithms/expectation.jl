@@ -3,7 +3,11 @@ println("|         PEPS expectation         |")
 println("------------------------------------")
 
 
-@testset "Expectation value" begin
+@testset "Expectation value and rdms" begin
+
+_distance(x::Nothing, y::Nothing) = 0.
+_distance(x::AbstractArray, y::AbstractArray) = norm(x - y)
+
 	sz = [1. 0.; 0 -1]
 	m = 8
 
@@ -28,6 +32,21 @@ println("------------------------------------")
 
 		@test norm(r1 - r2) / m < tol
 
+		o1 = rdm1s(peps, alg1)
+		o2 = rdm1s(peps, alg2) 
+
+		diss = [norm(x-y) for (x, y) in zip(o1, o2)]
+		@test sum(diss) / length(diss) < tol
+
+
+		p1 = rdm2s(peps, alg1)
+		p2 = rdm2s(peps, alg2) 
+
+		diss = [_distance(x, y) for (x, y) in zip(p1.H, p2.H)]
+		@test sum(diss) / length(diss) < tol
+
+		diss = [_distance(x, y) for (x, y) in zip(p1.V, p2.V)]
+		@test sum(diss) / length(diss) < tol
 	end
 
 end

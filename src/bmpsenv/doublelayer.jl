@@ -99,7 +99,7 @@ end
 rdm1s(x::DoubleLayerSandwichEnv) = [unsafe_rdm1(x, pos) for pos in 1:length(x)]
 function unsafe_rdm1(x::DoubleLayerSandwichEnv, pos::Int)
 	AL = x.middle[pos]
-	s1, s2 = size(AL, 1), size(AL, 2)
+	s1, s2 = size(AL, 5), size(AL, 1)
 	@tensor tmp[10,5,1,6,2,7,3,8,4,9] := conj(AL[1,2,3,4,5]) * AL[6,7,8,9,10]
 	tmp4 = tie(tmp, (4,2,2,2))
 	hright = bm_update_right(x.hstorage[pos+1], x.up[pos+1], x.down[pos+1], tmp4)

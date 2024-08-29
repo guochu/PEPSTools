@@ -42,7 +42,7 @@ rdm2sH(peps::PEPS, alg::MPSCompression) = rdm2sH(borderedpeps(peps), alg)
 function rdm2sH(blk::BorderedPEPS, alg::MPSCompression)
 	m, n = size(blk)
 
-	rH = Matrix{Array{scalartype(blk), 4}}(undef, size(blk,1), size(blk,2)-1)
+	rH = Matrix{Union{Array{scalartype(blk), 4}, Nothing}}(nothing, size(blk))
 
 	mpsstorage = compute_H_mpsstorages(blk, alg)
 	up = up_boundary(blk)
@@ -64,7 +64,7 @@ rdm2sV(peps::PEPS, alg::MPSCompression) = rdm2sV(borderedpeps(peps), alg)
 function rdm2sV(blk::BorderedPEPS, alg::MPSCompression)
 	m, n = size(blk)
 
-	rV= Matrix{Array{scalartype(blk), 4}}(undef, size(blk, 1)-1, size(blk, 2))
+	rV = Matrix{Union{Array{scalartype(blk), 4}, Nothing}}(nothing, size(blk))
 	# update all the vertical terms
 	mpsstorage = compute_V_mpsstorages(blk, alg)
 	left = left_boundary(blk)

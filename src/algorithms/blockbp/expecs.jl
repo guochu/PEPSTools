@@ -53,7 +53,7 @@ function expectation(Us::Vector{BlockLocalOperator{M}}, peps::PEPS, alg::Abstrac
 	r = zeros(scalartype(peps), size(peps))
 	for U in Us
 		blk = peps_partition(peps, U.partition)
-		r += expectation(U, blk, alg)
+		r .+= expectation(U, blk, alg)
 	end
 	return r
 end

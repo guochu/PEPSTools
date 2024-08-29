@@ -59,10 +59,10 @@ function _rdm1s(Us::Vector, x::DoubleLayerSandwichEnv)
 	return [_row_rdm1_single(x, pos, Us[pos]) for pos in 1:length(x)]
 end 
 function _row_rdm1_single(x::DoubleLayerSandwichEnv, pos::Int, m::Nothing)
-	update_left!(x, pos)
+	update_storage_left!(x, pos)
 	return nothing
 end 
-_row_rdm1_single(x::DoubleLayerSandwichEnv, pos::Int, m::Int) = row_rdm1_single(x, pos)
+_row_rdm1_single(x::DoubleLayerSandwichEnv, pos::Int, m::Int) = unsafe_rdm1(x, pos)
 
 function rdm1_trivial_operator(shape::Tuple{Int, Int})
 	data = Matrix{Union{Int, Nothing}}(nothing, shape)
@@ -78,16 +78,7 @@ end
 function rdm2s(peps::PEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm; periodic::Bool=!is_nonperiodic(peps))
 	U = rdm2_trivial_operator(size(peps), periodic)
 	T = scalartype(peps)
-	r = rdm2s_util(center_splitting(U, alg.block_size), peps, alg)
-	rH = r["H"]
-	rV = r["V"]
-	if !periodic
-		rH = rH[:, 1:end-1]
-		rV = rV[1:end-1, :]
-	end
-	rH = convert(Matrix{Array{T, 4}}, rH)
-	rV = convert(Matrix{Array{T, 4}}, rV)
-	return Dict("H"=>rH, "V"=>rV)
+	return rdm2s_util(center_splitting(U, alg.block_size), peps, alg)
 end
 
 function rdm2s_util(Us::Vector{BlockOperator{Int}}, peps::PEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm) 
@@ -98,10 +89,10 @@ function rdm2s_util(Us::Vector{BlockOperator{Int}}, peps::PEPS, alg::AbstractBlo
 		blk = peps_partition(peps, U.partition)
 		# r += local_expectations(U, blk, alg)
 		r = rdm2s_single_block(U, blk, alg)
-		rH = _merge_rdms!(rH, r["H"])
-		rV = _merge_rdms!(rV, r["V"])
+		rH = _merge_rdms!(rH, r.H)
+		rV = _merge_rdms!(rV, r.V)
 	end
-	return Dict("H"=>rH, "V"=>rV)
+	return SquareLatticeBonds(H=rH, V=rV)
 end
 
 function rdm2s_single_block(U::BlockOperator, blk::BlockBPPartitionPEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm)
@@ -118,15 +109,14 @@ function rdm2s_single_block(U::BlockOperator, blk::BlockBPPartitionPEPS, alg::Ab
 			x = borderedpeps(_peps, left=msgl.i, right=msgr.o, up=msgu.i, down=msgd.o)
 			sU = subblock(U, i, j)
 			r = _rdm2s(sU, x, mult_alg)
-			rH[rowindices(blk, i), colindices(blk, j)] = r["H"]
-			rV[rowindices(blk, i), colindices(blk, j)] = r["V"]
+			rH[rowindices(blk, i), colindices(blk, j)] = r.H
+			rV[rowindices(blk, i), colindices(blk, j)] = r.V
 		end
 	end	
-	return Dict("H"=>rH.data, "V"=>rV.data)
+	return SquareLatticeBonds(H=rH, V=rV)
 end
 
-_rdm2s(U::SquareLatticeBonds{Union{Int, Nothing}}, blk::BorderedPEPS, alg::MPSCompression) = Dict(
-	"H"=>_rdm2sH(U.H, blk, alg), "V"=>_rdm2sV(U.V, blk, alg))
+_rdm2s(U::SquareLatticeBonds{Union{Int, Nothing}}, blk::BorderedPEPS, alg::MPSCompression) = SquareLatticeBonds(H=_rdm2sH(U.H, blk, alg), V=_rdm2sV(U.V, blk, alg))
 
 
 function _rdm2sH(H, blk::BorderedPEPS, alg::MPSCompression)
@@ -182,10 +172,10 @@ end
 
 
 function _row_rdm2_single(x::DoubleLayerSandwichEnv, pos::Int, m::Nothing)
-	update_left!(x, pos)
+	update_storage_left!(x, pos)
 	return nothing
 end
-_row_rdm2_single(x::DoubleLayerSandwichEnv, pos::Int, m::Int) = row_rdm2_single(x, pos)
+_row_rdm2_single(x::DoubleLayerSandwichEnv, pos::Int, m::Int) = unsafe_rdm2(x, pos)
 
 
 function rdm2_trivial_operator(shape::Tuple{Int, Int}, periodic::Bool)
@@ -208,7 +198,7 @@ function rdm2_trivial_operator(shape::Tuple{Int, Int}, periodic::Bool)
 end
 
 
-function _merge_rdms!(a::Matrix{Union{M, Nothing}}, b::Matrix{Union{M, Nothing}}) where {M <: AbstractArray}
+function _merge_rdms!(a::AbstractMatrix{Union{M, Nothing}}, b::AbstractMatrix{Union{M, Nothing}}) where {M <: AbstractArray}
 	@assert size(a) == size(b)
 	m, n = size(a)
 	for i in 1:m

@@ -36,6 +36,7 @@ include("algorithms/simpleupdate/rdms.jl")
 # boundarymps algorithm of nonperiodic peps
 include("algorithms/boundarymps/update.jl")
 include("algorithms/boundarymps/expecs.jl")
+include("algorithms/boundarymps/rdms.jl")
 
 
 # block belief propagation update
@@ -45,6 +46,7 @@ include("algorithms/blockbp/observer_splitting.jl")
 include("algorithms/blockbp/blockbp.jl")
 include("algorithms/blockbp/update.jl")
 include("algorithms/blockbp/expecs.jl")
+include("algorithms/blockbp/rdms.jl")
 
 # classical models
 include("algorithms/classicalmodels/classicalmodels.jl")
