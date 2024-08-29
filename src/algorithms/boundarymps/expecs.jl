@@ -1,3 +1,7 @@
+function energy(U::SquareLatticeOperator, peps::Union{PEPS, BorderedPEPS}, alg::BoundaryMPS) 
+	r = expectation(U, peps, alg)
+	return sum(r.H) + sum(r.V)
+end
 expectation(U::SquareLatticeOperator, peps::PEPS, alg::BoundaryMPS) = expectation(U, borderedpeps(peps), get_mult_alg(alg))
 expectation(U::SquareLatticeOperator, blk::BorderedPEPS, alg::BoundaryMPS) = expectation(U, blk, get_mult_alg(alg))
 

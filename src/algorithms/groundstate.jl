@@ -24,7 +24,7 @@ function ground_state!(peps::AbstractPEPS, h::SquareLatticeHamiltonian, alg::Ima
 	expec_alg = alg.measure_alg
 	verbosity = alg.verbosity
 	# always measure initial energy and final energy
-	energies = [real(expectation(sh, peps, expec_alg)) / prod(size(peps))]
+	energies = [real(energy(sh, peps, expec_alg)) / prod(size(peps))]
 	(verbosity > 2) && println("initial state energy is $(energies[1])")
 	iter = 1
 	err = 1.
@@ -43,7 +43,7 @@ function ground_state!(peps::AbstractPEPS, h::SquareLatticeHamiltonian, alg::Ima
 			
 
 			if (alg.sweeps_per_measure > 0) && (iter % alg.sweeps_per_measure == 0)
-				expec_peps = expectation(sh, peps, expec_alg) / prod(size(peps))
+				expec_peps = energy(sh, peps, expec_alg) / prod(size(peps))
 				if verbosity >= 2
 					println("energy after $iter-th sweep is $expec_peps")
 				end

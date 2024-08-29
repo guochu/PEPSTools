@@ -1,3 +1,7 @@
+function energy(U::SquareLatticeOperator, peps::PEPS, alg::BlockBP) 
+	r = expectation(U, peps, alg)
+	return sum(r.H) + sum(r.V)
+end
 expectation(U::SquareLatticeOperator, peps::PEPS, alg::BlockBP) = expectation(center_splitting(U, alg.block_size), peps, alg)
 function expectation(Us::Vector{<:BlockOperator}, peps::PEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm)
 	rH = PeriodicArray(zeros(scalartype(peps), size(peps)))
