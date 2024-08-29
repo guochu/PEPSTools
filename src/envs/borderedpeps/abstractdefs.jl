@@ -1,7 +1,6 @@
 # nonperiodic PEPS block
 abstract type AbstractBorderedPEPS{T} end
-abstract type AbstractPEPSBlock{T} <: AbstractBorderedPEPS{T} end
-abstract type AbstractSquareTNBlock{T} <: AbstractBorderedPEPS{T} end
+abstract type AbstractBorderedSquareTN{T} <: AbstractBorderedPEPS{T} end
 
 Base.size(x::AbstractBorderedPEPS) = size(x.peps)
 Base.size(x::AbstractBorderedPEPS, i::Int) = size(x.peps, i)
@@ -15,17 +14,19 @@ up_boundary(x::AbstractBorderedPEPS) = _boundary_mps(x.up)
 down_boundary(x::AbstractBorderedPEPS) = _boundary_mps(x.down)
 
 
+mpoleft_util(x::AbstractBorderedPEPS, i::Int) = error("mpoleft_util not implemented for bordered peps type $(typeof(x))")
+mporight_util(x::AbstractBorderedPEPS, i::Int) = error("mporight_util not implemented for bordered peps type $(typeof(x))")
+mpoup_util(x::AbstractBorderedPEPS, i::Int) = error("mpoup_util not implemented for bordered peps type $(typeof(x))")
+mpodown_util(x::AbstractBorderedPEPS, i::Int) = error("mpodown_util not implemented for bordered peps type $(typeof(x))")
 
-
-mpoleft_util(x::AbstractPEPSBlock, i::Int) = sl_mpoleft_util(x, i)
-mporight_util(x::AbstractPEPSBlock, i::Int) = sl_mporight_util(x, i)
-mpoup_util(x::AbstractPEPSBlock, i::Int) = sl_mpoup_util(x, i)
-mpodown_util(x::AbstractPEPSBlock, i::Int) = sl_mpodown_util(x, i)
-
-mpoleft_util(x::AbstractSquareTNBlock, i::Int) = dl_mpoleft_util(x, i)
-mporight_util(x::AbstractSquareTNBlock, i::Int) = dl_mporight_util(x, i)
-mpoup_util(x::AbstractSquareTNBlock, i::Int) = dl_mpoup_util(x, i)
-mpodown_util(x::AbstractSquareTNBlock, i::Int) = dl_mpodown_util(x, i)
+mpoleft_util(x::AbstractBorderedSquareTN, i::Int) = sl_mpoleft_util(x, i)
+mporight_util(x::AbstractBorderedSquareTN, i::Int) = sl_mporight_util(x, i)
+mpoup_util(x::AbstractBorderedSquareTN, i::Int) = sl_mpoup_util(x, i)
+mpodown_util(x::AbstractBorderedSquareTN, i::Int) = sl_mpodown_util(x, i)
+sl_mpoleft_util(x, i::Int) = [permute(item, (2,3,4,1)) for item in x.peps[:, i]]
+sl_mporight_util(x, i::Int) = [permute(item, (2,1,4,3)) for item in x.peps[:, i]]
+sl_mpoup_util(x, i::Int) = [permute(item, (1,4,3,2)) for item in x.peps[i, :]]
+sl_mpodown_util(x, i::Int) = x.peps[i, :]
 
 # apply mpo on the left
 function mpoleft(x::AbstractBorderedPEPS, i::Int)
@@ -62,12 +63,10 @@ function mpodown(x::AbstractBorderedPEPS, i::Int)
 end
 
 row_peps(x::AbstractBorderedPEPS, i::Int) = x.peps[i, :]
+col_peps_as_row(x::AbstractBorderedPEPS, i::Int) = error("col_peps_as_row not implemented for bordered peps type $(typeof(x))")
 
-sl_col_peps_as_row(x, i::Int) = [permute(item, (2,3,4,1,5)) for item in x.peps[:, i]]
-dl_col_peps_as_row(x, i::Int) = [permute(item, (2,3,4,1)) for item in x.peps[:, i]]
-
-col_peps_as_row(x::AbstractPEPSBlock, i::Int) = sl_col_peps_as_row(x, i)
-col_peps_as_row(x::AbstractSquareTNBlock, i::Int) = dl_col_peps_as_row(x, i) 
+col_peps_as_row(x::AbstractBorderedSquareTN, i::Int) = sl_col_peps_as_row(x, i) 
+sl_col_peps_as_row(x, i::Int) = [permute(item, (2,3,4,1)) for item in x.peps[:, i]]
 
 function row(x::AbstractBorderedPEPS, pos::Int, mult_alg::MPSCompression=SVDCompression())
 	L = size(x, 1)

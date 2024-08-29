@@ -3,7 +3,7 @@
 
 PEPS bordered by four MPSs
 """
-struct BorderedPEPS{T, _MPS} <: AbstractPEPSBlock{T}
+struct BorderedPEPS{T, _MPS} <: AbstractBorderedPEPS{T}
 	peps::Matrix{Array{T, 5}}
 	left::_MPS
 	right::_MPS
@@ -51,4 +51,39 @@ end
 random_boundary_mps(::Type{T}, L::Int; D::Int) where {T <: Number} = random_boundary_mps(T, [D for i in 1:L]; D=D)
 
 trivial_mps(::Type{T}, L::Int) where {T <: Number} = MPS([ones(T, 1, 1, 1) for i in 1:L])
+
+
+mpoleft_util(x::BorderedPEPS, i::Int) = dl_mpoleft_util(x, i)
+mporight_util(x::BorderedPEPS, i::Int) = dl_mporight_util(x, i)
+mpoup_util(x::BorderedPEPS, i::Int) = dl_mpoup_util(x, i)
+mpodown_util(x::BorderedPEPS, i::Int) = dl_mpodown_util(x, i)
+
+
+function dl_mpoleft_util(x, i::Int)
+	get_tn(t::AbstractArray{<:Number, 5}) = begin
+		@tensor tmp[3,7,4,8,5,9,2,6] := conj(t[2,3,4,5,1]) * t[6,7,8,9,1]
+		return tie(tmp, (2,2,2,2))
+	end
+	return get_tn.(x.peps[:, i])
+end 
+function dl_mporight_util(x, i::Int)
+	get_tn(t::AbstractArray{<:Number, 5}) = begin
+		@tensor tmp[3,7,2,6,5,9,4,8] := conj(t[2,3,4,5,1]) * t[6,7,8,9,1]
+		return tie(tmp, (2,2,2,2))
+	end	
+	return get_tn.(x.peps[:, i])
+end 
+function dl_mpoup_util(x, i::Int)
+	get_tn(t::AbstractArray{<:Number, 5}) = begin
+		@tensor tmp[2,6,5,9,4,8,3,7] := conj(t[2,3,4,5,1]) * t[6,7,8,9,1]
+		return tie(tmp, (2,2,2,2))
+	end	
+	return get_tn.(x.peps[i, :])
+end
+function dl_mpodown_util(x, i::Int)
+	sandwich_single.(x.peps[i, :])
+end
+
+col_peps_as_row(x::BorderedPEPS, i::Int) = dl_col_peps_as_row(x, i)
+dl_col_peps_as_row(x, i::Int) = [permute(item, (2,3,4,1,5)) for item in x.peps[:, i]]
 

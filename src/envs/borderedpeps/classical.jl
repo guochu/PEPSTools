@@ -1,14 +1,14 @@
 
 
 
-struct SquareTNBlock{T, _MPS} <: AbstractSquareTNBlock{T}
+struct BorderedSquareTN{T, _MPS} <: AbstractBorderedSquareTN{T}
 	peps::Matrix{Array{T, 4}}
 	left::_MPS
 	right::_MPS
 	up::_MPS
 	down::_MPS
 
-function SquareTNBlock(peps::Matrix{Array{T, 4}}, left::MPS, right::MPS, up::MPS, down::MPS) where {T<:Number}
+function BorderedSquareTN(peps::Matrix{Array{T, 4}}, left::MPS, right::MPS, up::MPS, down::MPS) where {T<:Number}
 	m, n = size(peps)
 	@assert length(left) == length(right) == m
 	@assert length(up) == length(down) == n
@@ -26,11 +26,10 @@ end
 end
 
 
-function SquareTNBlock(peps::AbstractMatrix{Array{T, 4}}; left::MPS=trivial_mps(T, size(peps, 1)), right::MPS=trivial_mps(T, size(peps, 1)), 
+function BorderedSquareTN(peps::AbstractMatrix{Array{T, 4}}; left::MPS=trivial_mps(T, size(peps, 1)), right::MPS=trivial_mps(T, size(peps, 1)), 
 	up::MPS=trivial_mps(T, size(peps, 2)), down::MPS=trivial_mps(T, size(peps, 2))) where {T <: Number}
 	# @assert check(peps)
-	return SquareTNBlock(peps, left, right, up, down)
+	return BorderedSquareTN(peps, left, right, up, down)
 end
-SquareTNBlock(peps::SquareTN, args...; kwargs...) = SquareTNBlock(raw_data(peps), args...; kwargs...)
-borderedpeps(peps::AbstractMatrix{Array{T, 4}}, args...; kwargs...) where {T<:Number} = SquareTNBlock(peps, args...; kwargs...)
-
+borderedpeps(peps::AbstractMatrix{Array{T, 4}}, args...; kwargs...) where {T<:Number} = BorderedSquareTN(peps, args...; kwargs...)
+borderedpeps(peps::SquareTN, args...; kwargs...) = borderedpeps(raw_data(peps), args...; kwargs...)

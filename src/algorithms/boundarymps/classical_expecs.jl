@@ -3,10 +3,10 @@ magnetizations(x::Classical2DModel, alg::BoundaryMPS; β::Real) = local_expectat
 
 function local_expectations(h::LocalCObservers, peps::SquareTN, alg::BoundaryMPS)
 	is_nonperiodic(peps) || throw(ArgumentError("BoundaryMPS only supports OBC, use BoundaryMPO instead"))
-	return local_expectations(h, SquareTNBlock(peps), alg)
+	return local_expectations(h, borderedpeps(peps), alg)
 end 
-local_expectations(H::LocalCObservers, blk::SquareTNBlock, alg::BoundaryMPS) = local_expectations(H, blk, get_mult_alg(alg))
-function local_expectations(ob::LocalCObservers, blk::SquareTNBlock, alg::MPSCompression)
+local_expectations(H::LocalCObservers, blk::BorderedSquareTN, alg::BoundaryMPS) = local_expectations(H, blk, get_mult_alg(alg))
+function local_expectations(ob::LocalCObservers, blk::BorderedSquareTN, alg::MPSCompression)
 	H = ob.data
 	@assert size(H) == size(blk)
 	m, n = size(blk)
@@ -34,9 +34,9 @@ end
 
 function row_expectations(U::AbstractVector{M}, i::Int, peps::SquareTN, alg::BoundaryMPS) where {M <: Union{AbstractArray{<:Number, 4}, Nothing}}
 	is_nonperiodic(peps) || throw(ArgumentError("BoundaryMPS only supports OBC, use BoundaryMPO instead"))
-	return row_expectations(U, i, SquareTNBlock(peps), get_mult_alg(alg))
+	return row_expectations(U, i, borderedpeps(peps), get_mult_alg(alg))
 end
-function row_expectations(U::AbstractVector{M}, i::Int, blk::SquareTNBlock, alg::MPSCompression) where {M <: Union{AbstractArray{<:Number, 4}, Nothing}}
+function row_expectations(U::AbstractVector{M}, i::Int, blk::BorderedSquareTN, alg::MPSCompression) where {M <: Union{AbstractArray{<:Number, 4}, Nothing}}
 	row_i = row(blk, i, alg)
 	return expectation_sites(row_i, U)
 end
@@ -44,11 +44,11 @@ end
 function local_expectation(mT::AbstractArray{<:Number, 4}, i::Int, j::Int, peps::SquareTN, alg::BoundaryMPS)
 	is_nonperiodic(peps) || throw(ArgumentError("BoundaryMPS only supports OBC, use BoundaryMPO instead"))
 	@assert size(mT) == size(peps[i, j])
-	blk = SquareTNBlock(peps)
+	blk = borderedpeps(peps)
 	return local_expectation(mT, i, j, blk, alg)
 end
 
-function local_expectation(mT::AbstractArray{<:Number, 4}, i::Int, j::Int, blk::SquareTNBlock, alg::BoundaryMPS)
+function local_expectation(mT::AbstractArray{<:Number, 4}, i::Int, j::Int, blk::BorderedSquareTN, alg::BoundaryMPS)
 	row_i = row(blk, i, get_mult_alg(alg))
 	return expectation_site(row_i, j, mT)
 end
@@ -57,7 +57,7 @@ end
 function magnetization(x::Classical2DModel, i::Int, j::Int, alg::BoundaryMPS; β::Real)
 	peps = SquareTN(site_tensors(x, β=β))
 	is_nonperiodic(peps) || throw(ArgumentError("BoundaryMPS only supports OBC, use BoundaryMPO instead"))
-	blk = SquareTNBlock(peps)
+	blk = borderedpeps(peps)
 	mT = magnetization_tensor(x, i, j, β=β)
 	return local_expectation(mT, i, j, blk, alg)
 end
@@ -65,7 +65,7 @@ end
 function interactionH(x::Classical2DModel, i::Int, j::Int, alg::BoundaryMPS; β::Real)
 	peps = SquareTN(site_tensors(x, β=β))
 	is_nonperiodic(peps) || throw(ArgumentError("BoundaryMPS only supports OBC, use BoundaryMPO instead"))
-	blk = SquareTNBlock(peps)
+	blk = borderedpeps(peps)
 	mT1 = magnetization_tensor(x, i, j, β=β)
 	mT2 = magnetization_tensor(x, i, j+1, β=β)
 
