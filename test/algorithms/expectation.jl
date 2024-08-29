@@ -23,8 +23,8 @@ println("------------------------------------")
 	for T in (Float64, ComplexF64)
 		peps = randompeps(T, m, m, d=2, D=2, periodic=false)
 
-		r1 = local_expectations(obs, peps, alg1)
-		r2 = local_expectations(obs, peps, alg2)
+		r1 = expectation(obs, peps, alg1)
+		r2 = expectation(obs, peps, alg2)
 
 		@test norm(r1 - r2) / m < tol
 
