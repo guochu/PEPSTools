@@ -71,7 +71,7 @@ function sweep!(blk::PEPSBlock, U::SquareLatticeOperator, alg::BoundaryMPS)
 	end
 end
 
-function compute_H_mpsstorages(blk::AbstractBlock, mult_alg::MPSCompression)
+function compute_H_mpsstorages(blk::AbstractBoundaryPEPS, mult_alg::MPSCompression)
 	m = size(blk, 1)
 	mpsstorage = Vector{Any}(undef, m+1)
 	mpsstorage[m+1] = down_boundary(blk) 
@@ -83,7 +83,7 @@ function compute_H_mpsstorages(blk::AbstractBlock, mult_alg::MPSCompression)
 	return mpsstorage
 end
 
-function compute_V_mpsstorages(blk::AbstractBlock, mult_alg::MPSCompression)
+function compute_V_mpsstorages(blk::AbstractBoundaryPEPS, mult_alg::MPSCompression)
 	n = size(blk, 2)
 	mpsstorage = Vector{Any}(undef, n+1)
 	mpsstorage[n+1] = right_boundary(blk)

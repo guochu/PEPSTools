@@ -46,7 +46,7 @@ function message_distance2(x::Message, y::Message)
 end
 
 # PEPSBlock contains all the input messages
-function compute_out_messages(blk::AbstractBlock, alg::MPSCompression)
+function compute_out_messages(blk::AbstractBoundaryPEPS, alg::MPSCompression)
 	m, n = size(blk)
 
 	# compute left output message
