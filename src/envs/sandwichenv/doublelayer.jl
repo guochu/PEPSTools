@@ -24,10 +24,6 @@ row_environments(up::MPS, middle::Vector{<:AbstractArray{<:Number, 5}}, down::MP
 	right::AbstractArray{<:Number, 3}) = DoubleLayerSandwichEnv(up, middle, down, left, right)
 
 
-compute_center(x::DoubleLayerSandwichEnv, center::Int; kwargs...) = error("compute_center not implemented for env type $(typeof(x))")
-
-update_left!(x::DoubleLayerSandwichEnv, pos::Int) = error("update_left! not implemented for env type $(typeof(x))")
-
 function update_single!(x::DoubleLayerSandwichEnv, pos::Int, U::AbstractArray{<:Number, 4}; kwargs...)
 	Qleft, aL, Qright, aR, Xt = compute_center(x, pos)
 	aLn, aRn = center_minimization(aL, aR, Xt, U; kwargs...)	
