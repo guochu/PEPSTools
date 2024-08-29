@@ -19,14 +19,13 @@ include("states/states.jl")
 
 
 # environments
+include("envs/boundarypeps/boundarypeps.jl")
 include("envs/rowenvs/rowenvs.jl")
-include("envs/pepsblock/pepsblock.jl")
 include("envs/beliefblock/beliefblock.jl")
 
 
 # algorithms
 # simple update
-include("algorithms/simpleupdate/canonicalpeps.jl")
 include("algorithms/simpleupdate/simpleupdate.jl")
 include("algorithms/simpleupdate/rdms.jl")
 

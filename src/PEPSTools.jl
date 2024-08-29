@@ -1,11 +1,11 @@
 module PEPSTools
 
 # # some basic definitions
-
 # simple definition of Hamiltonian and operators
 export scalartype
 export SquareLatticeBonds, SquareLatticeHamiltonian, SquareLatticeOperator, is_periodic, is_nonperiodic
 export squeeze, exponential
+export SquareLatticeSites, LocalCObservers, LocalQObservers
 
 
 # definition of PEPS
@@ -64,14 +64,13 @@ include("states/states.jl")
 
 
 # environments
+include("envs/boundarypeps/boundarypeps.jl")
 include("envs/rowenvs/rowenvs.jl")
-include("envs/pepsblock/pepsblock.jl")
 include("envs/beliefblock/beliefblock.jl")
 
 
 # algorithms
 # simple update
-include("algorithms/simpleupdate/canonicalpeps.jl")
 include("algorithms/simpleupdate/simpleupdate.jl")
 include("algorithms/simpleupdate/rdms.jl")
 

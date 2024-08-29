@@ -113,3 +113,4 @@ abstract type AbstractPEPS{T} <: Abstract2DTN{T} end
 
 include("peps.jl")
 include("singlelayer.jl")
+include("canonicalpeps.jl")

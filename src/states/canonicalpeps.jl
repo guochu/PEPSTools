@@ -1,6 +1,3 @@
-
-
-
 struct CanonicalPEPS{T<:Number, R<:Real} <: AbstractPEPS{T}
 	data::PeriodicArray{Array{T, 5},2}
 	Hbonds::PeriodicArray{Vector{R},2}

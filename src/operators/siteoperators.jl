@@ -21,3 +21,7 @@ n_nontrivial_terms(x::SquareLatticeSites) = n_nontrivial_terms(x.data)
 
 const LocalCObservers{T} = SquareLatticeSites{Array{T, 4}}
 const LocalQObservers{T} = SquareLatticeSites{Array{T, 2}}
+
+LocalCObservers(shape::Tuple{Int, Int}) = SquareLatticeSites{Array{Float64, 4}}(shape)
+LocalQObservers(::Type{T}, shape::Tuple{Int, Int}) where {T<:Number} = SquareLatticeSites{Array{T, 2}}(shape)
+LocalQObservers(shape::Tuple{Int, Int}) = LocalQObservers(Float64, shape)
