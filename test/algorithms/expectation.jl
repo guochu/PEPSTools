@@ -11,7 +11,7 @@ println("------------------------------------")
 	for i in 1:m, j in 1:m
 		obs_data[i, j] = sz
 	end
-	obs = LocalObservers(obs_data)
+	obs = SquareLatticeSites(obs_data)
 
 	D2 = 2
 	D1 = 20

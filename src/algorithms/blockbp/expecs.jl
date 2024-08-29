@@ -82,7 +82,7 @@ function expectationfull(U::BlockOperator, blk::BeliefPEPSBlock, alg::AbstractBl
 	return Dict("H"=>rH.data, "V"=>rV.data)
 end
 
-local_expectations(U::LocalQuantumObservers, peps::PEPS, alg::BlockBP) = local_expectations(center_splitting(U, alg.block_size), peps, alg)
+local_expectations(U::LocalQObservers, peps::PEPS, alg::BlockBP) = local_expectations(center_splitting(U, alg.block_size), peps, alg)
 
 
 function local_expectations(Us::Vector{BlockLocalOperator{M}}, peps::PEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm) where {M<:AbstractMatrix}
@@ -150,7 +150,7 @@ function rdm1s_single_block(U::BlockLocalOperator{Int}, blk::BeliefPEPSBlock, al
 	return r.data
 end
 
-function _rdm1s(U::LocalObservers{Int}, blk::PEPSBlock, alg::MPSCompression)
+function _rdm1s(U::SquareLatticeSites{Int}, blk::PEPSBlock, alg::MPSCompression)
 	m, n = size(blk)
 
 	rH = Matrix{Union{Matrix{scalartype(blk)}, Nothing}}(nothing, size(blk))
@@ -190,7 +190,7 @@ function rdm1_trivial_operator(shape::Tuple{Int, Int})
 			data[i, j] = 1
 		end
 	end
-	return LocalObservers(PeriodicArray(data))
+	return SquareLatticeSites(PeriodicArray(data))
 end
 
 function rdm2s(peps::PEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm; periodic::Bool=!is_nonperiodic(peps))

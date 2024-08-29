@@ -2,7 +2,7 @@
 magnetizations(x::Classical2DModel, alg::AbstractBlockBPPEPSUpdateAlgorithm; β::Real) = local_expectations(
 	MagnetizationTensors(magnetization_tensors(x, β=β)), SquareTN(site_tensors(x, β=β)), alg)
 
-local_expectations(U::LocalClassicalObservers, peps::SquareTN, alg::BlockBP) = local_expectations(center_splitting(U, alg.block_size), peps, alg)
+local_expectations(U::LocalCObservers, peps::SquareTN, alg::BlockBP) = local_expectations(center_splitting(U, alg.block_size), peps, alg)
 
 
 function local_expectations(Us::Vector{BlockLocalOperator{<:AbstractArray{T, 4}}}, peps::SquareTN, alg::AbstractBlockBPPEPSUpdateAlgorithm) where T

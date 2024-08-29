@@ -5,12 +5,12 @@
 magnetizations(x::Classical2DModel, alg::BoundaryMPS; β::Real) = local_expectations(
 	MagnetizationTensors(magnetization_tensors(x, β=β)), SquareTN(site_tensors(x, β=β)), alg)
 
-function local_expectations(h::LocalClassicalObservers, peps::SquareTN, alg::BoundaryMPS)
+function local_expectations(h::LocalCObservers, peps::SquareTN, alg::BoundaryMPS)
 	is_nonperiodic(peps) || throw(ArgumentError("BoundaryMPS only supports OBC, use BoundaryMPO instead"))
 	return local_expectations(h, SquareTNBlock(peps), alg)
 end 
-local_expectations(H::LocalClassicalObservers, blk::SquareTNBlock, alg::BoundaryMPS) = local_expectations(H, blk, get_mult_alg(alg))
-function local_expectations(ob::LocalClassicalObservers, blk::SquareTNBlock, alg::MPSCompression)
+local_expectations(H::LocalCObservers, blk::SquareTNBlock, alg::BoundaryMPS) = local_expectations(H, blk, get_mult_alg(alg))
+function local_expectations(ob::LocalCObservers, blk::SquareTNBlock, alg::MPSCompression)
 	H = ob.data
 	@assert size(H) == size(blk)
 	m, n = size(blk)

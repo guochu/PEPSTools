@@ -69,8 +69,8 @@ function _expect_V(V, blk::PEPSBlock, alg::MPSCompression)
 end
 
 
-local_expectations(U::LocalQuantumObservers, peps::PEPS, alg::BoundaryMPS) = local_expectations(U, PEPSBlock(peps), get_mult_alg(alg))
-local_expectations(U::LocalQuantumObservers, blk::PEPSBlock, alg::MPSCompression) = local_expectations(U.data, blk, alg)
+local_expectations(U::LocalQObservers, peps::PEPS, alg::BoundaryMPS) = local_expectations(U, PEPSBlock(peps), get_mult_alg(alg))
+local_expectations(U::LocalQObservers, blk::PEPSBlock, alg::MPSCompression) = local_expectations(U.data, blk, alg)
 local_expectations(U::AbstractMatrix{M}, peps::PEPS, alg::BoundaryMPS) where {M <: Union{AbstractMatrix, Nothing}} = local_expectations(
 	U, PEPSBlock(peps), get_mult_alg(alg))
 
