@@ -40,7 +40,7 @@ function bond_dimensions(peps::SquareTN)
             Hs[i, j] = size(peps[i, j], 3)
         end
     end
-    return Dict("H"=>Hs, "V"=>Vs)
+    return SquareLatticeBonds(H=Hs, V=Vs)
 end
 
 
