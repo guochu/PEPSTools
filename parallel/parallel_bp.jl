@@ -64,7 +64,7 @@ parallel_expectation(U::PEPSTools.SquareLatticeOperator, peps::PEPS, alg::BlockB
 parallel_expectation(U::PEPSTools.SquareLatticeHamiltonian, peps::PEPS, alg::BoundaryMPS) = parallel_expectation(squeeze(U), peps, alg)
 parallel_expectation(U::PEPSTools.SquareLatticeOperator, peps::PEPS, alg::BoundaryMPS) = parallel_expectation(U, borderedpeps(peps), alg)
 # use at most two processes
-function parallel_expectation(U::PEPSTools.SquareLatticeOperator, blk::BoundaryPEPS, alg::BoundaryMPS) 
+function parallel_expectation(U::PEPSTools.SquareLatticeOperator, blk::BorderedPEPS, alg::BoundaryMPS) 
 	PEPSTools.is_nonperiodic(U) || error("BoundaryMPS does not support periodic boundary, using BlockBP instead.")
 	@assert size(blk) == size(U)
 	mult_alg = PEPSTools.get_mult_alg(alg)

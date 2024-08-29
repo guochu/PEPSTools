@@ -22,7 +22,7 @@ function sweep!(peps::PEPS, U::SquareLatticeOperator, alg::BoundaryMPS)
 	is_nonperiodic(peps) || error("BoundaryMPS does not support periodic boundary, using SimpleUpdate or BlockBP instead.")
 	sweep!(borderedpeps(peps), U, alg)
 end 
-function sweep!(blk::BoundaryPEPS, U::SquareLatticeOperator, alg::BoundaryMPS)
+function sweep!(blk::BorderedPEPS, U::SquareLatticeOperator, alg::BoundaryMPS)
 	is_nonperiodic(U) || error("BoundaryMPS does not support periodic boundary, using SimpleUpdate or BlockBP instead.")
 	@assert size(blk) == size(U)
 	m, n = size(blk)
@@ -71,7 +71,7 @@ function sweep!(blk::BoundaryPEPS, U::SquareLatticeOperator, alg::BoundaryMPS)
 	end
 end
 
-function compute_H_mpsstorages(blk::AbstractBoundaryPEPS, mult_alg::MPSCompression)
+function compute_H_mpsstorages(blk::AbstractBorderedPEPS, mult_alg::MPSCompression)
 	m = size(blk, 1)
 	mpsstorage = Vector{Any}(undef, m+1)
 	mpsstorage[m+1] = down_boundary(blk) 
@@ -83,7 +83,7 @@ function compute_H_mpsstorages(blk::AbstractBoundaryPEPS, mult_alg::MPSCompressi
 	return mpsstorage
 end
 
-function compute_V_mpsstorages(blk::AbstractBoundaryPEPS, mult_alg::MPSCompression)
+function compute_V_mpsstorages(blk::AbstractBorderedPEPS, mult_alg::MPSCompression)
 	n = size(blk, 2)
 	mpsstorage = Vector{Any}(undef, n+1)
 	mpsstorage[n+1] = right_boundary(blk)

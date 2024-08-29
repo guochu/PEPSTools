@@ -1,7 +1,7 @@
 """
 	struct ClassicalSandwichEnv{T, _MPS}
 """
-struct ClassicalSandwichEnv{T, _MPS} <: AbstractSingleLayerSandwichEnv
+struct ClassicalSandwichEnv{T, _MPS} <: AbstractSquareTNSandwichEnv
 	up::_MPS
 	middle::Vector{Array{T, 4}}
 	down::_MPS

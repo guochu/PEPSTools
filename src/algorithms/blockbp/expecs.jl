@@ -150,7 +150,7 @@ function rdm1s_single_block(U::BlockLocalOperator{Int}, blk::BeliefPEPSBlock, al
 	return r.data
 end
 
-function _rdm1s(U::SquareLatticeSites{Int}, blk::BoundaryPEPS, alg::MPSCompression)
+function _rdm1s(U::SquareLatticeSites{Int}, blk::BorderedPEPS, alg::MPSCompression)
 	m, n = size(blk)
 
 	rH = Matrix{Union{Matrix{scalartype(blk)}, Nothing}}(nothing, size(blk))
@@ -243,11 +243,11 @@ function rdm2s_single_block(U::BlockOperator, blk::BeliefPEPSBlock, alg::Abstrac
 	return Dict("H"=>rH.data, "V"=>rV.data)
 end
 
-_rdm2s(U::SquareLatticeBonds{Union{Int, Nothing}}, blk::BoundaryPEPS, alg::MPSCompression) = Dict(
+_rdm2s(U::SquareLatticeBonds{Union{Int, Nothing}}, blk::BorderedPEPS, alg::MPSCompression) = Dict(
 	"H"=>_rdm2sH(U.H, blk, alg), "V"=>_rdm2sV(U.V, blk, alg))
 
 
-function _rdm2sH(H, blk::BoundaryPEPS, alg::MPSCompression)
+function _rdm2sH(H, blk::BorderedPEPS, alg::MPSCompression)
 	m, n = size(blk)
 
 	rH = Matrix{Union{Array{scalartype(blk), 4}, Nothing}}(nothing, size(blk))
@@ -270,7 +270,7 @@ function _rdm2sH(H, blk::BoundaryPEPS, alg::MPSCompression)
 end
 
 
-function _rdm2sV(V, blk::BoundaryPEPS, alg::MPSCompression)
+function _rdm2sV(V, blk::BorderedPEPS, alg::MPSCompression)
 	m, n = size(blk)
 
 	rV= Matrix{Union{Array{scalartype(blk), 4}, Nothing}}(nothing, size(blk))

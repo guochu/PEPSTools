@@ -1,13 +1,16 @@
+"""
+	struct BorderedPEPS{T, _MPS}
 
-
-struct BoundaryPEPS{T, _MPS} <: AbstractPEPSBlock{T}
+PEPS bordered by four MPSs
+"""
+struct BorderedPEPS{T, _MPS} <: AbstractPEPSBlock{T}
 	peps::Matrix{Array{T, 5}}
 	left::_MPS
 	right::_MPS
 	up::_MPS
 	down::_MPS
 
-function BoundaryPEPS(peps::AbstractMatrix{Array{T, 5}}, left::MPS, right::MPS, up::MPS, down::MPS) where {T<:Number}
+function BorderedPEPS(peps::AbstractMatrix{Array{T, 5}}, left::MPS, right::MPS, up::MPS, down::MPS) where {T<:Number}
 	m, n = size(peps)
 	@assert length(left) == length(right) == m
 	@assert length(up) == length(down) == n
@@ -28,7 +31,7 @@ end
 function borderedpeps(peps::AbstractMatrix{Array{T, 5}}; left::MPS=trivial_mps(T, size(peps, 1)), right::MPS=trivial_mps(T, size(peps, 1)), 
 	up::MPS=trivial_mps(T, size(peps, 2)), down::MPS=trivial_mps(T, size(peps, 2))) where {T <: Number}
 	# @assert check(peps)
-	return BoundaryPEPS(peps, left, right, up, down)
+	return BorderedPEPS(peps, left, right, up, down)
 end
 borderedpeps(peps::PEPS, args...; kwargs...) = borderedpeps(raw_data(peps), args...; kwargs...)
 

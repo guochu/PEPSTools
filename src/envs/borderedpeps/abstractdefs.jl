@@ -1,18 +1,18 @@
 # nonperiodic PEPS block
-abstract type AbstractBoundaryPEPS{T} end
-abstract type AbstractPEPSBlock{T} <: AbstractBoundaryPEPS{T} end
-abstract type AbstractSquareTNBlock{T} <: AbstractBoundaryPEPS{T} end
+abstract type AbstractBorderedPEPS{T} end
+abstract type AbstractPEPSBlock{T} <: AbstractBorderedPEPS{T} end
+abstract type AbstractSquareTNBlock{T} <: AbstractBorderedPEPS{T} end
 
-Base.size(x::AbstractBoundaryPEPS) = size(x.peps)
-Base.size(x::AbstractBoundaryPEPS, i::Int) = size(x.peps, i)
-scalartype(::Type{<:AbstractBoundaryPEPS{T}}) where {T<:Number} = T
-scalartype(x::AbstractBoundaryPEPS) = scalartype(typeof(x))
+Base.size(x::AbstractBorderedPEPS) = size(x.peps)
+Base.size(x::AbstractBorderedPEPS, i::Int) = size(x.peps, i)
+scalartype(::Type{<:AbstractBorderedPEPS{T}}) where {T<:Number} = T
+scalartype(x::AbstractBorderedPEPS) = scalartype(typeof(x))
 
 
-left_boundary(x::AbstractBoundaryPEPS) = _boundary_mps(x.left)
-right_boundary(x::AbstractBoundaryPEPS) = _boundary_mps(x.right)
-up_boundary(x::AbstractBoundaryPEPS) = _boundary_mps(x.up)
-down_boundary(x::AbstractBoundaryPEPS) = _boundary_mps(x.down)
+left_boundary(x::AbstractBorderedPEPS) = _boundary_mps(x.left)
+right_boundary(x::AbstractBorderedPEPS) = _boundary_mps(x.right)
+up_boundary(x::AbstractBorderedPEPS) = _boundary_mps(x.up)
+down_boundary(x::AbstractBorderedPEPS) = _boundary_mps(x.down)
 
 
 
@@ -28,7 +28,7 @@ mpoup_util(x::AbstractSquareTNBlock, i::Int) = dl_mpoup_util(x, i)
 mpodown_util(x::AbstractSquareTNBlock, i::Int) = dl_mpodown_util(x, i)
 
 # apply mpo on the left
-function mpoleft(x::AbstractBoundaryPEPS, i::Int)
+function mpoleft(x::AbstractBorderedPEPS, i::Int)
 	L = size(x.peps, 1)
 	r = Vector{Array{scalartype(x), 4}}(undef, L+2)
 	r[1] = permute(_insert_dim(x.up[i]), (1,4,3,2))
@@ -36,7 +36,7 @@ function mpoleft(x::AbstractBoundaryPEPS, i::Int)
 	r[2:L+1] = mpoleft_util(x, i)
 	return MPO(r)
 end 
-function mporight(x::AbstractBoundaryPEPS, i::Int)
+function mporight(x::AbstractBorderedPEPS, i::Int)
 	L = size(x.peps, 1)
 	r = Vector{Array{scalartype(x), 4}}(undef, L+2)
 	r[1] = _insert_dim(x.up[i])
@@ -44,7 +44,7 @@ function mporight(x::AbstractBoundaryPEPS, i::Int)
 	r[2:L+1] = mporight_util(x, i)
 	return MPO(r)
 end 
-function mpoup(x::AbstractBoundaryPEPS, i::Int)
+function mpoup(x::AbstractBorderedPEPS, i::Int)
 	L = size(x.peps, 2)
 	r = Vector{Array{scalartype(x), 4}}(undef, L+2)
 	r[1] = permute(_insert_dim(x.left[i]), (1,4,3,2))
@@ -52,7 +52,7 @@ function mpoup(x::AbstractBoundaryPEPS, i::Int)
 	r[2:L+1] = mpoup_util(x, i)
 	return MPO(r)
 end
-function mpodown(x::AbstractBoundaryPEPS, i::Int)
+function mpodown(x::AbstractBorderedPEPS, i::Int)
 	L = size(x.peps, 2)
 	r = Vector{Array{scalartype(x), 4}}(undef, L+2)
 	r[1] = _insert_dim(x.left[i])
@@ -61,7 +61,7 @@ function mpodown(x::AbstractBoundaryPEPS, i::Int)
 	return MPO(r)
 end
 
-row_peps(x::AbstractBoundaryPEPS, i::Int) = x.peps[i, :]
+row_peps(x::AbstractBorderedPEPS, i::Int) = x.peps[i, :]
 
 sl_col_peps_as_row(x, i::Int) = [permute(item, (2,3,4,1,5)) for item in x.peps[:, i]]
 dl_col_peps_as_row(x, i::Int) = [permute(item, (2,3,4,1)) for item in x.peps[:, i]]
@@ -69,7 +69,7 @@ dl_col_peps_as_row(x, i::Int) = [permute(item, (2,3,4,1)) for item in x.peps[:, 
 col_peps_as_row(x::AbstractPEPSBlock, i::Int) = sl_col_peps_as_row(x, i)
 col_peps_as_row(x::AbstractSquareTNBlock, i::Int) = dl_col_peps_as_row(x, i) 
 
-function row(x::AbstractBoundaryPEPS, pos::Int, mult_alg::MPSCompression=SVDCompression())
+function row(x::AbstractBorderedPEPS, pos::Int, mult_alg::MPSCompression=SVDCompression())
 	L = size(x, 1)
 
 	up = up_boundary(x)
@@ -89,7 +89,7 @@ function row(x::AbstractBoundaryPEPS, pos::Int, mult_alg::MPSCompression=SVDComp
 end
 
 
-function col(x::AbstractBoundaryPEPS, pos::Int, mult_alg::MPSCompression=SVDCompression())
+function col(x::AbstractBorderedPEPS, pos::Int, mult_alg::MPSCompression=SVDCompression())
 	L = size(x, 2)
 
 	left = left_boundary(x)
