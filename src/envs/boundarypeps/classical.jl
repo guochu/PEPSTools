@@ -32,5 +32,5 @@ function SquareTNBlock(peps::AbstractMatrix{Array{T, 4}}; left::MPS=trivial_mps(
 	return SquareTNBlock(peps, left, right, up, down)
 end
 SquareTNBlock(peps::SquareTN, args...; kwargs...) = SquareTNBlock(raw_data(peps), args...; kwargs...)
-PEPSBlock(peps::AbstractMatrix{Array{T, 4}}, args...; kwargs...) where {T<:Number} = SquareTNBlock(peps, args...; kwargs...)
+borderedpeps(peps::AbstractMatrix{Array{T, 4}}, args...; kwargs...) where {T<:Number} = SquareTNBlock(peps, args...; kwargs...)
 

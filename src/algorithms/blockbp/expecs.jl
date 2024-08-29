@@ -53,7 +53,7 @@ function expectation(U::BlockOperator, blk::BeliefPEPSBlock, alg::AbstractBlockB
 	for i in 1:nrows(blk)
 		for j in 1:ncols(blk)
 			_peps, msgl, msgr, msgu, msgd = subblock(blk, i, j)
-			x = PEPSBlock(_peps, left=msgl.i, right=msgr.o, up=msgu.i, down=msgd.o)
+			x = borderedpeps(_peps, left=msgl.i, right=msgr.o, up=msgu.i, down=msgd.o)
 			sU = subblock(U, i, j)
 			r += expectation(sU, x, mult_alg)
 		end
@@ -72,7 +72,7 @@ function expectationfull(U::BlockOperator, blk::BeliefPEPSBlock, alg::AbstractBl
 	for i in 1:nrows(blk)
 		for j in 1:ncols(blk)
 			_peps, msgl, msgr, msgu, msgd = subblock(blk, i, j)
-			x = PEPSBlock(_peps, left=msgl.i, right=msgr.o, up=msgu.i, down=msgd.o)
+			x = borderedpeps(_peps, left=msgl.i, right=msgr.o, up=msgu.i, down=msgd.o)
 			sU = subblock(U, i, j)
 			r = expectationfull(sU, x, mult_alg)
 			rH[rowindices(blk, i), colindices(blk, j)] .+= r["H"]
@@ -102,7 +102,7 @@ function local_expectations(U::BlockLocalOperator{M}, blk::BeliefPEPSBlock, alg:
 	for i in 1:nrows(blk)
 		for j in 1:ncols(blk)
 			_peps, msgl, msgr, msgu, msgd = subblock(blk, i, j)
-			x = PEPSBlock(_peps, left=msgl.i, right=msgr.o, up=msgu.i, down=msgd.o)
+			x = borderedpeps(_peps, left=msgl.i, right=msgr.o, up=msgu.i, down=msgd.o)
 			sU = subblock(U, i, j)
 
 			# r[rowindices(blk, i), colindices(blk, j)] = local_expectations(sU, x, mult_alg)
@@ -142,7 +142,7 @@ function rdm1s_single_block(U::BlockLocalOperator{Int}, blk::BeliefPEPSBlock, al
 	for i in 1:nrows(blk)
 		for j in 1:ncols(blk)
 			_peps, msgl, msgr, msgu, msgd = subblock(blk, i, j)
-			x = PEPSBlock(_peps, left=msgl.i, right=msgr.o, up=msgu.i, down=msgd.o)
+			x = borderedpeps(_peps, left=msgl.i, right=msgr.o, up=msgu.i, down=msgd.o)
 			sU = subblock(U, i, j)
 			r[rowindices(blk, i), colindices(blk, j)] = _rdm1s(sU, x, mult_alg)
 		end
@@ -150,7 +150,7 @@ function rdm1s_single_block(U::BlockLocalOperator{Int}, blk::BeliefPEPSBlock, al
 	return r.data
 end
 
-function _rdm1s(U::SquareLatticeSites{Int}, blk::PEPSBlock, alg::MPSCompression)
+function _rdm1s(U::SquareLatticeSites{Int}, blk::BoundaryPEPS, alg::MPSCompression)
 	m, n = size(blk)
 
 	rH = Matrix{Union{Matrix{scalartype(blk)}, Nothing}}(nothing, size(blk))
@@ -233,7 +233,7 @@ function rdm2s_single_block(U::BlockOperator, blk::BeliefPEPSBlock, alg::Abstrac
 	for i in 1:nrows(blk)
 		for j in 1:ncols(blk)
 			_peps, msgl, msgr, msgu, msgd = subblock(blk, i, j)
-			x = PEPSBlock(_peps, left=msgl.i, right=msgr.o, up=msgu.i, down=msgd.o)
+			x = borderedpeps(_peps, left=msgl.i, right=msgr.o, up=msgu.i, down=msgd.o)
 			sU = subblock(U, i, j)
 			r = _rdm2s(sU, x, mult_alg)
 			rH[rowindices(blk, i), colindices(blk, j)] = r["H"]
@@ -243,11 +243,11 @@ function rdm2s_single_block(U::BlockOperator, blk::BeliefPEPSBlock, alg::Abstrac
 	return Dict("H"=>rH.data, "V"=>rV.data)
 end
 
-_rdm2s(U::SquareLatticeBonds{Union{Int, Nothing}}, blk::PEPSBlock, alg::MPSCompression) = Dict(
+_rdm2s(U::SquareLatticeBonds{Union{Int, Nothing}}, blk::BoundaryPEPS, alg::MPSCompression) = Dict(
 	"H"=>_rdm2sH(U.H, blk, alg), "V"=>_rdm2sV(U.V, blk, alg))
 
 
-function _rdm2sH(H, blk::PEPSBlock, alg::MPSCompression)
+function _rdm2sH(H, blk::BoundaryPEPS, alg::MPSCompression)
 	m, n = size(blk)
 
 	rH = Matrix{Union{Array{scalartype(blk), 4}, Nothing}}(nothing, size(blk))
@@ -270,7 +270,7 @@ function _rdm2sH(H, blk::PEPSBlock, alg::MPSCompression)
 end
 
 
-function _rdm2sV(V, blk::PEPSBlock, alg::MPSCompression)
+function _rdm2sV(V, blk::BoundaryPEPS, alg::MPSCompression)
 	m, n = size(blk)
 
 	rV= Matrix{Union{Array{scalartype(blk), 4}, Nothing}}(nothing, size(blk))

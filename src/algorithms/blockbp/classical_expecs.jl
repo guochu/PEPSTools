@@ -22,7 +22,7 @@ function local_expectations(U::BlockLocalOperator{<:AbstractArray{T, 4}}, blk::B
 	for i in 1:nrows(blk)
 		for j in 1:ncols(blk)
 			_peps, msgl, msgr, msgu, msgd = subblock(blk, i, j)
-			x = PEPSBlock(_peps, left=msgl.i, right=msgr.o, up=msgu.i, down=msgd.o)
+			x = borderedpeps(_peps, left=msgl.i, right=msgr.o, up=msgu.i, down=msgd.o)
 			sU = subblock(U, i, j)
 			r[rowindices(blk, i), colindices(blk, j)] = local_expectations(sU, x, mult_alg)
 		end
@@ -42,7 +42,7 @@ function local_expectation(mT::AbstractArray{<:Number, 4}, i::Int, j::Int, peps:
 	mult_alg = get_msg_mult_alg(alg)
 	compute_messages!(blk, alg)
 	_peps, msgl, msgr, msgu, msgd = subblock(blk, 1, 1)
-	subx = PEPSBlock(_peps, left=msgl.i, right=msgr.o, up=msgu.i, down=msgd.o)
+	subx = borderedpeps(_peps, left=msgl.i, right=msgr.o, up=msgu.i, down=msgd.o)
 	row_i = row(subx, a+1, mult_alg)
 	return expectation_site(row_i, b+1, mT)
 
@@ -67,7 +67,7 @@ function interactionH(x::Classical2DModel, i::Int, j::Int, alg::BlockBP; β::Rea
 	mult_alg = get_msg_mult_alg(alg)
 	compute_messages!(blk, alg)
 	_peps, msgl, msgr, msgu, msgd = subblock(blk, 1, 1)
-	subx = PEPSBlock(_peps, left=msgl.i, right=msgr.o, up=msgu.i, down=msgd.o)
+	subx = borderedpeps(_peps, left=msgl.i, right=msgr.o, up=msgu.i, down=msgd.o)
 
 	row_i = row(subx, a+1, mult_alg)
 	return expectation_bond(row_i, b+1, mT1, mT2)

@@ -20,9 +20,9 @@ get_trunc(x::BoundaryMPS) = truncdimcutoff(D=x.D2, ϵ=x.ϵ)
 
 function sweep!(peps::PEPS, U::SquareLatticeOperator, alg::BoundaryMPS)
 	is_nonperiodic(peps) || error("BoundaryMPS does not support periodic boundary, using SimpleUpdate or BlockBP instead.")
-	sweep!(PEPSBlock(peps), U, alg)
+	sweep!(borderedpeps(peps), U, alg)
 end 
-function sweep!(blk::PEPSBlock, U::SquareLatticeOperator, alg::BoundaryMPS)
+function sweep!(blk::BoundaryPEPS, U::SquareLatticeOperator, alg::BoundaryMPS)
 	is_nonperiodic(U) || error("BoundaryMPS does not support periodic boundary, using SimpleUpdate or BlockBP instead.")
 	@assert size(blk) == size(U)
 	m, n = size(blk)

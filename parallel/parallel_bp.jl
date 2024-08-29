@@ -62,9 +62,9 @@ parallel_expectation(U::PEPSTools.SquareLatticeOperator, peps::PEPS, alg::BlockB
 
 # this is not parallelized
 parallel_expectation(U::PEPSTools.SquareLatticeHamiltonian, peps::PEPS, alg::BoundaryMPS) = parallel_expectation(squeeze(U), peps, alg)
-parallel_expectation(U::PEPSTools.SquareLatticeOperator, peps::PEPS, alg::BoundaryMPS) = parallel_expectation(U, PEPSBlock(peps), alg)
+parallel_expectation(U::PEPSTools.SquareLatticeOperator, peps::PEPS, alg::BoundaryMPS) = parallel_expectation(U, borderedpeps(peps), alg)
 # use at most two processes
-function parallel_expectation(U::PEPSTools.SquareLatticeOperator, blk::PEPSBlock, alg::BoundaryMPS) 
+function parallel_expectation(U::PEPSTools.SquareLatticeOperator, blk::BoundaryPEPS, alg::BoundaryMPS) 
 	PEPSTools.is_nonperiodic(U) || error("BoundaryMPS does not support periodic boundary, using BlockBP instead.")
 	@assert size(blk) == size(U)
 	mult_alg = PEPSTools.get_mult_alg(alg)
@@ -146,7 +146,7 @@ function parallel_local_expectations(U::PEPSTools.BlockLocalOperator, blk::PEPST
 			idx = index[k]
 			i, j = idx[1], idx[2]
 			_peps, msgl, msgr, msgu, msgd = subblock(blk, i, j)
-			x = PEPSBlock(_peps, left=msgl.i, right=msgr.o, up=msgu.i, down=msgd.o)
+			x = borderedpeps(_peps, left=msgl.i, right=msgr.o, up=msgu.i, down=msgd.o)
 			sU = subblock( U, i, j)
 			r[PEPSTools.rowindices(blk, i), PEPSTools.colindices(blk, j)] = PEPSTools.local_expectations(sU, x, mult_alg)
 		end
@@ -183,7 +183,7 @@ function parallel_sweep!(blk::BeliefPEPSBlock, U::BlockOperator, alg::BlockBP)
 			idx = index[k]
 			i, j = idx[1], idx[2]
 			_peps, msgl, msgr, msgu, msgd = subblock(blk, i, j)
-			x = PEPSBlock(_peps, left=msgl.i, right=msgr.o, up=msgu.i, down=msgd.o)
+			x = borderedpeps(_peps, left=msgl.i, right=msgr.o, up=msgu.i, down=msgd.o)
 			sU = subblock( U, i, j)
 			sweep!(x, sU, alg.update_alg)
 			push!(r, x.peps)
@@ -249,7 +249,7 @@ function parallel_compute_out_message(blk::PEPSTools.AbstractBeliefPEPSBlock, al
 			idx = index[k]
 			i, j = idx[1], idx[2]
 			_peps, msgl, msgr, msgu, msgd = subblock(blk, i, j)
-			x = PEPSBlock(_peps, left=msgl.i, right=msgr.o, up=msgu.i, down=msgd.o)
+			x = borderedpeps(_peps, left=msgl.i, right=msgr.o, up=msgu.i, down=msgd.o)
 			push!(r, PEPSTools.compute_out_messages(x, alg)) 
 		end
 		return r

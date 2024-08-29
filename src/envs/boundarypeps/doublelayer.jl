@@ -1,13 +1,13 @@
 
 
-struct PEPSBlock{T, _MPS} <: AbstractPEPSBlock{T}
+struct BoundaryPEPS{T, _MPS} <: AbstractPEPSBlock{T}
 	peps::Matrix{Array{T, 5}}
 	left::_MPS
 	right::_MPS
 	up::_MPS
 	down::_MPS
 
-function PEPSBlock(peps::AbstractMatrix{Array{T, 5}}, left::MPS, right::MPS, up::MPS, down::MPS) where {T<:Number}
+function BoundaryPEPS(peps::AbstractMatrix{Array{T, 5}}, left::MPS, right::MPS, up::MPS, down::MPS) where {T<:Number}
 	m, n = size(peps)
 	@assert length(left) == length(right) == m
 	@assert length(up) == length(down) == n
@@ -25,12 +25,12 @@ end
 end
 
 
-function PEPSBlock(peps::AbstractMatrix{Array{T, 5}}; left::MPS=trivial_mps(T, size(peps, 1)), right::MPS=trivial_mps(T, size(peps, 1)), 
+function borderedpeps(peps::AbstractMatrix{Array{T, 5}}; left::MPS=trivial_mps(T, size(peps, 1)), right::MPS=trivial_mps(T, size(peps, 1)), 
 	up::MPS=trivial_mps(T, size(peps, 2)), down::MPS=trivial_mps(T, size(peps, 2))) where {T <: Number}
 	# @assert check(peps)
-	return PEPSBlock(peps, left, right, up, down)
+	return BoundaryPEPS(peps, left, right, up, down)
 end
-PEPSBlock(peps::PEPS, args...; kwargs...) = PEPSBlock(raw_data(peps), args...; kwargs...)
+borderedpeps(peps::PEPS, args...; kwargs...) = borderedpeps(raw_data(peps), args...; kwargs...)
 
 
 function random_boundary_mps(::Type{T}, ds::AbstractVector{Int}; D::Int) where {T <: Number}
