@@ -18,10 +18,13 @@ include("operators/operators.jl")
 include("states/states.jl")
 
 
-# environments
+## environments
+# border PEPS
 include("borderedpeps/borderedpeps.jl")
+# BMPS environment
 include("bmpsenv/bmpsenv.jl")
-include("envs/beliefblock/beliefblock.jl")
+# BlockBP partition
+include("blockbppartition/blockbppartition.jl")
 
 
 # algorithms
