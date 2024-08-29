@@ -23,6 +23,3 @@ end
 
 compute_messages!(blk::AbstractBlockBPPartitionPEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm) = compute_messages!(blk, 
 	get_msg_mult_alg(alg), maxiter=alg.msg_maxiter, tol=alg.msg_tol, verbosity=alg.verbosity )
-
-# compute_messages_serial!(blk::AbstractBlockBPPartitionPEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm) = compute_messages_serial!(blk, 
-# 	get_msg_mult_alg(alg), maxiter=alg.msg_maxiter, tol=alg.msg_tol, verbosity=alg.verbosity )

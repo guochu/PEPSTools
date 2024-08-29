@@ -8,13 +8,13 @@ local_expectations(U::LocalCObservers, peps::SquareTN, alg::BlockBP) = local_exp
 function local_expectations(Us::Vector{BlockLocalOperator{<:AbstractArray{T, 4}}}, peps::SquareTN, alg::AbstractBlockBPPEPSUpdateAlgorithm) where T
 	r = zeros(scalartype(peps), size(peps))
 	for U in Us
-		blk = BeliefSquareTNBlock(peps, U.partition)
+		blk = peps_partition(peps, U.partition)
 		r += local_expectations(U, blk, alg)
 	end
 	return r
 end
 
-function local_expectations(U::BlockLocalOperator{<:AbstractArray{T, 4}}, blk::BeliefSquareTNBlock, alg::AbstractBlockBPPEPSUpdateAlgorithm) where T
+function local_expectations(U::BlockLocalOperator{<:AbstractArray{T, 4}}, blk::BlockBPPartitionSquareTN, alg::AbstractBlockBPPEPSUpdateAlgorithm) where T
 	@assert blk.partition == U.partition
 	compute_messages!(blk, alg)
 	mult_alg = get_msg_mult_alg(alg)
@@ -62,7 +62,7 @@ function interactionH(x::Classical2DModel, i::Int, j::Int, alg::BlockBP; β::Rea
 	a = div(block_size[1]-1, 2)
 	b = div(block_size[2]-2, 2)
 	odd_partition = lattice_partition(size(x), block_size, (i-a, j-b), (2,2))
-	blk = BeliefSquareTNBlock(peps, odd_partition)
+	blk = peps_partition(peps, odd_partition)
 
 	mult_alg = get_msg_mult_alg(alg)
 	compute_messages!(blk, alg)

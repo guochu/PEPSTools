@@ -83,13 +83,13 @@ end
 function parallel_expectation(Us::Vector{<:BlockOperator}, peps::PEPS, alg::BlockBP)
 	r = 0.
 	for U in Us
-		blk = BeliefPEPSBlock(peps, U.partition)
+		blk = peps_partition(peps, U.partition)
 		r += parallel_expectation(U, blk, alg)
 	end
 	return r
 end
 
-function parallel_expectation(U::BlockOperator, blk::BeliefPEPSBlock, alg::BlockBP)
+function parallel_expectation(U::BlockOperator, blk::BlockBPPartitionPEPS, alg::BlockBP)
 	@assert blk.partition == U.partition
 	parallel_compute_messages!(blk, alg)
 	mult_alg = PEPSTools.get_msg_mult_alg(alg)
@@ -123,13 +123,13 @@ parallel_local_expectations(U::PEPSTools.LocalObservers, peps::SquareTN, alg::Bl
 function parallel_local_expectations(Us::Vector{<:PEPSTools.BlockLocalOperator}, peps::SquareTN, alg::PEPSTools.AbstractBlockBPPEPSUpdateAlgorithm)
 	r = zeros(scalartype(peps), size(peps))
 	for U in Us
-		blk = PEPSTools.BeliefSquareTNBlock(peps, U.partition)
+		blk = peps_partition(peps, U.partition)
 		r += parallel_local_expectations(U, blk, alg)
 	end
 	return r
 end
 
-function parallel_local_expectations(U::PEPSTools.BlockLocalOperator, blk::PEPSTools.BeliefSquareTNBlock, alg::PEPSTools.AbstractBlockBPPEPSUpdateAlgorithm)
+function parallel_local_expectations(U::PEPSTools.BlockLocalOperator, blk::PEPSTools.BlockBPPartitionSquareTN, alg::PEPSTools.AbstractBlockBPPEPSUpdateAlgorithm)
 	@assert blk.partition == U.partition
 	parallel_compute_messages!(blk, alg)
 	mult_alg = PEPSTools.get_msg_mult_alg(alg)
@@ -162,11 +162,11 @@ end
 parallel_sweep!(peps::PEPS, U::PEPSTools.SquareLatticeOperator, alg::BlockBP) = parallel_sweep!(peps, default_splitting(U, alg.block_size), alg)
 function parallel_sweep!(peps::PEPS, Us::Vector{<:BlockOperator}, alg::BlockBP)
 	for U in Us
-		blk = BeliefPEPSBlock(peps, U.partition)
+		blk = peps_partition(peps, U.partition)
 		parallel_sweep!(blk, U, alg)
 	end
 end
-function parallel_sweep!(blk::BeliefPEPSBlock, U::BlockOperator, alg::BlockBP) 
+function parallel_sweep!(blk::BlockBPPartitionPEPS, U::BlockOperator, alg::BlockBP) 
 	@assert blk.partition == U.partition
 	parallel_compute_messages!(blk, alg)
 
@@ -195,7 +195,7 @@ function parallel_sweep!(blk::BeliefPEPSBlock, U::BlockOperator, alg::BlockBP)
 	_collect_peps!(blk, vcat(r...))
 end
 
-function _collect_peps!(blk::BeliefPEPSBlock, out)
+function _collect_peps!(blk::BlockBPPartitionPEPS, out)
 	index = CartesianIndices((nrows(blk), ncols(blk)))
 	@assert length(out) == length(index)
 

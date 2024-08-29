@@ -39,13 +39,13 @@ expectation(U::SquareLatticeOperator, peps::PEPS, alg::BlockBP) = expectation(ce
 function expectation(Us::Vector{<:BlockOperator}, peps::PEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm)
 	r = 0.
 	for U in Us
-		blk = BeliefPEPSBlock(peps, U.partition)
+		blk = peps_partition(peps, U.partition)
 		r += expectation(U, blk, alg)
 	end
 	return r
 end
 
-function expectation(U::BlockOperator, blk::BeliefPEPSBlock, alg::AbstractBlockBPPEPSUpdateAlgorithm)
+function expectation(U::BlockOperator, blk::BlockBPPartitionPEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm)
 	@assert blk.partition == U.partition
 	mult_alg = get_msg_mult_alg(alg)
 	compute_messages!(blk, alg)
@@ -61,7 +61,7 @@ function expectation(U::BlockOperator, blk::BeliefPEPSBlock, alg::AbstractBlockB
 	return r
 end
 
-function expectationfull(U::BlockOperator, blk::BeliefPEPSBlock, alg::AbstractBlockBPPEPSUpdateAlgorithm)
+function expectationfull(U::BlockOperator, blk::BlockBPPartitionPEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm)
 	@assert blk.partition == U.partition
 	mult_alg = get_msg_mult_alg(alg)
 	compute_messages!(blk, alg)
@@ -88,13 +88,13 @@ local_expectations(U::LocalQObservers, peps::PEPS, alg::BlockBP) = local_expecta
 function local_expectations(Us::Vector{BlockLocalOperator{M}}, peps::PEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm) where {M<:AbstractMatrix}
 	r = zeros(scalartype(peps), size(peps))
 	for U in Us
-		blk = BeliefPEPSBlock(peps, U.partition)
+		blk = peps_partition(peps, U.partition)
 		r += local_expectations(U, blk, alg)
 	end
 	return r
 end
 
-function local_expectations(U::BlockLocalOperator{M}, blk::BeliefPEPSBlock, alg::AbstractBlockBPPEPSUpdateAlgorithm) where {M<:AbstractMatrix}
+function local_expectations(U::BlockLocalOperator{M}, blk::BlockBPPartitionPEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm) where {M<:AbstractMatrix}
 	@assert blk.partition == U.partition
 	compute_messages!(blk, alg)
 	mult_alg = get_msg_mult_alg(alg)
@@ -126,14 +126,14 @@ function rdm1s_util(Us::Vector{BlockLocalOperator{Int}}, peps::PEPS, alg::Abstra
 	T = scalartype(peps)
 	r = Matrix{Union{Matrix{T}, Nothing}}(nothing, size(peps))
 	for U in Us
-		blk = BeliefPEPSBlock(peps, U.partition)
+		blk = peps_partition(peps, U.partition)
 		# r += local_expectations(U, blk, alg)
 		r = _merge_rdms!(r, rdm1s_single_block(U, blk, alg))
 	end
 	return r
 end
 
-function rdm1s_single_block(U::BlockLocalOperator{Int}, blk::BeliefPEPSBlock, alg::AbstractBlockBPPEPSUpdateAlgorithm) 
+function rdm1s_single_block(U::BlockLocalOperator{Int}, blk::BlockBPPartitionPEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm) 
 	@assert blk.partition == U.partition
 	compute_messages!(blk, alg)
 	mult_alg = get_msg_mult_alg(alg)
@@ -213,7 +213,7 @@ function rdm2s_util(Us::Vector{BlockOperator{Int}}, peps::PEPS, alg::AbstractBlo
 	rH = Matrix{Union{Array{T, 4}, Nothing}}(nothing, size(peps))
 	rV = Matrix{Union{Array{T, 4}, Nothing}}(nothing, size(peps))
 	for U in Us
-		blk = BeliefPEPSBlock(peps, U.partition)
+		blk = peps_partition(peps, U.partition)
 		# r += local_expectations(U, blk, alg)
 		r = rdm2s_single_block(U, blk, alg)
 		rH = _merge_rdms!(rH, r["H"])
@@ -222,7 +222,7 @@ function rdm2s_util(Us::Vector{BlockOperator{Int}}, peps::PEPS, alg::AbstractBlo
 	return Dict("H"=>rH, "V"=>rV)
 end
 
-function rdm2s_single_block(U::BlockOperator, blk::BeliefPEPSBlock, alg::AbstractBlockBPPEPSUpdateAlgorithm)
+function rdm2s_single_block(U::BlockOperator, blk::BlockBPPartitionPEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm)
 	@assert blk.partition == U.partition
 	mult_alg = get_msg_mult_alg(alg)
 	compute_messages!(blk, alg)

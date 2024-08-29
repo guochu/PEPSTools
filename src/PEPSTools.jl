@@ -32,7 +32,7 @@ export borderedpeps
 
 
 # # block bp algorithm
-# export Message, BlockBP, BeliefPEPSBlock, BlockOperator, BlockLocalOperator, default_splitting, center_splitting, subblock, subblocks
+# export Message, BlockBP, BlockBPPartitionPEPS, BlockOperator, BlockLocalOperator, default_splitting, center_splitting, subblock, subblocks
 
 # # high-level
 # export ImaginaryTimePEPS, ground_state!

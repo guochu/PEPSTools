@@ -2,7 +2,7 @@
 
 
 """
-    struct BeliefSquareTNBlock{T<:Number}
+    struct BlockBPPartitionSquareTN{T<:Number}
 
 two dimensional tensor network.
 The index convention for site tensor of 2d tn
@@ -10,7 +10,7 @@ The index convention for site tensor of 2d tn
 --------------1-------3---------
 ------------------4-------------
 """
-struct BeliefSquareTNBlock{T<:Number, _MESSAGE} <: AbstractBlockBPPartitionPEPS{T}
+struct BlockBPPartitionSquareTN{T<:Number, _MESSAGE} <: AbstractBlockBPPartitionPEPS{T}
 	peps::SquareTN{T}
 	partition::SquareLatticePartition
 	row_msgs::PeriodicArray{ _MESSAGE, 2}
@@ -18,7 +18,7 @@ struct BeliefSquareTNBlock{T<:Number, _MESSAGE} <: AbstractBlockBPPartitionPEPS{
 end
 
 
-function BeliefSquareTNBlock(peps::SquareTN{T}, partition::SquareLatticePartition) where {T <: Number}
+function BlockBPPartitionSquareTN(peps::SquareTN{T}, partition::SquareLatticePartition) where {T <: Number}
 	n_rows, n_cols = nrows(partition), ncols(partition)
 	_MESSAGET = Message{MPS{T, real(T)}, MPS{T, real(T)}}
 	row_msgs = PeriodicArray{ _MESSAGET, 2 }(undef, n_rows, n_cols)
@@ -30,10 +30,10 @@ function BeliefSquareTNBlock(peps::SquareTN{T}, partition::SquareLatticePartitio
 			col_msgs[i, j] = random_double_layer_mps_message(T, [size(item, 1) for item in _bk[:, 1]])
 		end
 	end
-	return BeliefSquareTNBlock(peps, partition, row_msgs, col_msgs)
+	return BlockBPPartitionSquareTN(peps, partition, row_msgs, col_msgs)
 end
 
-peps_partition(peps::SquareTN, partition::SquareLatticePartition) = BeliefSquareTNBlock(peps, partition)
+peps_partition(peps::SquareTN, partition::SquareLatticePartition) = BlockBPPartitionSquareTN(peps, partition)
 
 
 function random_double_layer_boundary_mps(::Type{T}, ds::AbstractVector{Int}; D::Int) where {T <: Number}
