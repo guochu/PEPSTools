@@ -82,7 +82,7 @@ function local_expectations(U::AbstractMatrix{M}, blk::PEPSBlock, alg::MPSCompre
 	rH = zeros(scalartype(blk), size(blk))
 	for i in 1:m
 		row_i = row_environments(up, row_peps(blk, i), mpsstorage[i+1], blk.left[i], blk.right[i]) 
-		rH[i, :] = local_expectations(row_i, U[i, :])
+		rH[i, :] = expectation_sites(row_i, U[i, :])
 		if i != m
 			mpo = mpoup(blk, i) 
 			up, err = mpompsmult(mpo, up, alg)

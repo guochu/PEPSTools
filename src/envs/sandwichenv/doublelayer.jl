@@ -65,7 +65,7 @@ function unsafe_expectation_bond(x::DoubleLayerSandwichEnv, pos::Int, U::Nothing
 end 
 
 # expectation values of all the sites
-function local_expectations(x::DoubleLayerSandwichEnv, Us::Vector{M}) where {M <: Union{AbstractMatrix, Nothing}}
+function expectation_sites(x::DoubleLayerSandwichEnv, Us::Vector{M}) where {M <: Union{AbstractMatrix, Nothing}}
 	@assert length(x) == length(Us)
 	return [unsafe_expectation_site(x, pos, Us[pos]) for pos in 1:length(Us)]
 end
