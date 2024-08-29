@@ -13,8 +13,8 @@ function update_single!(x::AbstractPEPSRowEnv, pos::Int, U::AbstractArray{<:Numb
 	Qleft, aL, Qright, aR, Xt = compute_center(x, pos)
 	aLn, aRn = center_minimization(aL, aR, Xt, U; kwargs...)	
 
-    @tensor cl[5,1,2,6,3] := Qleft[1,2,3,4] * aLn[4,5,6]
-    @tensor cr[2,1,4,5,6] := aRn[1,2,3] * Qright[3,4,5,6]
+    @tensor cl[1,2,6,3,5] := Qleft[1,2,3,4] * aLn[4,5,6]
+    @tensor cr[1,4,5,6,2] := aRn[1,2,3] * Qright[3,4,5,6]
     x.middle[pos] = cl
     x.middle[pos+1] = cr
     update_left!(x, pos)

@@ -28,8 +28,8 @@ function BeliefPEPSBlock(peps::PEPS{T}, partition::SquareLatticePartition) where
 	for i in 1:n_rows
 		for j in 1:n_cols
 			_bk = subblock(peps.data, partition, i, j)
-			row_msgs[i, j] = random_mps_message(T, [size(item, 3) for item in _bk[1, :]])
-			col_msgs[i, j] = random_mps_message(T, [size(item, 2) for item in _bk[:, 1]])
+			row_msgs[i, j] = random_mps_message(T, [size(item, 2) for item in _bk[1, :]])
+			col_msgs[i, j] = random_mps_message(T, [size(item, 1) for item in _bk[:, 1]])
 		end
 	end
 	return BeliefPEPSBlock(peps, partition, row_msgs, col_msgs)

@@ -60,7 +60,7 @@ function sweep!(blk::PEPSBlock, U::SquareLatticeOperator, alg::BoundaryMPS)
 			if n_nontrivial_terms(U.V[:, i]) > 0
 				row_i = row_environments(mpsstorage[i+1], col_peps_as_row(blk, i), left, permute(blk.up[i], (3,2,1)), permute(blk.down[i], (3,2,1)))
 				update!(row_i, U.V[:, i], trunc=trunc, maxiter=als_maxiter, tol=als_tol, verbosity=als_verbosity, normalize=true)
-				blk.peps[:, i] = [permute(item, (1,5,2,3,4)) for item in row_i.middle]
+				blk.peps[:, i] = [permute(item, (4,1,2,3,5)) for item in row_i.middle]
 			end
 			if i != n
 				mpo = mpoleft(blk, i)

@@ -58,11 +58,11 @@ function evolve_h_single(U::AbstractArray{<:Number, 4}, sLl, sLu, sLd, AL, sM, A
 	sRd = diagm(sRd)
 
 	# ALn = _absorb_bonds(AL, sLl, sM, sLu, sLd) 
-	@tensor ALn[1,6,7,4,8] := AL[1,2,3,4,5] * sLl[6,2] * sLu[7,3] * sLd[8,5]
-	@tensor ARn[1,2,6,7,8] := AR[1,2,3,4,5] * sRu[6,3] * sRr[7,4] * sRd[8,5]
+	@tensor ALn[6,7,4,8,1] := AL[2,3,4,5,1] * sLl[6,2] * sLu[7,3] * sLd[8,5]
+	@tensor ARn[2,6,7,8,1] := AR[2,3,4,5,1] * sRu[6,3] * sRr[7,4] * sRd[8,5]
 
-	left_q, aL = tqr!(ALn, (2,3,5), (1,4))
-	aR, right_q = tlq!(ARn, (2,1), (3,4,5))	
+	left_q, aL = tqr!(ALn, (1,2,4), (5,3))
+	aR, right_q = tlq!(ARn, (1,5), (2,3,4))	
 	left_q = @tensor tmp[5,6,7,4] := (left_q[1,2,3,4] * invLl[5,1]) * invLu[6,2] * invLd[7,3]
 	right_q = @tensor tmp[1,5,6,7] := ((right_q[1,2,3,4] * invRu[5,2]) * invRr[6,3]) * invRd[7,4]
 
@@ -71,8 +71,8 @@ function evolve_h_single(U::AbstractArray{<:Number, 4}, sLl, sLu, sLd, AL, sM, A
 
 	normalize && LinearAlgebra.normalize!(s)
 
-	@tensor r1[5,1,2,6,3] := left_q[1,2,3,4] * aLn[4,5,6]
-	@tensor r2[2,1,4,5,6] := aRn[1,2,3] * right_q[3,4,5,6]
+	@tensor r1[1,2,6,3,5] := left_q[1,2,3,4] * aLn[4,5,6]
+	@tensor r2[1,4,5,6,2] := aRn[1,2,3] * right_q[3,4,5,6]
 
 	return r1, s, r2
 end
@@ -94,11 +94,11 @@ function evolve_v_single(U::AbstractArray{<:Number, 4},sLl, sLu, sLr, AL, sM, AR
 	sRd = diagm(sRd)
 
 	# ALn = _absorb_bonds(AL, sLl, sLr, sLu, sM)
-	@tensor ALn[1,6,7,8,5] := AL[1,2,3,4,5] * sLl[6,2] * sLu[7,3] * sLr[8,4]
-	@tensor ARn[1,6,3,7,8] := AR[1,2,3,4,5] * sRl[6,2] * sRr[7,4] * sRd[8,5]
+	@tensor ALn[6,7,8,5,1] := AL[2,3,4,5,1] * sLl[6,2] * sLu[7,3] * sLr[8,4]
+	@tensor ARn[6,3,7,8,1] := AR[2,3,4,5,1] * sRl[6,2] * sRr[7,4] * sRd[8,5]
 
-	left_q, aL = tqr!(ALn, (2,3,4), (1,5))
-	aR, right_q = tlq!(ARn, (3,1), (2,4,5))
+	left_q, aL = tqr!(ALn, (1,2,3), (5,4))
+	aR, right_q = tlq!(ARn, (2,5), (1,3,4))
 	left_q = @tensor tmp[5,6,7,4] := left_q[1,2,3,4] * invLl[5,1] * invLu[6,2] * invLr[7,3]
 	right_q = @tensor tmp[1,5,6,7] := right_q[1,2,3,4] * invRl[5,2] * invRr[6,3] * invRd[7,4]
 
@@ -107,8 +107,8 @@ function evolve_v_single(U::AbstractArray{<:Number, 4},sLl, sLu, sLr, AL, sM, AR
 
 	normalize && LinearAlgebra.normalize!(s)
 
-	@tensor r1[5,1,2,3,6] := left_q[1,2,3,4] * aLn[4,5,6]
-	@tensor r2[2,4,1,5,6] := aRn[1,2,3] * right_q[3,4,5,6]
+	@tensor r1[1,2,3,6,5] := left_q[1,2,3,4] * aLn[4,5,6]
+	@tensor r2[4,1,5,6,2] := aRn[1,2,3] * right_q[3,4,5,6]
 
 	return r1, s, r2
 end

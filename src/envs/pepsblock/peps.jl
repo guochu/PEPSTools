@@ -12,12 +12,12 @@ function PEPSBlock(peps::AbstractMatrix{Array{T, 5}}, left::MPS, right::MPS, up:
 	@assert length(left) == length(right) == m
 	@assert length(up) == length(down) == n
 	for i in 1:m
-		@assert size(left[i], 2) == size(peps[i, 1], 2)^2
-		@assert size(right[i], 2) == size(peps[i, n], 4)^2
+		@assert size(left[i], 2) == size(peps[i, 1], 1)^2
+		@assert size(right[i], 2) == size(peps[i, n], 3)^2
 	end
 	for i in 1:n
-		@assert size(up[i], 2) == size(peps[1, i], 3)^2
-		@assert size(down[i], 2) == size(peps[m, i], 5)^2
+		@assert size(up[i], 2) == size(peps[1, i], 2)^2
+		@assert size(down[i], 2) == size(peps[m, i], 4)^2
 	end
 	new{T, MPS{T, real(T)}}(peps, left, right, up, down)
 end

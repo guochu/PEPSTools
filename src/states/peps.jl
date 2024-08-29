@@ -16,114 +16,14 @@ Base.copy(x::PEPS) = PEPS(copy(x.data))
 Base.repeat(x::PEPS, i::Int...) = PEPS(repeat(x, i...))
 
 """
-    bond_dimensions(peps::AbstractPEPS)
-Return bond dimensions of peps
-
-two dimensional tensor network.
-The index convention for single site
-peps: ------------3-------------
---------------2---1---4---------
-------------------5-------------
-"""
-function bond_dimensions(peps::PEPS)
-    m, n = size(peps)
-    Vs = Matrix{Int}(undef, m, n) 
-    Hs = Matrix{Int}(undef, m, n) 
-    for j in 1:n
-        for i in 1:m
-            Vs[i, j] = size(peps[i, j], 5)
-            Hs[i, j] = size(peps[i, j], 4)
-        end
-    end
-    return SquareLatticeBonds(H=Hs, V=Vs)
-end
-
-
-"""
     physical_dimensions(mps::AbstractPEPS)
 Return physical dimensions of mps
 """
-function physical_dimensions(peps::PEPS)
-    m, n = size(peps)
-    r = zeros(Int, m, n)
-    for j in 1:n
-        for i in 1:m
-            r[i, j] = size(peps[i, j], 1)
-        end
-    end
-    return r
-end
-
-"""
-    bond_dimension(mps::AbstractPEPS)
-Return maximum bond dimension of mps
-"""
-function bond_dimension(peps::PEPS)
-	D = 0
-	for item in peps.data
-		D = max(D, size(item)...)
-	end
-	return D
-end 
-
-function is_h_nonperiodic(peps::PEPS)
-    m, n = size(peps)
-    for i in 1:m
-        ((size(peps[i, 1], 2) == 1) && (size(peps[i, n], 4) == 1)) || return false
-    end
-    return true
-end
-function is_v_nonperiodic(peps::PEPS)
-    m, n = size(peps)
-    for i in 1:n
-        (size(peps[1, i], 3) == 1) && (size(peps[m, i], 5) == 1) || return false
-    end
-    return true
-end
-is_nonperiodic(peps::PEPS) = is_h_nonperiodic(peps) && is_v_nonperiodic(peps)
-is_periodic(peps::PEPS) = (!is_h_nonperiodic(peps)) && (!is_v_nonperiodic(peps))
-
-check(peps::PEPS; periodic::Bool=false) = periodic ? check_periodic(peps) : check_non_periodic(peps)
-function check_non_periodic(peps::PEPS)
-    isempty(peps.data) && error("peps is empty.")
-    m, n = size(peps)
-    (size(peps[1,1], 2)==1 && size(peps[1,1], 3)==1) || return false
-    for i in 1:n
-        (size(peps[1, i], 3)==1) || return false
-        (size(peps[m, i], 5)==1) || return false
-    end
-    for i in 1:m
-        (size(peps[i, 1], 2)==1) || return false
-        (size(peps[i, n], 4)==1) || return false
-    end
-    for j in 1:n-1
-        for i in 1:m-1
-            (size(peps[i, j], 4) == size(peps[i, j+1], 2)) || return false
-            (size(peps[i, j], 5) == size(peps[i+1, j], 3)) || return false
-        end
-    end
-    return true
-end
-
-function check_periodic(peps::PEPS)
-    isempty(peps.data) && error("peps is empty.")
-    m, n = size(peps)
-    for j in 1:n-1
-        for i in 1:m-1
-            (size(peps[i, j], 4) == size(peps[i, j+1], 2)) || return false
-            (size(peps[i, j], 5) == size(peps[i+1, j], 3)) || return false
-        end
-    end
-    for j in 1:n
-        (size(peps[m, j], 5) == size(peps[1, j], 3)) || return false
-    end
-    for i in 1:m
-        (size(peps[i, n], 4) == size(peps[i, 1], 2)) || return false
-    end
-    return true
-end
+physical_dimensions(peps::PEPS) = size.(peps.data, 5)
 
 
+
+# initializers
 function prodpeps(::Type{T}, ds::AbstractMatrix{Int}, physectors::AbstractMatrix{Int}) where {T<:Number}
     @assert size(ds) == size(physectors)
     m, n = size(ds)
@@ -131,7 +31,7 @@ function prodpeps(::Type{T}, ds::AbstractMatrix{Int}, physectors::AbstractMatrix
     for j in 1:n
         for i in 1:m
             dj = ds[i, j]
-           r[i, j] = reshape(onehot(T, dj, physectors[i, j]), (dj, 1, 1, 1, 1))
+           r[i, j] = reshape(onehot(T, dj, physectors[i, j]), (1, 1, 1, 1, dj))
         end
     end
     return r
@@ -153,7 +53,7 @@ function randompeps(f, ::Type{T}, ds::AbstractMatrix{Int}; periodic::Bool=false,
                 s4 = j==n ? 1 : D
                 s5 = i==m ? 1 : D
             end
-            tmp = f(T, s1, s2, s3, s4, s5)
+            tmp = f(T, s2, s3, s4, s5, s1)
             if D==1
                 r[i, j] = normalize!(tmp)
             else
@@ -173,12 +73,12 @@ randompeps(m::Int, n::Int; kwargs...) = randompeps(Float64, m, n; kwargs...)
 
 sandwich_single(a::AbstractArray{<:Number, 5}) = sandwich_single(a, a)
 function sandwich_single(a::AbstractArray{<:Number, 5}, b::AbstractArray{<:Number, 5})
-    @tensor tmp[2,6,3,7,4,8,5,9] := conj(a[1,2,3,4,5]) * b[1,6,7,8,9] 
+    @tensor tmp[2,6,3,7,4,8,5,9] := conj(a[2,3,4,5,1]) * b[6,7,8,9,1] 
     return tie(tmp, (2,2,2,2))
 end
 
 function sandwich_single(a::AbstractArray{<:Number, 5}, op::AbstractMatrix, b::AbstractArray{<:Number, 5})
-    @tensor tmp[2,6,3,7,4,8,5,9] := conj(a[1,2,3,4,5]) * op[1,10] * b[10,6,7,8,9] 
+    @tensor tmp[2,6,3,7,4,8,5,9] := conj(a[2,3,4,5,1]) * op[1,10] * b[6,7,8,9,10] 
     return tie(tmp, (2,2,2,2))
 end
 sandwich_single(a::AbstractArray{<:Number, 5}, op::Nothing, b::AbstractArray{<:Number, 5}) = sandwich_single(a, b)

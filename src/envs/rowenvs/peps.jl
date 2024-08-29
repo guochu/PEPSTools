@@ -76,8 +76,8 @@ function compute_center(x::PEPSRowEnv, pos::Int)
 	# hright = x.hstorage[pos+2]
 	AL = x.middle[pos]
 	AR = x.middle[pos+1]
-	left_q, aL = tqr!(copy(AL), (2,3,5), (1,4))
-	aR, right_q = tlq!(copy(AR), (2,1), (3,4,5))
+	left_q, aL = tqr!(copy(AL), (1,2,4), (5,3))
+	aR, right_q = tlq!(copy(AR), (1,5), (2,3,4))
 
 	@tensor ml[1,5,2,6,4,8,3,7] := conj(left_q[1,2,3,4]) * left_q[5,6,7,8]
 	ml4 = tie(ml, (2,2,2,2))
@@ -98,7 +98,7 @@ rdm1s(x::PEPSRowEnv) = [row_rdm1_single(x, pos) for pos in 1:length(x)]
 function row_rdm1_single(x::PEPSRowEnv, pos::Int)
 	AL = x.middle[pos]
 	s1, s2 = size(AL, 1), size(AL, 2)
-	@tensor tmp[6,1,2,7,3,8,4,9,5,10] := conj(AL[1,2,3,4,5]) * AL[6,7,8,9,10]
+	@tensor tmp[10,5,1,6,2,7,3,8,4,9] := conj(AL[1,2,3,4,5]) * AL[6,7,8,9,10]
 	tmp4 = tie(tmp, (4,2,2,2))
 	hright = bm_update_right(x.hstorage[pos+1], x.up[pos+1], x.down[pos+1], tmp4)
 	hright4 = reshape(hright, (size(hright, 1), s1, s1, s2*s2, size(hright, 3) ) )

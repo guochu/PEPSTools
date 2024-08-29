@@ -25,7 +25,7 @@ function rdm1s(peps::PEPS, alg::PEPSSimpleUpdate)
 end
 
 function rdm1_util(m::AbstractArray{<:Number, 5})
-	@tensor rho[6,1] := conj(m[1,2,3,4,5]) * m[6,2,3,4,5]
+	@tensor rho[6,1] := conj(m[2,3,4,5,1]) * m[2,3,4,5,6]
 	rho ./= tr(rho)
 	return rho
 end
@@ -51,7 +51,7 @@ end
 
 
 function rdm2H_util(m1::AbstractArray{<:Number, 5}, m2::AbstractArray{<:Number, 5})
-	@tensor rho[6,12,1,8] := (conj(m1[1,2,3,4,5]) * m1[6,2,3,7,5]) * conj(m2[8,4,9,10,11]) * m2[12,7,9,10,11]
+	@tensor rho[6,12,1,8] := (conj(m1[2,3,4,5,1]) * m1[2,3,7,5,6]) * conj(m2[4,9,10,11,8]) * m2[7,9,10,11,12]
 	return normalize_rho!(rho)
 end
 
@@ -72,7 +72,7 @@ function rdm2sV(peps::PEPS, alg::PEPSSimpleUpdate; periodic::Bool=!is_nonperiodi
 end
 
 function rdm2V_util(m1::AbstractArray{<:Number, 5}, m2::AbstractArray{<:Number, 5})
-	@tensor rho[6,12,1,8] := (conj(m1[1,2,3,4,5]) * m1[6,2,3,4,7]) * conj(m2[8,9,5,10,11]) * m2[12,9,7,10,11]
+	@tensor rho[6,12,1,8] := (conj(m1[2,3,4,5,1]) * m1[2,3,4,7,6]) * conj(m2[9,5,10,11,8]) * m2[9,7,10,11,12]
 	return normalize_rho!(rho)
 end
 
