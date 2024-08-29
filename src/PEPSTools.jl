@@ -14,7 +14,7 @@ export bond_dimensions, physical_dimensions, bond_dimension
 
 
 # environments
-
+export borderedpeps
 # export SquareLatticePartition, block_partition, peps_partition
 
 # # algorithms
@@ -63,9 +63,12 @@ include("operators/operators.jl")
 include("states/states.jl")
 
 
-# environments
-include("envs/borderedpeps/borderedpeps.jl")
-include("envs/sandwichenv/sandwichenv.jl")
+## environments
+# border PEPS
+include("borderedpeps/borderedpeps.jl")
+# BMPS environment
+include("bmpsenv/bmpsenv.jl")
+# BlockBP partition
 include("envs/beliefblock/beliefblock.jl")
 
 

@@ -19,8 +19,8 @@ include("states/states.jl")
 
 
 # environments
-include("envs/borderedpeps/borderedpeps.jl")
-include("envs/sandwichenv/sandwichenv.jl")
+include("borderedpeps/borderedpeps.jl")
+include("bmpsenv/bmpsenv.jl")
 include("envs/beliefblock/beliefblock.jl")
 
 
