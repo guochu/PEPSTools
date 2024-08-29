@@ -3,7 +3,7 @@ scalartype(::Type{<:Abstract2DTN{T}}) where {T<:Number} = T
 scalartype(x::Abstract2DTN) = scalartype(typeof(x))
 raw_data(x::Abstract2DTN) = x.data.data
 
-const ValidIndices = Union{Integer,AbstractRange{Int64}, Colon}
+# const ValidIndices = Union{Integer,AbstractRange{Int64}, Colon}
 
 Base.size(x::Abstract2DTN) = size(x.data)
 Base.size(x::Abstract2DTN, i::Int) = size(x.data, i)
