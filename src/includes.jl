@@ -1,40 +1,4 @@
-
 using LinearAlgebra, TensorOperations
-
-# # some basic definitions
-# export PEPS, randompeps, prodpeps
-# export SquareTN, randomsquaretn
-# export SquareLatticeHamiltonian, SquareLatticeOperator, squeeze, exponential, n_nontrivial_terms
-
-
-
-# export SquareLatticePartition, block_partition, peps_partition
-
-# # algorithms
-
-# # classical tensor network
-# export LocalObservers, MagnetizationTensors, Classical2DModel, ClassicalIsing2D, magnetizations, magnetization, interactionH
-
-
-# export PEPSBlock, nrows, ncols
-# export BoundaryMPS, sweep!, expectation, row_expectations, local_expectations, expectationfull
-# export CanonicalPEPS, PEPSSimpleUpdate
-# # reduced density matrices
-# export rdm1s, rdm2s
-
-
-
-# # block bp algorithm
-# export Message, BlockBP, BeliefPEPSBlock, BlockOperator, BlockLocalOperator, default_splitting, center_splitting, subblock, subblocks
-
-# # high-level
-# export ImaginaryTimePEPS, ground_state!
-
-# export densevector
-
-# export heisenberg2D, ising2D
-
-
 
 
 abstract type AbstractPEPSUpdateAlgorithm end
@@ -47,7 +11,7 @@ include("auxiliary/distance.jl")
 include("auxiliary/mptools/mptools.jl")
 
 # definition of lattice Hamiltonian and (first order) evolutionary operator
-include("squarelattice.jl")
+include("operators/operators.jl")
 
 
 # definition of PEPS

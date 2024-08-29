@@ -1,8 +1,5 @@
 module PEPSTools
 
-
-using LinearAlgebra, TensorOperations
-
 # # some basic definitions
 
 # simple definition of Hamiltonian and operators
@@ -46,6 +43,8 @@ export bond_dimensions, physical_dimensions, bond_dimension
 
 
 
+using LinearAlgebra, TensorOperations
+
 
 abstract type AbstractPEPSUpdateAlgorithm end
 abstract type AbstractPEPSGroundStateAlgorithm end
@@ -57,7 +56,7 @@ include("auxiliary/distance.jl")
 include("auxiliary/mptools/mptools.jl")
 
 # definition of lattice Hamiltonian and (first order) evolutionary operator
-include("squarelattice.jl")
+include("operators/operators.jl")
 
 
 # definition of PEPS
