@@ -1,6 +1,6 @@
 
 
-# function rdm1(peps::CanonicalPEPS, i::Int, j::Int, alg::PEPSSimpleUpdate)
+# function rdm1(peps::CanonicalPEPS, i::Int, j::Int, alg::SimpleUpdate)
 # 	bond_left = QuantumSpins.diag(sqrt.(peps.Hbonds[i, j-1]))
 # 	bond_right = QuantumSpins.diag(sqrt.(peps.Hbonds[i, j]))
 # 	bond_up = QuantumSpins.diag(sqrt.(peps.Vbonds[i-1, j]))
@@ -11,9 +11,9 @@
 # end
 
 
-rdm1(peps::PEPS, i::Int, j::Int, alg::PEPSSimpleUpdate) = rdm1_util(peps[i, j])
+rdm1(peps::PEPS, i::Int, j::Int, alg::SimpleUpdate) = rdm1_util(peps[i, j])
 
-function rdm1s(peps::PEPS, alg::PEPSSimpleUpdate)
+function rdm1s(peps::PEPS, alg::SimpleUpdate)
 	m, n = size(peps)
 	r = Matrix{Matrix{scalartype(peps)}}(undef, size(peps))
 	for i in 1:m
@@ -30,12 +30,12 @@ function rdm1_util(m::AbstractArray{<:Number, 5})
 	return rho
 end
 
-rdm2s(peps::PEPS, alg::PEPSSimpleUpdate; kwargs...) = Dict("H"=>rdm2sH(peps, alg; kwargs...), "V"=>rdm2sV(peps, alg; kwargs...))
+rdm2s(peps::PEPS, alg::SimpleUpdate; kwargs...) = Dict("H"=>rdm2sH(peps, alg; kwargs...), "V"=>rdm2sV(peps, alg; kwargs...))
 
 
-rdm2H(peps::PEPS, i::Int, j::Int, alg::PEPSSimpleUpdate) = rdm2H_util(peps[i, j], peps[i, j+1])
+rdm2H(peps::PEPS, i::Int, j::Int, alg::SimpleUpdate) = rdm2H_util(peps[i, j], peps[i, j+1])
 
-function rdm2sH(peps::PEPS, alg::PEPSSimpleUpdate; periodic::Bool=!is_nonperiodic(peps))
+function rdm2sH(peps::PEPS, alg::SimpleUpdate; periodic::Bool=!is_nonperiodic(peps))
 	m, n = size(peps)
 
 	_ncols = periodic ? n : n-1
@@ -55,9 +55,9 @@ function rdm2H_util(m1::AbstractArray{<:Number, 5}, m2::AbstractArray{<:Number, 
 	return normalize_rho!(rho)
 end
 
-rdm2V(peps::PEPS, i::Int, j::Int, alg::PEPSSimpleUpdate) = rdm2V_util(peps[i, j], peps[i+1, j])
+rdm2V(peps::PEPS, i::Int, j::Int, alg::SimpleUpdate) = rdm2V_util(peps[i, j], peps[i+1, j])
 
-function rdm2sV(peps::PEPS, alg::PEPSSimpleUpdate; periodic::Bool=!is_nonperiodic(peps))
+function rdm2sV(peps::PEPS, alg::SimpleUpdate; periodic::Bool=!is_nonperiodic(peps))
 	m, n = size(peps)
 
 	_nrows = periodic ? m : m-1

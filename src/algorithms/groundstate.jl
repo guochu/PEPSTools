@@ -69,7 +69,7 @@ function ground_state!(peps::AbstractPEPS, h::SquareLatticeHamiltonian, alg::Ima
 	return energies, (iter, err)
 end
 
-# function ground_state!(peps::PEPS, h::SquareLatticeHamiltonian, alg::ImaginaryTimePEPS{PEPSSimpleUpdate})
+# function ground_state!(peps::PEPS, h::SquareLatticeHamiltonian, alg::ImaginaryTimePEPS{SimpleUpdate})
 # 	cpeps = CanonicalPEPS(peps)
 # 	res = ground_state!(cpeps, h, alg)
 # 	r = PEPS(cmps)

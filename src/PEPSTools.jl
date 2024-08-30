@@ -23,7 +23,7 @@ export nrows, ncols, peps_partition
 
 ## algorithms
 export BoundaryMPS, sweep!, expectation, energy
-export PEPSSimpleUpdate
+export SimpleUpdate
 # reduced density matrices
 export rdm1s, rdm2s
 # block bp algorithm

@@ -1,20 +1,20 @@
 
 
-struct PEPSSimpleUpdate <: ImaginaryTimePEPSUpdateAlgorithm
+struct SimpleUpdate <: ImaginaryTimePEPSUpdateAlgorithm
 	D2::Int 
 	ϵ::Float64 
 	als_tol::Float64 
 	als_maxiter::Int 
 	verbosity::Int 
 end
-PEPSSimpleUpdate(; D2::Int=3, ϵ::Real=1.0e-8, als_tol::Real=1.0e-6, als_maxiter::Int=5, verbosity::Int=1) = PEPSSimpleUpdate(
+SimpleUpdate(; D2::Int=3, ϵ::Real=1.0e-8, als_tol::Real=1.0e-6, als_maxiter::Int=5, verbosity::Int=1) = SimpleUpdate(
 				D2, convert(Float64, ϵ), convert(Float64, als_tol), als_maxiter, verbosity)
 
 expectation(U::Union{SquareLatticeOperator, SquareLatticeHamiltonian}, peps::CanonicalPEPS, alg::PEPSUpdateAlgorithm) = expectation(
 	U, PEPS(peps), alg)
 
 
-function sweep!(peps::CanonicalPEPS, U::SquareLatticeOperator, alg::PEPSSimpleUpdate)
+function sweep!(peps::CanonicalPEPS, U::SquareLatticeOperator, alg::SimpleUpdate)
 	@assert size(peps) == size(U)
 	m, n = size(peps)
 	trunc = truncdimcutoff(D=alg.D2, ϵ=alg.ϵ)
