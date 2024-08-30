@@ -64,7 +64,7 @@ end
 
 
 
-function bondenergy(x::Classical2DModel, i::Int, j::Int, alg::BoundaryMPS; β::Real)
+function bond_energy(x::Classical2DModel, i::Int, j::Int, alg::BoundaryMPS; β::Real)
 	peps = SquareTN(site_tensors(x, β=β))
 	is_nonperiodic(peps) || throw(ArgumentError("BoundaryMPS only supports OBC, use BoundaryMPO instead"))
 	blk = borderedpeps(peps)

@@ -49,7 +49,7 @@ function _local_expectation(mT::AbstractArray{<:Number, 4}, i::Int, j::Int, peps
 
 end
 
-function bondenergy(x::Classical2DModel, i::Int, j::Int, alg::BlockBP; β::Real)
+function bond_energy(x::Classical2DModel, i::Int, j::Int, alg::BlockBP; β::Real)
 	peps = SquareTN(site_tensors(x, β=β))
 	mT1 = magnetization_tensor(x, i, j, β=β)
 	mT2 = magnetization_tensor(x, i, j+1, β=β)

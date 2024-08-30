@@ -33,7 +33,7 @@ export Message, BlockBP, BlockBPPartitionPEPS, BlockOperator, BlockLocalOperator
 export ImaginaryTimePEPS, ground_state!
 
 # classical tensor network
-export Classical2DModel, ClassicalIsing2D, magnetizations, magnetization, bondenergy
+export Classical2DModel, ClassicalIsing2D, magnetizations, magnetization, bond_energy
 
 
 

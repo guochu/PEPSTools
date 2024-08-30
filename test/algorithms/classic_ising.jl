@@ -62,7 +62,7 @@ end
 
 vdot(x::AbstractArray, y::AbstractArray) = dot(conj(x), y)
 
-function exact_expec(model::ClassicalIsing2D, i::Int, j::Int; β::Real)
+function exact_magnetization(model::ClassicalIsing2D, i::Int, j::Int; β::Real)
 	ms = site_tensors(model, β=β)
 	mj = magnetization_tensor(model, i, j, β=β)
 	ms_2 = copy(ms)
@@ -70,6 +70,16 @@ function exact_expec(model::ClassicalIsing2D, i::Int, j::Int; β::Real)
 	return contract_2D_nonperiodic(ms_2) / contract_2D_nonperiodic(ms)
 end
 
+
+function exact_bond_energy(model::ClassicalIsing2D, i::Int, j::Int; β::Real)
+	ms = site_tensors(model, β=β)
+	mj1 = magnetization_tensor(model, i, j, β=β)
+	mj2 = magnetization_tensor(model, i, j+1, β=β)
+	ms_2 = copy(ms)
+	ms_2[i, j] = mj1
+	ms_2[i, j+1] = mj2
+	return contract_2D_nonperiodic(ms_2) / contract_2D_nonperiodic(ms)
+end
 
 function Onsager_m(beta)
 	
@@ -88,7 +98,7 @@ end
 	m = 4
 
 	D2 = 2
-	D1 = 2*D2^2 + 5
+	D1 = 20
 
 	update_alg = BoundaryMPS(D2=D2,D1=D1,als_maxiter=20, mult_alg=IterativeCompression(D=D1,maxiter=20))
 
@@ -106,14 +116,18 @@ end
 	betas_list = [beta_min + i*del_beta for i in 0:beta_n-1]
 
 	tol = 1.0e-4
-	for i in (2,4)
+	for i in (2,3)
 		for j in (1,2)
 			for beta in betas_list
 				obs1 = magnetization(model, i, j, update_alg, β=beta)
-				obs2 = exact_expec(model, i, j, β=beta)
+				obs2 = exact_magnetization(model, i, j, β=beta)
 
 				@test abs(obs1 - obs2) < tol
-				# println(obs1, " ", obs2)
+
+				obs1 = bond_energy(model, i, j, update_alg, β=beta)
+				obs2 = exact_bond_energy(model, i, j, β=beta)
+
+				@test abs(obs1 - obs2) < tol
 			end	
 		end
 	end

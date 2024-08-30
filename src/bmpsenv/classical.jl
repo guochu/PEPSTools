@@ -49,7 +49,8 @@ function expectation_bond(x::ClassicalSandwichEnv, pos::Int, ob1::AbstractArray{
 	@assert pos < length(x.middle)
 	left = compute_hleft(x, pos)
 	tmp = bm_update_left(left, x.up[pos+1], x.down[pos+1], x.middle[pos])
-	@tensor n = tmp[1,2,3] * x.hstorage[pos+1][1,2,3]
+	tmp = bm_update_left(tmp, x.up[pos+2], x.down[pos+2], x.middle[pos+1])	
+	@tensor n = tmp[1,2,3] * x.hstorage[pos+2][1,2,3]
 	tmp = bm_update_left(left, x.up[pos+1], x.down[pos+1], ob1)	
 	tmp = bm_update_left(tmp, x.up[pos+2], x.down[pos+2], ob2)	
 	@tensor r = tmp[1,2,3] * x.hstorage[pos+2][1,2,3]
