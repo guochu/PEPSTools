@@ -1,10 +1,10 @@
 
-function rdm1s(peps::PEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm)
+function rdm1s(peps::PEPS, alg::BlockBP)
 	U = rdm1_trivial_operator(size(peps))
 	return rdm1s_util(center_splitting(U, alg.block_size), peps, alg)
 end
 
-function rdm1s_util(Us::Vector{BlockLocalOperator{Int}}, peps::PEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm) 
+function rdm1s_util(Us::Vector{BlockLocalOperator{Int}}, peps::PEPS, alg::BlockBP) 
 	T = scalartype(peps)
 	r = Matrix{Union{Matrix{T}, Nothing}}(nothing, size(peps))
 	for U in Us
@@ -15,7 +15,7 @@ function rdm1s_util(Us::Vector{BlockLocalOperator{Int}}, peps::PEPS, alg::Abstra
 	return r
 end
 
-function rdm1s_single_block(U::BlockLocalOperator{Int}, blk::BlockBPPartitionPEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm) 
+function rdm1s_single_block(U::BlockLocalOperator{Int}, blk::BlockBPPartitionPEPS, alg::BlockBP) 
 	@assert blk.partition == U.partition
 	compute_messages!(blk, alg)
 	mult_alg = get_msg_mult_alg(alg)
@@ -75,13 +75,13 @@ function rdm1_trivial_operator(shape::Tuple{Int, Int})
 	return SquareLatticeSites(PeriodicArray(data))
 end
 
-function rdm2s(peps::PEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm; periodic::Bool=!is_nonperiodic(peps))
+function rdm2s(peps::PEPS, alg::BlockBP; periodic::Bool=!is_nonperiodic(peps))
 	U = rdm2_trivial_operator(size(peps), periodic)
 	T = scalartype(peps)
 	return rdm2s_util(center_splitting(U, alg.block_size), peps, alg)
 end
 
-function rdm2s_util(Us::Vector{BlockOperator{Int}}, peps::PEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm) 
+function rdm2s_util(Us::Vector{BlockOperator{Int}}, peps::PEPS, alg::BlockBP) 
 	T = scalartype(peps)
 	rH = Matrix{Union{Array{T, 4}, Nothing}}(nothing, size(peps))
 	rV = Matrix{Union{Array{T, 4}, Nothing}}(nothing, size(peps))
@@ -95,7 +95,7 @@ function rdm2s_util(Us::Vector{BlockOperator{Int}}, peps::PEPS, alg::AbstractBlo
 	return SquareLatticeBonds(H=rH, V=rV)
 end
 
-function rdm2s_single_block(U::BlockOperator, blk::BlockBPPartitionPEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm)
+function rdm2s_single_block(U::BlockOperator, blk::BlockBPPartitionPEPS, alg::BlockBP)
 	@assert blk.partition == U.partition
 	mult_alg = get_msg_mult_alg(alg)
 	compute_messages!(blk, alg)

@@ -1,6 +1,6 @@
 
 
-struct ImaginaryTimePEPS{A<:AbstractPEPSUpdateAlgorithm, B<:AbstractPEPSUpdateAlgorithm} <: AbstractPEPSGroundStateAlgorithm
+struct ImaginaryTimePEPS{A<:ImaginaryTimePEPSUpdateAlgorithm, B<:ImaginaryTimePEPSUpdateAlgorithm} <: PEPSGroundStateAlgorithm
 	stepper::A
 	measure_alg::B
 	parameters::Vector{Tuple{Int, Float64, Float64}}
@@ -10,7 +10,8 @@ end
 
 
 ImaginaryTimePEPS(paras::Vector{<:Tuple{Int, <:Real, <:Real}}; verbosity::Int=1, 
-	stepper::AbstractPEPSUpdateAlgorithm=BoundaryMPS(verbosity=verbosity), measure_alg::AbstractPEPSUpdateAlgorithm=stepper, 
+	stepper::ImaginaryTimePEPSUpdateAlgorithm=BoundaryMPS(verbosity=verbosity), 
+	measure_alg::ImaginaryTimePEPSUpdateAlgorithm=stepper, 
 	sweeps_per_measure::Int=10) = ImaginaryTimePEPS(
 	stepper, measure_alg, convert(Vector{Tuple{Int, Float64, Float64}}, paras), sweeps_per_measure, verbosity)
 

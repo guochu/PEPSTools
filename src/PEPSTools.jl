@@ -9,45 +9,46 @@ export SquareLatticeSites, LocalCObservers, LocalQObservers
 
 
 # definition of PEPS
-export PEPS, randompeps, prodpeps, randomsquaretn
+export PEPS, randompeps, prodpeps, randomsquaretn, CanonicalPEPS
 export bond_dimensions, physical_dimensions, bond_dimension
 
 
 # environments
 export borderedpeps
-# export SquareLatticePartition, lattice_partition, peps_partition
+export SquareLatticePartition, lattice_partition, peps_partition
 
-# # algorithms
-
-# # classical tensor network
-# export LocalObservers, MagnetizationTensors, Classical2DModel, ClassicalIsing2D, magnetizations, magnetization, interactionH
+# blockbp partition
+export nrows, ncols, peps_partition
 
 
-# export PEPSBlock, nrows, ncols
-# export BoundaryMPS, sweep!, expectation, row_expectations, local_expectations, expectationfull
-# export CanonicalPEPS, PEPSSimpleUpdate
-# # reduced density matrices
-# export rdm1s, rdm2s
+## algorithms
+export BoundaryMPS, sweep!, expectation, energy
+export PEPSSimpleUpdate
+# reduced density matrices
+export rdm1s, rdm2s
+# block bp algorithm
+export Message, BlockBP, BlockBPPartitionPEPS, BlockOperator, BlockLocalOperator, default_splitting, center_splitting, subblock, subblocks
+
+# high-level
+export ImaginaryTimePEPS, ground_state!
+
+# classical tensor network
+export Classical2DModel, ClassicalIsing2D, magnetizations, magnetization, bondenergy
 
 
 
-# # block bp algorithm
-# export Message, BlockBP, BlockBPPartitionPEPS, BlockOperator, BlockLocalOperator, default_splitting, center_splitting, subblock, subblocks
-
-# # high-level
-# export ImaginaryTimePEPS, ground_state!
-
-# export densevector
-
-# export heisenberg2D, ising2D
+## utility
+# predefined models
+export heisenberg2D, ising2D
 
 
 
 using LinearAlgebra, TensorOperations
 
 
-abstract type AbstractPEPSUpdateAlgorithm end
-abstract type AbstractPEPSGroundStateAlgorithm end
+abstract type PEPSUpdateAlgorithm end
+abstract type ImaginaryTimePEPSUpdateAlgorithm <: PEPSUpdateAlgorithm end
+abstract type PEPSGroundStateAlgorithm end
 
 
 # definition of periodic array

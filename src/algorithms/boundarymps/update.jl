@@ -1,7 +1,7 @@
 
 # full update algorithm
 
-struct BoundaryMPS{M<:MPSCompression} <: AbstractPEPSUpdateAlgorithm
+struct BoundaryMPS{M<:MPSCompression} <: ImaginaryTimePEPSUpdateAlgorithm
 	D2::Int 
 	D1::Int 
 	ϵ::Float64 

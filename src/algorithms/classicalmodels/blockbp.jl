@@ -1,20 +1,16 @@
+magnetizations(x::Classical2DModel, alg::BlockBP; β::Real) = _local_expectations(
+	SquareLatticeSites(magnetization_tensors(x, β=β)), SquareTN(site_tensors(x, β=β)), alg)
 
-magnetizations(x::Classical2DModel, alg::AbstractBlockBPPEPSUpdateAlgorithm; β::Real) = local_expectations(
-	MagnetizationTensors(magnetization_tensors(x, β=β)), SquareTN(site_tensors(x, β=β)), alg)
-
-local_expectations(U::LocalCObservers, peps::SquareTN, alg::BlockBP) = local_expectations(center_splitting(U, alg.block_size), peps, alg)
-
-
-function local_expectations(Us::Vector{BlockLocalOperator{<:AbstractArray{T, 4}}}, peps::SquareTN, alg::AbstractBlockBPPEPSUpdateAlgorithm) where T
+_local_expectations(U::LocalCObservers, peps::SquareTN, alg::BlockBP) = _local_expectations(center_splitting(U, alg.block_size), peps, alg)
+function _local_expectations(Us::Vector{BlockLocalOperator{<:AbstractArray{T, 4}}}, peps::SquareTN, alg::BlockBP) where T
 	r = zeros(scalartype(peps), size(peps))
 	for U in Us
 		blk = peps_partition(peps, U.partition)
-		r += local_expectations(U, blk, alg)
+		r += _local_expectations(U, blk, alg)
 	end
 	return r
 end
-
-function local_expectations(U::BlockLocalOperator{<:AbstractArray{T, 4}}, blk::BlockBPPartitionSquareTN, alg::AbstractBlockBPPEPSUpdateAlgorithm) where T
+function _local_expectations(U::BlockLocalOperator{<:AbstractArray{T, 4}}, blk::BlockBPPartitionSquareTN, alg::BlockBP) where T
 	@assert blk.partition == U.partition
 	compute_messages!(blk, alg)
 	mult_alg = get_msg_mult_alg(alg)
@@ -24,14 +20,19 @@ function local_expectations(U::BlockLocalOperator{<:AbstractArray{T, 4}}, blk::B
 			_peps, msgl, msgr, msgu, msgd = subblock(blk, i, j)
 			x = borderedpeps(_peps, left=msgl.i, right=msgr.o, up=msgu.i, down=msgd.o)
 			sU = subblock(U, i, j)
-			r[rowindices(blk, i), colindices(blk, j)] = local_expectations(sU, x, mult_alg)
+			r[rowindices(blk, i), colindices(blk, j)] = _local_expectations(sU, x, mult_alg)
 		end
 	end	
 	return r.data
 end
 
 
-function local_expectation(mT::AbstractArray{<:Number, 4}, i::Int, j::Int, peps::SquareTN, alg::BlockBP)
+function magnetization(x::Classical2DModel, i::Int, j::Int, alg::BlockBP; β::Real)
+	peps = SquareTN(site_tensors(x, β=β))
+	mT = magnetization_tensor(x, i, j, β=β)
+	return _local_expectation(mT, i, j, peps, alg)
+end
+function _local_expectation(mT::AbstractArray{<:Number, 4}, i::Int, j::Int, peps::SquareTN, alg::BlockBP)
 	@assert size(mT) == size(peps[i, j])
 	block_size = alg.block_size
 	a = div(block_size[1]-1, 2)
@@ -48,13 +49,7 @@ function local_expectation(mT::AbstractArray{<:Number, 4}, i::Int, j::Int, peps:
 
 end
 
-function magnetization(x::Classical2DModel, i::Int, j::Int, alg::BlockBP; β::Real)
-	peps = SquareTN(site_tensors(x, β=β))
-	mT = magnetization_tensor(x, i, j, β=β)
-	return local_expectation(mT, i, j, peps, alg)
-end
-
-function interactionH(x::Classical2DModel, i::Int, j::Int, alg::BlockBP; β::Real)
+function bondenergy(x::Classical2DModel, i::Int, j::Int, alg::BlockBP; β::Real)
 	peps = SquareTN(site_tensors(x, β=β))
 	mT1 = magnetization_tensor(x, i, j, β=β)
 	mT2 = magnetization_tensor(x, i, j+1, β=β)

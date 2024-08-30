@@ -120,7 +120,7 @@ end
 parallel_local_expectations(U::PEPSTools.LocalObservers, peps::SquareTN, alg::BlockBP) = parallel_local_expectations(center_splitting(U, alg.block_size), peps, alg)
 
 
-function parallel_local_expectations(Us::Vector{<:PEPSTools.BlockLocalOperator}, peps::SquareTN, alg::PEPSTools.AbstractBlockBPPEPSUpdateAlgorithm)
+function parallel_local_expectations(Us::Vector{<:PEPSTools.BlockLocalOperator}, peps::SquareTN, alg::ImaginaryTimePEPSUpdateAlgorithm)
 	r = zeros(scalartype(peps), size(peps))
 	for U in Us
 		blk = peps_partition(peps, U.partition)
@@ -129,7 +129,7 @@ function parallel_local_expectations(Us::Vector{<:PEPSTools.BlockLocalOperator},
 	return r
 end
 
-function parallel_local_expectations(U::PEPSTools.BlockLocalOperator, blk::PEPSTools.BlockBPPartitionSquareTN, alg::PEPSTools.AbstractBlockBPPEPSUpdateAlgorithm)
+function parallel_local_expectations(U::PEPSTools.BlockLocalOperator, blk::PEPSTools.BlockBPPartitionSquareTN, alg::ImaginaryTimePEPSUpdateAlgorithm)
 	@assert blk.partition == U.partition
 	parallel_compute_messages!(blk, alg)
 	mult_alg = PEPSTools.get_msg_mult_alg(alg)
@@ -206,7 +206,7 @@ function _collect_peps!(blk::BlockBPPartitionPEPS, out)
 	end
 end
 
-function parallel_compute_messages!(blk::PEPSTools.AbstractBlockBPPartitionPEPS, alg::PEPSTools.AbstractBlockBPPEPSUpdateAlgorithm)
+function parallel_compute_messages!(blk::PEPSTools.AbstractBlockBPPartitionPEPS, alg::ImaginaryTimePEPSUpdateAlgorithm)
 	iter = 1
 	losses = Float64[]
 	maxiter = alg.msg_maxiter

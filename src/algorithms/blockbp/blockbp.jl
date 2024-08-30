@@ -1,7 +1,4 @@
-
-abstract type AbstractBlockBPPEPSUpdateAlgorithm <: AbstractPEPSUpdateAlgorithm end
-
-struct BlockBP{M<:BoundaryMPS} <: AbstractBlockBPPEPSUpdateAlgorithm
+struct BlockBP{M<:BoundaryMPS} <: ImaginaryTimePEPSUpdateAlgorithm
 	block_size::Tuple{Int, Int} 
 	msg_tol::Float64 
 	msg_maxiter::Int
@@ -15,11 +12,11 @@ BlockBP(; block_size::Tuple{Int, Int}=(3,3), msg_maxiter::Int=10, msg_tol::Real=
 	block_size, msg_tol, msg_maxiter, msg_D, verbosity, update_alg)
 
 # We may want to use different (smaller) bond dimension to compute messages to reduce the complexity
-function get_msg_mult_alg(x::AbstractBlockBPPEPSUpdateAlgorithm)
+function get_msg_mult_alg(x::BlockBP)
 	mult_alg = get_mult_alg(x.update_alg)
 	return changeD(mult_alg, D=x.msg_D) 
 end 
 
 
-compute_messages!(blk::AbstractBlockBPPartitionPEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm) = compute_messages!(blk, 
+compute_messages!(blk::AbstractBlockBPPartitionPEPS, alg::BlockBP) = compute_messages!(blk, 
 	get_msg_mult_alg(alg), maxiter=alg.msg_maxiter, tol=alg.msg_tol, verbosity=alg.verbosity )

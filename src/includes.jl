@@ -1,8 +1,9 @@
 using LinearAlgebra, TensorOperations
 
 
-abstract type AbstractPEPSUpdateAlgorithm end
-abstract type AbstractPEPSGroundStateAlgorithm end
+abstract type PEPSUpdateAlgorithm end
+abstract type ImaginaryTimePEPSUpdateAlgorithm <: PEPSUpdateAlgorithm end
+abstract type PEPSGroundStateAlgorithm end
 
 
 # definition of periodic array

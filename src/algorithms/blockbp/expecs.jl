@@ -3,7 +3,7 @@ function energy(U::SquareLatticeOperator, peps::PEPS, alg::BlockBP)
 	return sum(r.H) + sum(r.V)
 end
 expectation(U::SquareLatticeOperator, peps::PEPS, alg::BlockBP) = expectation(center_splitting(U, alg.block_size), peps, alg)
-function expectation(Us::Vector{<:BlockOperator}, peps::PEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm)
+function expectation(Us::Vector{<:BlockOperator}, peps::PEPS, alg::BlockBP)
 	rH = PeriodicArray(zeros(scalartype(peps), size(peps)))
 	rV = PeriodicArray(zeros(scalartype(peps), size(peps)))
 	r = SquareLatticeBonds(H=rH, V=rV)
@@ -15,14 +15,14 @@ function expectation(Us::Vector{<:BlockOperator}, peps::PEPS, alg::AbstractBlock
 	return r
 end
 
-function expectation(U::BlockOperator, blk::BlockBPPartitionPEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm)
+function expectation(U::BlockOperator, blk::BlockBPPartitionPEPS, alg::BlockBP)
 	rH = PeriodicArray(zeros(scalartype(blk), size(blk)))
 	rV = PeriodicArray(zeros(scalartype(blk), size(blk)))
 	r = SquareLatticeBonds(H=rH, V=rV)
 	return expectation!(r, U, blk, alg)
 end
 
-function expectation!(r::SquareLatticeBonds, U::BlockOperator, blk::BlockBPPartitionPEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm)
+function expectation!(r::SquareLatticeBonds, U::BlockOperator, blk::BlockBPPartitionPEPS, alg::BlockBP)
 	@assert blk.partition == U.partition
 	@assert size(r) == size(blk)
 	mult_alg = get_msg_mult_alg(alg)
@@ -49,7 +49,7 @@ end
 expectation(U::LocalQObservers, peps::PEPS, alg::BlockBP) = expectation(center_splitting(U, alg.block_size), peps, alg)
 
 
-function expectation(Us::Vector{BlockLocalOperator{M}}, peps::PEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm) where {M<:AbstractMatrix}
+function expectation(Us::Vector{BlockLocalOperator{M}}, peps::PEPS, alg::BlockBP) where {M<:AbstractMatrix}
 	r = zeros(scalartype(peps), size(peps))
 	for U in Us
 		blk = peps_partition(peps, U.partition)
@@ -58,7 +58,7 @@ function expectation(Us::Vector{BlockLocalOperator{M}}, peps::PEPS, alg::Abstrac
 	return r
 end
 
-function expectation(U::BlockLocalOperator{M}, blk::BlockBPPartitionPEPS, alg::AbstractBlockBPPEPSUpdateAlgorithm) where {M<:AbstractMatrix}
+function expectation(U::BlockLocalOperator{M}, blk::BlockBPPartitionPEPS, alg::BlockBP) where {M<:AbstractMatrix}
 	@assert blk.partition == U.partition
 	compute_messages!(blk, alg)
 	mult_alg = get_msg_mult_alg(alg)

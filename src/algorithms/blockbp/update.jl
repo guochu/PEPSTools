@@ -38,28 +38,28 @@ function sweep!(blk::BlockBPPartitionPEPS, U::BlockOperator, alg::BlockBP)
 end
 
 
-function only_set_necessary!(target, idx1, idx2, source, sU)
-	for (pos_i, i) in enumerate(idx1)
-		for (pos_j, j) in enumerate(idx2)
-			if !isnothing(sU.H[pos_i, pos_j])
-				# println("update H $pos_i, $pos_j")
-				# @assert (target[i, j] !== source[pos_i, pos_j])
-				# @assert (target[i, j+1] !== source[pos_i, pos_j+1])
-				target[i, j], target[i, j+1] = source[pos_i, pos_j], source[pos_i, pos_j+1]
-			end
-			if !isnothing(sU.V[pos_i, pos_j])
-				# println("update V $pos_i, $pos_j")
-				# @assert (target[i, j] !== source[pos_i, pos_j])
-				# @assert (target[i+1, j] !== source[pos_i+1, pos_j])
-				target[i, j], target[i+1, j] = source[pos_i, pos_j], source[pos_i+1, pos_j]
-			end
+# function only_set_necessary!(target, idx1, idx2, source, sU)
+# 	for (pos_i, i) in enumerate(idx1)
+# 		for (pos_j, j) in enumerate(idx2)
+# 			if !isnothing(sU.H[pos_i, pos_j])
+# 				# println("update H $pos_i, $pos_j")
+# 				# @assert (target[i, j] !== source[pos_i, pos_j])
+# 				# @assert (target[i, j+1] !== source[pos_i, pos_j+1])
+# 				target[i, j], target[i, j+1] = source[pos_i, pos_j], source[pos_i, pos_j+1]
+# 			end
+# 			if !isnothing(sU.V[pos_i, pos_j])
+# 				# println("update V $pos_i, $pos_j")
+# 				# @assert (target[i, j] !== source[pos_i, pos_j])
+# 				# @assert (target[i+1, j] !== source[pos_i+1, pos_j])
+# 				target[i, j], target[i+1, j] = source[pos_i, pos_j], source[pos_i+1, pos_j]
+# 			end
 
-			# if (target[i, j] !== source[pos_i, pos_j])
-			# 	println("set $pos_i, $pos_j element")
-			# 	target[i, j] = source[pos_i, pos_j]
-			# else
-			# 	println("neglect $pos_i, $pos_j element")
-			# end
-		end
-	end
-end
+# 			# if (target[i, j] !== source[pos_i, pos_j])
+# 			# 	println("set $pos_i, $pos_j element")
+# 			# 	target[i, j] = source[pos_i, pos_j]
+# 			# else
+# 			# 	println("neglect $pos_i, $pos_j element")
+# 			# end
+# 		end
+# 	end
+# end
