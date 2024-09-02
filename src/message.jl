@@ -16,3 +16,8 @@ end
 
 Base.copy(x::Message) = Message(copy(x.i), copy(x.o))
 Message(;i::T, o::T) where {T} = Message(i, o)
+
+
+abstract type MessageNormalizationAlgorithm end
+struct FixedNorm <: MessageNormalizationAlgorithm end
+struct FixedSum <: MessageNormalizationAlgorithm end

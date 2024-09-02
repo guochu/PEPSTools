@@ -1,3 +1,5 @@
+const MPSMessage{M} = Message{M, M} where {M <: MPS}
+
 function random_mps_message(::Type{T}, physpaces::Vector{Int}; Di::Int=maximum(physpaces), Do::Int=Di) where {T <: Number}
 	i = random_boundary_mps(T, physpaces, D=Di)
 	# canonicalize!(i, normalize=true)
@@ -18,7 +20,7 @@ trivial_mps_message(::Type{T}, L::Int) where {T <: Number} = Message(trivial_mps
 
 # message_distance2(x::Message, y::Message) = distance2(x.i, y.i) + distance2(x.o, y.o)
 
-function message_distance2(x::Message, y::Message)
+function message_distance2(x::MPSMessage, y::MPSMessage)
 	@assert physical_dimensions(x.i) == physical_dimensions(y.i)
 	@assert physical_dimensions(x.o) == physical_dimensions(y.o)
 	return distance2(x.i, y.i) + distance2(x.o, y.o)

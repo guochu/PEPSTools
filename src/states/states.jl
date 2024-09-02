@@ -13,7 +13,6 @@ Base.setindex!(x::Abstract2DTN, v, i::ValidIndices, j::ValidIndices) = setindex!
 Base.isempty(x::Abstract2DTN) = isempty(x.data)
 
 
-
 """
     bond_dimensions(peps::Abstract2DTN)
 Return bond dimensions of peps
