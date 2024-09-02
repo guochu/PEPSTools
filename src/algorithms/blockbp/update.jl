@@ -6,12 +6,12 @@
 sweep!(peps::PEPS, U::SquareLatticeOperator, alg::BlockBP) = sweep!(peps, default_splitting(U, alg.block_size), alg)
 function sweep!(peps::PEPS, Us::Vector{<:BlockOperator}, alg::BlockBP)
 	for U in Us
-		blk = peps_partition(peps, U.partition)
+		blk = blockbp_environments(peps, U.partition)
 		sweep!(blk, U, alg)
 	end
 end
 
-function sweep!(blk::BlockBPPartitionPEPS, U::BlockOperator, alg::BlockBP) 
+function sweep!(blk::DoubleLayerBlockBPEnv, U::BlockOperator, alg::BlockBP) 
 	@assert blk.partition == U.partition
 	compute_messages!(blk, alg)
 	# println("block rows $(nrows(blk)), cols $(ncols(blk))")

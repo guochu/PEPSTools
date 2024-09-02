@@ -5,12 +5,12 @@ _local_expectations(U::LocalCObservers, peps::SquareTN, alg::BlockBP) = _local_e
 function _local_expectations(Us::Vector{BlockLocalOperator{<:AbstractArray{T, 4}}}, peps::SquareTN, alg::BlockBP) where T
 	r = zeros(scalartype(peps), size(peps))
 	for U in Us
-		blk = peps_partition(peps, U.partition)
+		blk = blockbp_environments(peps, U.partition)
 		r += _local_expectations(U, blk, alg)
 	end
 	return r
 end
-function _local_expectations(U::BlockLocalOperator{<:AbstractArray{T, 4}}, blk::BlockBPPartitionSquareTN, alg::BlockBP) where T
+function _local_expectations(U::BlockLocalOperator{<:AbstractArray{T, 4}}, blk::ClassicalBlockBPEnv, alg::BlockBP) where T
 	@assert blk.partition == U.partition
 	compute_messages!(blk, alg)
 	mult_alg = get_msg_mult_alg(alg)
@@ -38,7 +38,7 @@ function _local_expectation(mT::AbstractArray{<:Number, 4}, i::Int, j::Int, peps
 	a = div(block_size[1]-1, 2)
 	b = div(block_size[2]-1, 2)
 	odd_partition = lattice_partition(size(peps), block_size, (i-a, j-b), (2,2))
-	blk = peps_partition(peps, odd_partition)
+	blk = blockbp_environments(peps, odd_partition)
 
 	mult_alg = get_msg_mult_alg(alg)
 	compute_messages!(blk, alg)
@@ -57,7 +57,7 @@ function bond_energy(x::Classical2DModel, i::Int, j::Int, alg::BlockBP; β::Real
 	a = div(block_size[1]-1, 2)
 	b = div(block_size[2]-2, 2)
 	odd_partition = lattice_partition(size(x), block_size, (i-a, j-b), (2,2))
-	blk = peps_partition(peps, odd_partition)
+	blk = blockbp_environments(peps, odd_partition)
 
 	mult_alg = get_msg_mult_alg(alg)
 	compute_messages!(blk, alg)

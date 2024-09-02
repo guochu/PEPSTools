@@ -1,17 +1,17 @@
-abstract type AbstractBlockBPPartitionPEPS{T} end
+abstract type AbstractBlockBPEnvironment{T} end
 
-nrows(m::AbstractBlockBPPartitionPEPS) = nrows(m.partition)
-ncols(m::AbstractBlockBPPartitionPEPS) = ncols(m.partition)
-rowindices(blk::AbstractBlockBPPartitionPEPS, i::Int) = rowindices(blk.partition, i)
-colindices(blk::AbstractBlockBPPartitionPEPS, j::Int) = colindices(blk.partition, j)
+nrows(m::AbstractBlockBPEnvironment) = nrows(m.partition)
+ncols(m::AbstractBlockBPEnvironment) = ncols(m.partition)
+rowindices(blk::AbstractBlockBPEnvironment, i::Int) = rowindices(blk.partition, i)
+colindices(blk::AbstractBlockBPEnvironment, j::Int) = colindices(blk.partition, j)
 
-scalartype(::Type{<:AbstractBlockBPPartitionPEPS{T}}) where {T<:Number} = T
-scalartype(x::AbstractBlockBPPartitionPEPS) = scalartype(typeof(x))
-Base.size(x::AbstractBlockBPPartitionPEPS) = size(x.peps)
-Base.size(x::AbstractBlockBPPartitionPEPS, i::Int) = size(x.peps, i)
+scalartype(::Type{<:AbstractBlockBPEnvironment{T}}) where {T<:Number} = T
+scalartype(x::AbstractBlockBPEnvironment) = scalartype(typeof(x))
+Base.size(x::AbstractBlockBPEnvironment) = size(x.peps)
+Base.size(x::AbstractBlockBPEnvironment, i::Int) = size(x.peps, i)
 
 
-function subblock(m::AbstractBlockBPPartitionPEPS, i::Int, j::Int) 
+function subblock(m::AbstractBlockBPEnvironment, i::Int, j::Int) 
 	_peps = subblock(m.peps.data, m.partition, i, j)
 	# a, b = nrows(m), ncols(m)
 	msgl = m.col_msgs[i, j]
@@ -22,7 +22,7 @@ function subblock(m::AbstractBlockBPPartitionPEPS, i::Int, j::Int)
 end
 
 
-function compute_out_messages(blk::AbstractBlockBPPartitionPEPS, alg::MPSCompression)
+function compute_out_messages(blk::AbstractBlockBPEnvironment, alg::MPSCompression)
 	row_msgs = copy(blk.row_msgs)
 	col_msgs = copy(blk.col_msgs)
 	# a, b = nrows(blk), ncols(blk)
@@ -41,7 +41,7 @@ function compute_out_messages(blk::AbstractBlockBPPartitionPEPS, alg::MPSCompres
 	return row_msgs, col_msgs
 end
 
-function compute_messages!(blk::AbstractBlockBPPartitionPEPS, mult_alg::MPSCompression; maxiter::Int, tol::Real, verbosity::Int)
+function compute_messages!(blk::AbstractBlockBPEnvironment, mult_alg::MPSCompression; maxiter::Int, tol::Real, verbosity::Int)
 	iter = 1
 	losses = Float64[]
 	err = -1.

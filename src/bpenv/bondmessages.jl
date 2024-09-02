@@ -1,0 +1,1 @@
+const SquareLatticeBondMessages{T} = SquareLatticeBonds{Message{Vector{T}, Vector{T}}}

@@ -9,20 +9,20 @@ function expectation(Us::Vector{<:BlockOperator}, peps::PEPS, alg::BlockBP)
 	r = SquareLatticeBonds(H=rH, V=rV)
 
 	for U in Us
-		blk = peps_partition(peps, U.partition)
+		blk = blockbp_environments(peps, U.partition)
 		expectation!(r, U, blk, alg)
 	end
 	return r
 end
 
-function expectation(U::BlockOperator, blk::BlockBPPartitionPEPS, alg::BlockBP)
+function expectation(U::BlockOperator, blk::DoubleLayerBlockBPEnv, alg::BlockBP)
 	rH = PeriodicArray(zeros(scalartype(blk), size(blk)))
 	rV = PeriodicArray(zeros(scalartype(blk), size(blk)))
 	r = SquareLatticeBonds(H=rH, V=rV)
 	return expectation!(r, U, blk, alg)
 end
 
-function expectation!(r::SquareLatticeBonds, U::BlockOperator, blk::BlockBPPartitionPEPS, alg::BlockBP)
+function expectation!(r::SquareLatticeBonds, U::BlockOperator, blk::DoubleLayerBlockBPEnv, alg::BlockBP)
 	@assert blk.partition == U.partition
 	@assert size(r) == size(blk)
 	mult_alg = get_msg_mult_alg(alg)
@@ -52,13 +52,13 @@ expectation(U::LocalQObservers, peps::PEPS, alg::BlockBP) = expectation(center_s
 function expectation(Us::Vector{BlockLocalOperator{M}}, peps::PEPS, alg::BlockBP) where {M<:AbstractMatrix}
 	r = zeros(scalartype(peps), size(peps))
 	for U in Us
-		blk = peps_partition(peps, U.partition)
+		blk = blockbp_environments(peps, U.partition)
 		r .+= expectation(U, blk, alg)
 	end
 	return r
 end
 
-function expectation(U::BlockLocalOperator{M}, blk::BlockBPPartitionPEPS, alg::BlockBP) where {M<:AbstractMatrix}
+function expectation(U::BlockLocalOperator{M}, blk::DoubleLayerBlockBPEnv, alg::BlockBP) where {M<:AbstractMatrix}
 	@assert blk.partition == U.partition
 	compute_messages!(blk, alg)
 	mult_alg = get_msg_mult_alg(alg)

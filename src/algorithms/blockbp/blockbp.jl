@@ -18,5 +18,5 @@ function get_msg_mult_alg(x::BlockBP)
 end 
 
 
-compute_messages!(blk::AbstractBlockBPPartitionPEPS, alg::BlockBP) = compute_messages!(blk, 
+compute_messages!(blk::AbstractBlockBPEnvironment, alg::BlockBP) = compute_messages!(blk, 
 	get_msg_mult_alg(alg), maxiter=alg.msg_maxiter, tol=alg.msg_tol, verbosity=alg.verbosity )

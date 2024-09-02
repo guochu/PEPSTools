@@ -83,13 +83,13 @@ end
 function parallel_expectation(Us::Vector{<:BlockOperator}, peps::PEPS, alg::BlockBP)
 	r = 0.
 	for U in Us
-		blk = peps_partition(peps, U.partition)
+		blk = blockbp_environments(peps, U.partition)
 		r += parallel_expectation(U, blk, alg)
 	end
 	return r
 end
 
-function parallel_expectation(U::BlockOperator, blk::BlockBPPartitionPEPS, alg::BlockBP)
+function parallel_expectation(U::BlockOperator, blk::DoubleLayerBlockBPEnv, alg::BlockBP)
 	@assert blk.partition == U.partition
 	parallel_compute_messages!(blk, alg)
 	mult_alg = PEPSTools.get_msg_mult_alg(alg)
@@ -123,13 +123,13 @@ parallel_local_expectations(U::PEPSTools.LocalObservers, peps::SquareTN, alg::Bl
 function parallel_local_expectations(Us::Vector{<:PEPSTools.BlockLocalOperator}, peps::SquareTN, alg::ImaginaryTimePEPSUpdateAlgorithm)
 	r = zeros(scalartype(peps), size(peps))
 	for U in Us
-		blk = peps_partition(peps, U.partition)
+		blk = blockbp_environments(peps, U.partition)
 		r += parallel_local_expectations(U, blk, alg)
 	end
 	return r
 end
 
-function parallel_local_expectations(U::PEPSTools.BlockLocalOperator, blk::PEPSTools.BlockBPPartitionSquareTN, alg::ImaginaryTimePEPSUpdateAlgorithm)
+function parallel_local_expectations(U::PEPSTools.BlockLocalOperator, blk::PEPSTools.ClassicalBlockBPEnv, alg::ImaginaryTimePEPSUpdateAlgorithm)
 	@assert blk.partition == U.partition
 	parallel_compute_messages!(blk, alg)
 	mult_alg = PEPSTools.get_msg_mult_alg(alg)
@@ -162,11 +162,11 @@ end
 parallel_sweep!(peps::PEPS, U::PEPSTools.SquareLatticeOperator, alg::BlockBP) = parallel_sweep!(peps, default_splitting(U, alg.block_size), alg)
 function parallel_sweep!(peps::PEPS, Us::Vector{<:BlockOperator}, alg::BlockBP)
 	for U in Us
-		blk = peps_partition(peps, U.partition)
+		blk = blockbp_environments(peps, U.partition)
 		parallel_sweep!(blk, U, alg)
 	end
 end
-function parallel_sweep!(blk::BlockBPPartitionPEPS, U::BlockOperator, alg::BlockBP) 
+function parallel_sweep!(blk::DoubleLayerBlockBPEnv, U::BlockOperator, alg::BlockBP) 
 	@assert blk.partition == U.partition
 	parallel_compute_messages!(blk, alg)
 
@@ -195,7 +195,7 @@ function parallel_sweep!(blk::BlockBPPartitionPEPS, U::BlockOperator, alg::Block
 	_collect_peps!(blk, vcat(r...))
 end
 
-function _collect_peps!(blk::BlockBPPartitionPEPS, out)
+function _collect_peps!(blk::DoubleLayerBlockBPEnv, out)
 	index = CartesianIndices((nrows(blk), ncols(blk)))
 	@assert length(out) == length(index)
 
@@ -206,7 +206,7 @@ function _collect_peps!(blk::BlockBPPartitionPEPS, out)
 	end
 end
 
-function parallel_compute_messages!(blk::PEPSTools.AbstractBlockBPPartitionPEPS, alg::ImaginaryTimePEPSUpdateAlgorithm)
+function parallel_compute_messages!(blk::PEPSTools.AbstractBlockBPEnvironment, alg::ImaginaryTimePEPSUpdateAlgorithm)
 	iter = 1
 	losses = Float64[]
 	maxiter = alg.msg_maxiter
@@ -237,7 +237,7 @@ function parallel_compute_messages!(blk::PEPSTools.AbstractBlockBPPartitionPEPS,
 	return losses
 end
 
-function parallel_compute_out_message(blk::PEPSTools.AbstractBlockBPPartitionPEPS, alg::MPSCompression)
+function parallel_compute_out_message(blk::PEPSTools.AbstractBlockBPEnvironment, alg::MPSCompression)
 	index = CartesianIndices((nrows(blk), ncols(blk)))
 	n_rank = nworkers()
 	# (length(index) % n_rank == 0) || println("total number of jobs $(length(index)) can not be divided by number of workers $(n_rank).")
@@ -259,7 +259,7 @@ function parallel_compute_out_message(blk::PEPSTools.AbstractBlockBPPartitionPEP
 	return _collect_out_message(blk, vcat(r...))
 end
 
-function _collect_out_message(blk::PEPSTools.AbstractBlockBPPartitionPEPS, out)
+function _collect_out_message(blk::PEPSTools.AbstractBlockBPEnvironment, out)
 	index = CartesianIndices((nrows(blk), ncols(blk)))
 	row_msgs = copy(blk.row_msgs)
 	col_msgs = copy(blk.col_msgs)

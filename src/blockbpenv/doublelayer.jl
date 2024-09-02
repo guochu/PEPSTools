@@ -4,7 +4,7 @@
 
 
 """
-    struct BlockBPPartitionPEPS{T<:Number}
+    struct DoubleLayerBlockBPEnv{T<:Number}
 
 two dimensional tensor network.
 The index convention for site tensor of 2d tn
@@ -12,7 +12,7 @@ The index convention for site tensor of 2d tn
 --------------1-------3---------
 ------------------4-------------
 """
-struct BlockBPPartitionPEPS{T<:Number, _MESSAGE} <: AbstractBlockBPPartitionPEPS{T}
+struct DoubleLayerBlockBPEnv{T<:Number, _MESSAGE} <: AbstractBlockBPEnvironment{T}
 	peps::PEPS{T}
 	partition::SquareLatticePartition
 	row_msgs::PeriodicArray{ _MESSAGE,2}
@@ -20,7 +20,7 @@ struct BlockBPPartitionPEPS{T<:Number, _MESSAGE} <: AbstractBlockBPPartitionPEPS
 end
 
 
-function BlockBPPartitionPEPS(peps::PEPS{T}, partition::SquareLatticePartition) where {T <: Number}
+function DoubleLayerBlockBPEnv(peps::PEPS{T}, partition::SquareLatticePartition) where {T <: Number}
 	n_rows, n_cols = nrows(partition), ncols(partition)
 	_MESSAGET = Message{MPS{T, real(T)}, MPS{T, real(T)}}
 	row_msgs = PeriodicArray{ _MESSAGET, 2}(undef, n_rows, n_cols)
@@ -32,7 +32,7 @@ function BlockBPPartitionPEPS(peps::PEPS{T}, partition::SquareLatticePartition) 
 			col_msgs[i, j] = random_mps_message(T, [size(item, 1) for item in _bk[:, 1]])
 		end
 	end
-	return BlockBPPartitionPEPS(peps, partition, row_msgs, col_msgs)
+	return DoubleLayerBlockBPEnv(peps, partition, row_msgs, col_msgs)
 end
 
-peps_partition(peps::PEPS, partition::SquareLatticePartition) = BlockBPPartitionPEPS(peps, partition)
+blockbp_environments(peps::PEPS, partition::SquareLatticePartition) = DoubleLayerBlockBPEnv(peps, partition)

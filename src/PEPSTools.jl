@@ -15,10 +15,10 @@ export bond_dimensions, physical_dimensions, bond_dimension
 
 # environments
 export borderedpeps
-export SquareLatticePartition, lattice_partition, peps_partition
+export SquareLatticePartition, lattice_partition, blockbp_environments
 
 # blockbp partition
-export nrows, ncols, peps_partition
+export nrows, ncols, blockbp_environments
 
 
 ## algorithms
@@ -27,7 +27,7 @@ export SimpleUpdate
 # reduced density matrices
 export rdm1s, rdm2s
 # block bp algorithm
-export Message, BlockBP, BlockBPPartitionPEPS, BlockOperator, BlockLocalOperator, default_splitting, center_splitting, subblock, subblocks
+export Message, BlockBP, BlockOperator, BlockLocalOperator, default_splitting, center_splitting, subblock, subblocks
 
 # high-level
 export ImaginaryTimePEPS, ground_state!

@@ -8,14 +8,14 @@ function rdm1s_util(Us::Vector{BlockLocalOperator{Int}}, peps::PEPS, alg::BlockB
 	T = scalartype(peps)
 	r = Matrix{Union{Matrix{T}, Nothing}}(nothing, size(peps))
 	for U in Us
-		blk = peps_partition(peps, U.partition)
+		blk = blockbp_environments(peps, U.partition)
 		# r += local_expectations(U, blk, alg)
 		r = _merge_rdms!(r, rdm1s_single_block(U, blk, alg))
 	end
 	return r
 end
 
-function rdm1s_single_block(U::BlockLocalOperator{Int}, blk::BlockBPPartitionPEPS, alg::BlockBP) 
+function rdm1s_single_block(U::BlockLocalOperator{Int}, blk::DoubleLayerBlockBPEnv, alg::BlockBP) 
 	@assert blk.partition == U.partition
 	compute_messages!(blk, alg)
 	mult_alg = get_msg_mult_alg(alg)
@@ -86,7 +86,7 @@ function rdm2s_util(Us::Vector{BlockOperator{Int}}, peps::PEPS, alg::BlockBP)
 	rH = Matrix{Union{Array{T, 4}, Nothing}}(nothing, size(peps))
 	rV = Matrix{Union{Array{T, 4}, Nothing}}(nothing, size(peps))
 	for U in Us
-		blk = peps_partition(peps, U.partition)
+		blk = blockbp_environments(peps, U.partition)
 		# r += local_expectations(U, blk, alg)
 		r = rdm2s_single_block(U, blk, alg)
 		rH = _merge_rdms!(rH, r.H)
@@ -95,7 +95,7 @@ function rdm2s_util(Us::Vector{BlockOperator{Int}}, peps::PEPS, alg::BlockBP)
 	return SquareLatticeBonds(H=rH, V=rV)
 end
 
-function rdm2s_single_block(U::BlockOperator, blk::BlockBPPartitionPEPS, alg::BlockBP)
+function rdm2s_single_block(U::BlockOperator, blk::DoubleLayerBlockBPEnv, alg::BlockBP)
 	@assert blk.partition == U.partition
 	mult_alg = get_msg_mult_alg(alg)
 	compute_messages!(blk, alg)
