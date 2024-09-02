@@ -70,7 +70,7 @@ include("borderedpeps/borderedpeps.jl")
 # BMPS environment
 include("bmpsenv/bmpsenv.jl")
 # BlockBP partition
-include("blockbppartition/blockbppartition.jl")
+include("blockbpenv/blockbpenv.jl")
 
 
 # algorithms
