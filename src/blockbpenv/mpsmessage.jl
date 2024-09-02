@@ -1,24 +1,3 @@
-# Message is already defined in PeriodicMPS
-
-abstract type AbstractMessage end
-
-
-"""
-	struct Message{_I, _O}
-
-	on a 2D lattice, the input message i is defined from left to right, or from top down
-	the onput message o is defined from right to left, or from down to top
-
-	each i and o is an array, aranged in a clock-wise way
-"""
-struct Message{_I, _O} <: AbstractMessage
-	i::_I
-	o::_O
-end
-
-Base.copy(x::Message) = Message(copy(x.i), copy(x.o))
-Message(;i::T, o::T) where {T} = Message(i, o)
-
 function random_mps_message(::Type{T}, physpaces::Vector{Int}; Di::Int=maximum(physpaces), Do::Int=Di) where {T <: Number}
 	i = random_boundary_mps(T, physpaces, D=Di)
 	# canonicalize!(i, normalize=true)

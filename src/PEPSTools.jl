@@ -56,6 +56,9 @@ include("auxiliary/periodicarray.jl")
 include("auxiliary/distance.jl")
 include("auxiliary/mptools/mptools.jl")
 
+# simple definition of message
+include("message.jl")
+
 # definition of lattice Hamiltonian and (first order) evolutionary operator
 include("operators/operators.jl")
 
