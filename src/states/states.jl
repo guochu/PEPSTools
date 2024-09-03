@@ -111,8 +111,14 @@ function _check_periodic(peps::Abstract2DTN)
 end
 
 
+# graph interface
+neighbors(m::Abstract2DTN, node::Int) = square_neighbors(size(m), node)
+edges(m::Abstract2DTN) = square_edges(size(m))
+
+
 abstract type AbstractPEPS{T} <: Abstract2DTN{T} end
 
 include("peps.jl")
 include("singlelayer.jl")
 include("canonicalpeps.jl")
+include("linalg.jl")

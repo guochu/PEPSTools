@@ -97,7 +97,3 @@ function sandwich(peps::AbstractMatrix{Array{T, 5}}, op::AbstractDict{Tuple{Int,
     end
     return r
 end
-
-
-# linalg
-LinearAlgebra.axpy!(α, x::PEPS, y::PEPS) = axpy!.(α, x.data, y.data)

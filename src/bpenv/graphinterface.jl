@@ -35,35 +35,3 @@ end
 function Base.setindex!(m::SquareLatticeBondMessages, v::AbstractVector, bond::Pair{Int, Int})
 	copy!(m[bond], v)
 end
-
-
-
-
-neighbors(m::SquareLatticeBondMessages, node::Int) = square_neighbors(size(m), node)
-edges(m::SquareLatticeBondMessages) = square_edges(size(m))
-
-function square_neighbors(shape::Tuple{Int, Int}, node::Int)
-	row, col = shape
-	((row > 2) && (col > 2)) || throw(ArgumentError("PEPS graph with min size less than 2 is not allowed"))
-	n2 = CartesianIndices(shape)[node]
-	i, j = n2[1], n2[2]
-	idx = LinearIndices(shape)
-	return idx[i, mod1(j-1, col)], idx[mod1(i-1, row), j], idx[i, mod1(j+1, col)], idx[mod1(i+1, row), j]
-end
-
-function square_edges(shape::Tuple{Int, Int})
-	s1, s2 = shape
-	index = CartesianIndices(shape)
-	idx = LinearIndices(shape)
-	_edges = Pair{Int, Int}[]
-	for (node, nj) in enumerate(index)
-		row, col = nj[1], nj[2]
-		node_down = idx[mod1(row+1, s1), col]
-		node_right = idx[row, mod1(col+1, s2)]
-		push!(_edges, node=>node_down)
-		push!(_edges, node_down=>node)
-		push!(_edges, node=>node_right)
-		push!(_edges, node_right=>node)
-	end
-	return _edges
-end

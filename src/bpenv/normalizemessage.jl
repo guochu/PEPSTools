@@ -1,9 +1,9 @@
 function LinearAlgebra.normalize!(m::SquareLatticeBondMessages, alg::MessageNormalizationAlgorithm)
 	for item in m.H
-		_normalize!(item, alg)
+		normalize!(item, alg)
 	end
 	for item in m.V
-		_normalize!(item, alg)
+		normalize!(item, alg)
 	end
 	return m
 end
@@ -52,7 +52,6 @@ message_distance2(x::VectorMessage, y::VectorMessage) = distance2(x.i, y.i) + di
 
 
 # Automatic differentiation
-
 Zygote.@adjoint Message(i, o) = Message(i, o), z -> (z.i, z.o)
 Zygote.@adjoint SquareLatticeBonds(V::AbstractMatrix, H::AbstractMatrix) = SquareLatticeBonds(V, H), z -> (z.V, z.H)
 get_data(x::SquareLatticeBonds) = x.V, x.H
