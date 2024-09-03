@@ -1,4 +1,6 @@
 # utility AD adjoints
+Zygote.@adjoint SquareTN(data::AbstractMatrix{Array{T, 4}}) where {T<:Number} = SquareTN(data), z -> (z,)
+
 
 Zygote.@adjoint update_messages(tn::SquareTN, msg::SquareLatticeBondMessages) = begin
 	msg_new = similar(msg)

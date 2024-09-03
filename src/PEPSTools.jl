@@ -60,6 +60,7 @@ abstract type PEPSGroundStateAlgorithm end
 include("auxiliary/periodicarray.jl")
 include("auxiliary/distance.jl")
 include("auxiliary/mptools/mptools.jl")
+include("auxiliary/bputility/bputility.jl")
 
 # simple definition of message
 include("message.jl")

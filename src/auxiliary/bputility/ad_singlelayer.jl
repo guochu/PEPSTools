@@ -1,7 +1,4 @@
 # Auto differentiation utilities for single layer
-Zygote.@adjoint SquareTN(data::AbstractMatrix{Array{T, 4}}) where {T<:Number} = SquareTN(data), z -> (z,)
-
-
 Zygote.@adjoint sl_compute_out_message(t::Array{T, N}, msg_in::Vector, i::Int) where {T, N} = begin
 	@assert length(msg_in) == N
 

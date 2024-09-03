@@ -4,7 +4,6 @@ Base.size(m::AbstractBPEnvironment) = size(m.peps)
 
 
 include("graphinterface.jl")
-include("computemessages/computemessages.jl")
 include("messageinitializers.jl")
 include("normalizemessage.jl")
 include("updatemessages.jl")
