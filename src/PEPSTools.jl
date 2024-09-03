@@ -46,6 +46,7 @@ using Base: @boundscheck, front, tail
 using LinearAlgebra, TensorOperations, Strided
 using Zygote
 using Flux, NNQS
+import NNQS: energy
 
 
 abstract type PEPSUpdateAlgorithm end

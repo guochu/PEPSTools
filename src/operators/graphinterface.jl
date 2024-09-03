@@ -20,9 +20,9 @@ function square_edges(shape::Tuple{Int, Int})
 		node_down = idx[mod1(row+1, s1), col]
 		node_right = idx[row, mod1(col+1, s2)]
 		push!(_edges, node=>node_down)
-		push!(_edges, node_down=>node)
+		# push!(_edges, node_down=>node)
 		push!(_edges, node=>node_right)
-		push!(_edges, node_right=>node)
+		# push!(_edges, node_right=>node)
 	end
 	return _edges
 end

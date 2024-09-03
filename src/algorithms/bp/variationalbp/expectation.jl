@@ -27,6 +27,35 @@ function energy(h::SquareLatticeOperator, state::PEPS, env::DoubleLayerBPEnv)
 	return energy
 end
 
+function expectation(h::SquareLatticeOperator, state::PEPS, env::DoubleLayerBPEnv)
+	(size(h) === size(state) === size(env)) || throw(DimensionMismatch("size mismatch"))
+
+	energies = SquareLatticeBonds(zeros(scalartype(state), size(state)), zeros(scalartype(state), size(state)))
+	
+	messages = env.messages
+
+	# # onebody observables
+	# for node in 1:length(state)
+	# 	msgs_in = get_in_messages(messages, node)
+	# 	energy += node_energy(state[node], msgs_in, h.onebody[node])
+	# end
+
+	# two body observables
+	for _edge in edges(messages)
+		src, dst = _edge
+		i1 = findfirst(x->x==dst, neighbors(messages, src))
+		i2 = findfirst(x->x==src, neighbors(messages, dst))
+		msgs_src = get_in_messages(messages, src)
+		msgs_dst = get_in_messages(messages, dst)
+		__edge = (_edge[1], _edge[2])
+		hj = h[__edge]
+		if !isnothing(hj)
+			tmp = bond_energy(state[src], state[dst], msgs_src, msgs_dst, i1=>i2, hj)
+			energies[__edge] += tmp
+		end
+	end
+	return energies
+end
 
 
 function node_energy(t::AbstractArray, msgs::Vector, h::AbstractMatrix)
@@ -67,7 +96,7 @@ function compute_physical(a::AbstractArray{T, M}, msg_in::Vector) where {T, M}
 end
 
 # contract all the dimensions except physical and i-th virtual
-function compute_out_message_and_physical_debug(a::Array{T, M}, msg_in::Vector, i::Int) where {T, M}
+function compute_out_message_and_physical_v2(a::Array{T, M}, msg_in::Vector, i::Int) where {T, M}
 	N = M-1
 	@assert length(msg_in) == N
 	d = size(a, M)
