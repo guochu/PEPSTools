@@ -23,13 +23,17 @@ function fixedpoint_messages(tn::Abstract2DTN, msg::SquareLatticeBondMessages, a
 		msg = msg_2
 		(verbosity > 1) && println("distance at the $i-th BP iteration ", err)
 		i += 1
-		if err < tol
+		if (tol > 0) && (err < tol)
 			(verbosity > 0) && println("BP converges in $i iterations, error=", err)
 			return msg
 		end
 	end
 	if (verbosity > 0)
-		(i == nitr) && println("BP fails to converge in $(nitr) iterations, error=", err)
+		if tol > 0
+			(i == nitr) && println("BP fails to converge in $(nitr) iterations, error=", err)
+		else
+			println("final BP error after $(nitr) iterations is ", err)
+		end
 	end
 	return msg
 end

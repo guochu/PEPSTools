@@ -20,6 +20,7 @@ SquareLatticeBonds(; V::AbstractMatrix{M}, H::AbstractMatrix{M}) where M = Squar
 Base.size(x::SquareLatticeBonds) = size(x. H)
 Base.size(x::SquareLatticeBonds, i::Int) = size(x.H, i)
 Base.repeat(x::SquareLatticeBonds, i::Int...) = SquareLatticeBonds(repeat(x.V.data, i...), repeat(x.H.data, i...))
+Base.copy(x::SquareLatticeBonds) = SquareLatticeBonds(copy(x.V), copy(x.H))
 
 function Base.getindex(m::SquareLatticeBonds, bond::Tuple{Int, Int})
 	s1, s2 = size(m)

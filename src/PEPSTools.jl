@@ -102,7 +102,7 @@ include("algorithms/blockbp/rdms.jl")
 
 # bp update
 include("algorithms/bp/variationalbp/variationalbp.jl")
-include("algorithms/bp/vmcbp/vmcbp.jl")
+# include("algorithms/bp/vmcbp/vmcbp.jl")
 
 # classical models
 include("algorithms/classicalmodels/classicalmodels.jl")
