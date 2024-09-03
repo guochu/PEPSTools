@@ -5,8 +5,8 @@ struct PEPS{T<:Number} <: AbstractPEPS{T}
 	data::PeriodicArray{Array{T, 5}, 2}
 end
 
-PEPS{T}(m::Int, n::Int) where {T<:Number} = PEPS(PeriodicArray{Array{T, 5}, 2}(undef, m, n))
-PEPS(::Type{T}, m::Int, n::Int) where {T<:Number} = PEPS{T}(m, n)
+# PEPS{T}(m::Int, n::Int) where {T<:Number} = PEPS(PeriodicArray{Array{T, 5}, 2}(undef, m, n))
+# PEPS(::Type{T}, m::Int, n::Int) where {T<:Number} = PEPS{T}(m, n)
 PEPS(data::AbstractMatrix{Array{T, 5}}) where {T <: Number} = PEPS(PeriodicArray(data))
 
 Base.complex(x::PEPS) = PEPS(complex.(x.data))
@@ -22,19 +22,21 @@ Return physical dimensions of mps
 physical_dimensions(peps::PEPS) = size.(peps.data, 5)
 
 
+Flux.@functor PEPS (data,)
+
 
 # initializers
 function prodpeps(::Type{T}, ds::AbstractMatrix{Int}, physectors::AbstractMatrix{Int}) where {T<:Number}
     @assert size(ds) == size(physectors)
     m, n = size(ds)
-    r = PEPS(T, m, n)
+    r = Matrix{Array{T, 5}}(undef, m, n)
     for j in 1:n
         for i in 1:m
             dj = ds[i, j]
            r[i, j] = reshape(onehot(T, dj, physectors[i, j]), (1, 1, 1, 1, dj))
         end
     end
-    return r
+    return PEPS(r)
 end
 prodpeps(::Type{T}, physectors::AbstractMatrix{Int}; d::Int) where {T<:Number} = prodpeps(T, ones(Int, size(physectors)) .* d, physectors)
 prodpeps(ds::AbstractMatrix{Int}, physectors::AbstractMatrix{Int}) = prodpeps(Float64, ds, physectors)
@@ -42,7 +44,7 @@ prodpeps(physectors::AbstractMatrix{Int}; kwargs...) = prodpeps(Float64, physect
 
 function randompeps(f, ::Type{T}, ds::AbstractMatrix{Int}; periodic::Bool=false, D::Int) where {T<:Number}
     m, n = size(ds)
-    r = PEPS(T, m, n)
+    r = Matrix{Array{T, 5}}(undef, m, n)
     for j in 1:n
         for i in 1:m
             s1 = ds[i, j]
@@ -61,7 +63,7 @@ function randompeps(f, ::Type{T}, ds::AbstractMatrix{Int}; periodic::Bool=false,
             end
         end
     end
-    return r
+    return PEPS(r)
 end
 
 randompeps(f, T::Type{<:Number}, m::Int, n::Int; d::Int, kwargs...) = randompeps(f, T, ones(Int, m, n) .* d; kwargs...)

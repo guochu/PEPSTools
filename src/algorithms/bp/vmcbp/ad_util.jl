@@ -1,6 +1,6 @@
 # utility AD adjoints
 
-Zygote.@adjoint SquareTN(data::AbstractMatrix{Array{T, 5}}) where {T<:Number} = SquareTN(data), z -> (nothing, z)
+Zygote.@adjoint SquareTN(data::AbstractMatrix{Array{T, 4}}) where {T<:Number} = SquareTN(data), z -> (z,)
 
 Zygote.@adjoint update_messages(tn::SquareTN, msg::SquareLatticeBondMessages) = begin
 	msg_new = similar(msg)
@@ -126,7 +126,7 @@ function sl_compute_out_messages_bp_node_z!(t_back::AbstractArray{T, N}, msg_in_
 		sl_compute_out_messages_bp_node_z!(t′, msg_in_conj′, z_msg′, v * msg_in_conj[N][j])
 	end
 end
-sl_compute_out_messages_bp_node!(t_back::AbstractArray{T, N}, msg_in_conj::AbstractVector, z_msg::AbstractVector) where {T, N} = compute_out_messages_2_bp_node_n!(
+sl_compute_out_messages_bp_node!(t_back::AbstractArray{T, N}, msg_in_conj::AbstractVector, z_msg::AbstractVector) where {T, N} = sl_compute_out_messages_bp_node_n!(
 								t_back, msg_in_conj, z_msg, one(T))
 
 function sl_compute_out_messages_bp_edge_ascend_z!(msg_back::AbstractVector, t::AbstractArray{T, 1}, msg_in_conj::AbstractVector, z_msg::AbstractVector, workspace::AbstractVector) where {T}

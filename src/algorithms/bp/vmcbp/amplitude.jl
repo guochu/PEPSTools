@@ -11,7 +11,7 @@ const NNQS_BP_Iterations = 5
 _state_to_index(x::AbstractVector{Int}) = [(item == -1) ? 2 : 1 for item in x]
 
 
-NNQS._Ψ(state::PEPS, x::AbstractVector{Int}) = _Ψ_util(state, dropgrad(_state_to_index(x)), dropgrad(unit_cmessage(state)))
+NNQS._Ψ(state::PEPS, x::AbstractVector{Int}) = _Ψ_util(state, dropgrad(_state_to_index(x)), dropgrad(unit_c_bondmessages(state)))
 
 function _Ψ_util(state::PEPS, basis::AbstractVector{Int}, msg::SquareLatticeBondMessages)
 	tn = amplitude_tn(state, basis)
@@ -20,7 +20,7 @@ function _Ψ_util(state::PEPS, basis::AbstractVector{Int}, msg::SquareLatticeBon
 		msg = normalize(msg_2, FixedSum())
 	end
 	msg = canonicalize(msg)
-	return bp_contract(tn ,msg)	
+	return bp_contract(tn, msg)	
 end
 
 bp_contract(tn::SquareTN, msg::SquareLatticeBondMessages) = prod(bp_contract_util(tn, msg))
@@ -40,7 +40,7 @@ Zygote.@adjoint bp_contract_util(tn::SquareTN, msg::SquareLatticeBondMessages) =
 		msg_back = similar(msg)
 		for node in 1:length(tn)
 			tc_data_back[node], msgs_in_back = backs[node](z[node])
-			for (j, n) in enumerate(neighbors(msg.graph, node))
+			for (j, n) in enumerate(neighbors(msg, node))
 				msg_back[n=>node] = msgs_in_back[j]
 			end
 		end
@@ -50,5 +50,5 @@ end
 
 function amplitude_tn(state::PEPS, basis::AbstractVector{Int})
 	(length(state) == length(basis)) || throw(DimensionMismatch("basis size mismatch"))
-	return SquareTN(map((t, x) -> selectdim(t, ndims(t), x), state.data, basis))
+	return SquareTN(reshape(map((t, x) -> convert(Array, selectdim(t, ndims(t), x)), state.data, basis), size(state)))
 end

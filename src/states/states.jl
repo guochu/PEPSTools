@@ -1,4 +1,5 @@
-abstract type Abstract2DTN{T<:Number} end
+abstract type Abstract2DTN{T<:Number} <: AbstractNNQS end
+Base.eltype(::Type{<:Abstract2DTN{T}}) where {T<:Number} = T
 scalartype(::Type{<:Abstract2DTN{T}}) where {T<:Number} = T
 scalartype(x::Abstract2DTN) = scalartype(typeof(x))
 raw_data(x::Abstract2DTN) = x.data.data
