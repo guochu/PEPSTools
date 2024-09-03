@@ -6,7 +6,7 @@ struct SquareTN{T<:Number} <: Abstract2DTN{T}
 end
 
 
-SquareTN{T}(m::Int, n::Int) where {T<:Number} = SquareTN{PeriodicArray{Array{T, 4}, 2}}(undef, m, n)
+SquareTN{T}(m::Int, n::Int) where {T<:Number} = SquareTN(PeriodicArray{Array{T, 4}, 2}(undef, m, n))
 SquareTN(::Type{T}, m::Int, n::Int) where {T<:Number} = SquareTN{T}(m, n)
 SquareTN(data::AbstractMatrix{Array{T, 4}}) where {T <: Number} = SquareTN(PeriodicArray(data))
 
@@ -41,7 +41,7 @@ function randomsquaretn(f, ::Type{T}, m::Int, n::Int; periodic::Bool=false, D::I
     end
     return r
 end
-randomsquaretn(::Type{T}, m::Int, n::Int; kwargs...) where {T<:Number} = randomsquaretn(randn, T, m, n; kwargs...)
+randomsquaretn(T::Type{<:Number}, m::Int, n::Int; kwargs...) = randomsquaretn(rand, T, m, n; kwargs...)
 randomsquaretn(m::Int, n::Int; kwargs...) = randomsquaretn(Float64, m, n; kwargs...)
 
 

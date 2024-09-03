@@ -10,6 +10,8 @@ Base.size(x::Abstract2DTN, i::Int) = size(x.data, i)
 Base.length(x::Abstract2DTN) = length(x.data)
 Base.getindex(x::Abstract2DTN, i::ValidIndices, j::ValidIndices) = getindex(x.data, i, j)
 Base.setindex!(x::Abstract2DTN, v, i::ValidIndices, j::ValidIndices) = setindex!(x.data, v, i, j)
+Base.getindex(x::Abstract2DTN, i::ValidIndices) = getindex(x.data, i)
+Base.setindex!(x::Abstract2DTN, v, i::ValidIndices) = setindex!(x.data, v, i)
 Base.isempty(x::Abstract2DTN) = isempty(x.data)
 
 

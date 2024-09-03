@@ -21,6 +21,59 @@ Base.size(x::SquareLatticeBonds) = size(x. H)
 Base.size(x::SquareLatticeBonds, i::Int) = size(x.H, i)
 Base.repeat(x::SquareLatticeBonds, i::Int...) = SquareLatticeBonds(repeat(x.V.data, i...), repeat(x.H.data, i...))
 
+function Base.getindex(m::SquareLatticeBonds, bond::Tuple{Int, Int})
+	s1, s2 = size(m)
+	index = CartesianIndices(size(m))
+	n1, n2 = index[bond[1]], index[bond[2]]
+	row1, col1 = n1[1], n1[2]
+	row2, col2 = n2[1], n2[2]
+	if row1 == row2
+		if col1 == mod1(col2 - 1, s2)
+			return m.H[row1, col1]
+		elseif col1 == mod1(col2 + 1, s2)
+			return m.H[row1, col2]
+		else
+			throw(ArgumentError("node $(n1) and node $(n2) are not neighbours"))
+		end
+	elseif col1 == col2
+		if row1 == mod1(row2 - 1, s1)
+			return m.V[row1, col1]
+		elseif row1 == mod1(row2 + 1, s1)
+			return m.V[row2, col1]
+		else
+			throw(ArgumentError("node $(n1) and node $(n2) are not neighbours"))
+		end
+	else
+		throw(ArgumentError("node $(n1) and node $(n2) are not neighbours"))
+	end
+end
+
+function Base.setindex!(m::SquareLatticeBonds, v, bond::Tuple{Int, Int})
+	s1, s2 = size(m)
+	index = CartesianIndices(size(m))
+	n1, n2 = index[bond[1]], index[bond[2]]
+	row1, col1 = n1[1], n1[2]
+	row2, col2 = n2[1], n2[2]
+	if row1 == row2
+		if col1 == mod1(col2 - 1, s2)
+			m.H[row1, col1] = v
+		elseif col1 == mod1(col2 + 1, s2)
+			m.H[row1, col2] = v
+		else
+			throw(ArgumentError("node $(n1) and node $(n2) are not neighbours"))
+		end
+	elseif col1 == col2
+		if row1 == mod1(row2 - 1, s1)
+			m.V[row1, col1] = v
+		elseif row1 == mod1(row2 + 1, s1)
+			m.V[row2, col1] = v
+		else
+			throw(ArgumentError("node $(n1) and node $(n2) are not neighbours"))
+		end
+	else
+		throw(ArgumentError("node $(n1) and node $(n2) are not neighbours"))
+	end
+end
 
 const SquareLatticeHamiltonian{T<:Number} = SquareLatticeBonds{Vector{Tuple{Matrix{T}, Matrix{T}}}}
 const SquareLatticeOperator{T<:Number} = SquareLatticeBonds{Union{Array{T, 4}, Nothing}}

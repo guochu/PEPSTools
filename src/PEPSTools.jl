@@ -42,8 +42,9 @@ export Classical2DModel, ClassicalIsing2D, magnetizations, magnetization, bond_e
 export heisenberg2D, ising2D
 
 
-
-using LinearAlgebra, TensorOperations
+using Base: @boundscheck, front, tail
+using LinearAlgebra, TensorOperations, Strided
+using Zygote
 
 
 abstract type PEPSUpdateAlgorithm end
@@ -72,8 +73,10 @@ include("states/states.jl")
 include("borderedpeps/borderedpeps.jl")
 # BMPS environment
 include("bmpsenv/bmpsenv.jl")
-# BlockBP partition
+# BlockBP environment
 include("blockbpenv/blockbpenv.jl")
+# BP environment
+include("bpenv/bpenv.jl")
 
 
 # algorithms
@@ -96,6 +99,10 @@ include("algorithms/blockbp/blockbp.jl")
 include("algorithms/blockbp/update.jl")
 include("algorithms/blockbp/expecs.jl")
 include("algorithms/blockbp/rdms.jl")
+
+# bp update
+include("algorithms/bp/variationalbp/variationalbp.jl")
+include("algorithms/bp/vmcbp/vmcbp.jl")
 
 # classical models
 include("algorithms/classicalmodels/classicalmodels.jl")

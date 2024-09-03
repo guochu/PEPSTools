@@ -64,8 +64,8 @@ function randompeps(f, ::Type{T}, ds::AbstractMatrix{Int}; periodic::Bool=false,
     return r
 end
 
-randompeps(f, ::Type{T}, m::Int, n::Int; d::Int, kwargs...) where {T<:Number} = randompeps(f, T, ones(Int, m, n) .* d; kwargs...)
-randompeps(::Type{T}, m::Int, n::Int; kwargs...) where {T<:Number} = randompeps(randn, T, m, n; kwargs...)
+randompeps(f, T::Type{<:Number}, m::Int, n::Int; d::Int, kwargs...) = randompeps(f, T, ones(Int, m, n) .* d; kwargs...)
+randompeps(T::Type{<:Number}, m::Int, n::Int; kwargs...) = randompeps(rand, T, m, n; kwargs...)
 randompeps(ds::AbstractMatrix{Int}; kwargs...) = randompeps(Float64, ds; kwargs...)
 randompeps(m::Int, n::Int; kwargs...) = randompeps(Float64, m, n; kwargs...)
 
@@ -95,3 +95,7 @@ function sandwich(peps::AbstractMatrix{Array{T, 5}}, op::AbstractDict{Tuple{Int,
     end
     return r
 end
+
+
+# linalg
+LinearAlgebra.axpy!(α, x::PEPS, y::PEPS) = axpy!.(α, x.data, y.data)
