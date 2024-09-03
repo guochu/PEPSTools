@@ -15,3 +15,4 @@ abstract type Classical2DModel end
 include("ising.jl")
 include("bmps.jl")
 include("blockbp.jl")
+include("bp.jl")

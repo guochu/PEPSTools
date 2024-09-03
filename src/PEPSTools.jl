@@ -28,6 +28,8 @@ export SimpleUpdate
 export rdm1s, rdm2s
 # block bp algorithm
 export Message, BlockBP, BlockOperator, BlockLocalOperator, default_splitting, center_splitting, subblock, subblocks
+# BP algorithm
+export BP
 
 # high-level
 export ImaginaryTimePEPS, ground_state!
@@ -103,6 +105,7 @@ include("algorithms/blockbp/expecs.jl")
 include("algorithms/blockbp/rdms.jl")
 
 # bp update
+include("algorithms/bp/bpalg.jl")
 include("algorithms/bp/variationalbp/variationalbp.jl")
 include("algorithms/bp/vmcbp/vmcbp.jl")
 
