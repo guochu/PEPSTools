@@ -56,11 +56,7 @@ function randompeps(f, ::Type{T}, ds::AbstractMatrix{Int}; periodic::Bool=false,
                 s5 = i==m ? 1 : D
             end
             tmp = f(T, s2, s3, s4, s5, s1)
-            if D==1
-                r[i, j] = normalize!(tmp)
-            else
-                r[i, j] = tmp / D
-            end
+            r[i, j] = normalize!(tmp)
         end
     end
     return PEPS(r)

@@ -32,11 +32,7 @@ function randomsquaretn(f, ::Type{T}, m::Int, n::Int; periodic::Bool=false, D::I
                 s5 = i==m ? 1 : D
             end
             tmp = f(T, s2, s3, s4, s5)
-            if D==1
-                r[i, j] = normalize!(tmp)
-            else
-                r[i, j] = tmp / D
-            end
+            r[i, j] = normalize!(tmp)
         end
     end
     return SquareTN(r)
