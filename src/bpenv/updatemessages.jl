@@ -45,12 +45,22 @@ function update_messages(tn::SquareTN, msg::SquareLatticeBondMessages)
 	for node in 1:length(tn)
 		msg_in = get_in_messages(msg, node)
 		aj_data = tn[node]
-		# msg_out = compute_out_messages(aj_data, msg_in)
 		msg_out = sl_compute_out_messages(aj_data, msg_in, workspace)
 		for (j, n) in enumerate(neighbors(msg, node))
 			msg_new[node=>n] = msg_out[j]
 		end
 	end
+	return msg_new
+end
+function update_messages_threaded(tn::SquareTN, msg::SquareLatticeBondMessages)
+	msg_new = similar(msg)
+	f(mnew, mold, tnet, i) = begin
+		msg_out = sl_compute_out_messages_v1(tnet[i], get_in_messages(mold, i))
+		for (j, n) in enumerate(neighbors(mold, i))
+			mnew[i=>n] = msg_out[j]
+		end		
+	end
+	fetch.([Threads.@spawn f(msg_new, msg, tn, i) for i in 1:length(tn)])
 	return msg_new
 end
 function update_messages(tn::PEPS, msg::SquareLatticeBondMessages)

@@ -36,6 +36,13 @@ function canonicalize(m::SquareLatticeBondMessages)
 	V, H = get_data(m)
 	return SquareLatticeBonds(_canonicalize.(V), _canonicalize.(H))
 end 
+# function canonicalize_threaded(m::SquareLatticeBondMessages)
+# 	V, H = get_data(m)
+# 	V′, H′ = similar(V), similar(H)
+# 	fetch.([Threads.@spawn V′[i] = _canonicalize(V[i]) for i in 1:length(V)])
+# 	fetch.([Threads.@spawn H′[i] = _canonicalize(H[i]) for i in 1:length(H)])
+# 	return SquareLatticeBonds(V′, H′)
+# end
 function _canonicalize!(m::VectorMessage)
 	sqrt_z = sqrt(mapreduce(*, +, m.i, m.o))
 	m.i ./= sqrt_z
