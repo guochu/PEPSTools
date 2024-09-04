@@ -167,7 +167,7 @@ function sl_compute_out_messages_bp_edge!(msg_back::AbstractVector, t::AbstractA
 end
 
 
-Zygote.@adjoint sl_contract_node(t::AbstractArray{T, N}, msg_in::Vector) where {T, N} = begin
+Zygote.@adjoint sl_contract_node_v2(t::AbstractArray{T, N}, msg_in::Vector) where {T, N} = begin
 	@assert length(msg_in) == N
 	out = zero(T)
 	t_back = similar(t, size(t))

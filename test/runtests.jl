@@ -1,12 +1,13 @@
 include("../src/includes.jl")
 
-using Test
+using Test, Zygote
 
 
 include("util.jl")
 
 # auxiliary
 include("tensorops.jl")
+include("bputility.jl")
 include("mptools.jl")
 
 # state definitions

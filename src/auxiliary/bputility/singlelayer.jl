@@ -48,6 +48,41 @@ function sl_compute_out_messages(t::Array{T, N}, msg_in::Vector, workspace::Vect
 	return _sl_compute_out_messages!(zero.(msg_in), t, msg_in, workspace)
 end
 
+function sl_compute_out_messages_v1_ascend(t::AbstractArray{T, 1}, msg_in::AbstractVector) where {T}
+	@assert length(msg_in) == 1
+	return t
+end
+
+function sl_compute_out_messages_v1_ascend(t::AbstractArray{T, N}, msg_in::AbstractVector) where {T, N}
+	@assert length(msg_in) == N
+	t_size = size(t)
+	t_size_tail = tail(t_size)
+	t_size_tail_prod = prod(t_size_tail)
+	t2 = reshape(transpose(msg_in[1]) * reshape(t, t_size[1], t_size_tail_prod), t_size_tail)
+	return sl_compute_out_messages_v1_ascend(t2, view(msg_in, 2:N))
+end
+
+function sl_compute_out_messages_v1_util(t::AbstractArray{T, 1}, msg_in::AbstractVector) where {T}
+	@assert length(msg_in) == 1
+	return [t]
+end
+function sl_compute_out_messages_v1_util(t::AbstractArray{T, N}, msg_in::AbstractVector) where {T, N}
+	@boundscheck begin
+		(length(msg_in) == N) || throw(ArgumentError("message size mismatch with node rank"))
+		for (i, a) in enumerate(msg_in)
+			(length(a) == size(t, i)) || throw(ArgumentError("$i-th message size mismatch"))
+		end
+	end	
+	msg_out = sl_compute_out_messages_v1_ascend(t, msg_in)
+
+	t_size = size(t)
+	t_size_front = front(t_size)
+	t_size_front_prod = prod(t_size_front)
+
+	t2 = reshape(reshape(t, t_size_front_prod, t_size[N]) * msg_in[N], t_size_front)
+    return [sl_compute_out_messages_v1_util(t2, view(msg_in, 1:N-1))..., msg_out]
+end
+sl_compute_out_messages_v1(t::Array{T, N}, msg_in::Vector) where {T, N} = sl_compute_out_messages_v1_util(t, msg_in)
 
 function com_2_workspace(t::AbstractArray{T, N}) where {T, N}
 	t_size = size(t)
@@ -126,7 +161,22 @@ function sl_compute_out_message_v3(t::Array{T, N}, msg_in::Vector, i::Int) where
 end
 
 
-function sl_contract_node(t::AbstractArray{T, N}, msg_in::Vector) where {T, N}
+sl_contract_node(t::AbstractArray{T, N}, msg_in::AbstractVector) where {T, N} = sl_contract_node_util(t, msg_in)
+
+function sl_contract_node_util(t::AbstractArray{T, 1}, msg_in::AbstractVector) where {T}
+	@assert length(msg_in) == 1
+	return transpose(t) * msg_in[1]
+end
+function sl_contract_node_util(t::AbstractArray{T, N}, msg_in::AbstractVector) where {T, N}
+	t_size = size(t)
+	t_size_front = front(t_size)
+	t_size_front_prod = prod(t_size_front)
+	t2 = reshape(reshape(t, t_size_front_prod, t_size[N]) * msg_in[N], t_size_front)
+	return sl_contract_node_util(t2, view(msg_in, 1:N-1))
+end
+
+
+function sl_contract_node_v2(t::AbstractArray{T, N}, msg_in::Vector) where {T, N}
 	@assert length(msg_in) == N
 	out = zero(T)
 	for (index, tj) in zip(CartesianIndices(t), t)
@@ -140,22 +190,23 @@ function sl_contract_node(t::AbstractArray{T, N}, msg_in::Vector) where {T, N}
 end
 
 
-sl_contract_node_v2(t::AbstractArray{T, N}, msg_in::AbstractVector) where {T, N} = sl_contract_node_2_util(t, msg_in, one(T))
-function sl_contract_node_v2_util(t::AbstractArray{T, 1}, msg_in::AbstractVector, v::T) where {T}
-	@assert length(msg_in) == 1
-	return v * sum(((x, y),)->x*y, zip(t, msg_in[1]))
-end
+# sl_contract_node_v3(t::AbstractArray{T, N}, msg_in::AbstractVector) where {T, N} = sl_contract_node_v3_util(t, msg_in, one(T))
+# function sl_contract_node_v3_util(t::AbstractArray{T, 1}, msg_in::AbstractVector, v::T) where {T}
+# 	@assert length(msg_in) == 1
+# 	# return v * sum(((x, y),)->x*y, zip(t, msg_in[1]))
+# 	return v * (transpose(t) * msg_in[1])
+# end
 
-function sl_contract_node_v2_util(t::AbstractArray{T, N}, msg_in::AbstractVector, v::T) where {T, N}
-	@assert length(msg_in) == N
-	out = zero(T)
-	for j in 1:size(t, N)
-		t′ = StridedView(selectdim(t, N, j))
-		# v = v * msg_in[N][j]
-		out += sl_contract_node_2_util(t′, view(msg_in, 1:N-1), v * msg_in[N][j])
-	end
-	return out
-end
+# function sl_contract_node_v3_util(t::AbstractArray{T, N}, msg_in::AbstractVector, v::T) where {T, N}
+# 	@assert length(msg_in) == N
+# 	out = zero(T)
+# 	for j in 1:size(t, N)
+# 		t′ = StridedView(selectdim(t, N, j))
+# 		# v = v * msg_in[N][j]
+# 		out += sl_contract_node_v3_util(t′, view(msg_in, 1:N-1), v * msg_in[N][j])
+# 	end
+# 	return out
+# end
 
 
 
