@@ -84,5 +84,5 @@ end
 
 get_data(state::PEPS) = state.data
 Zygote.@adjoint get_data(state::PEPS) = get_data(state), z -> (z,)
-Zygote.@adjoint PeriodicArray(data::Array) = PeriodicArray(data), z -> (z.data,)
+Zygote.@adjoint PeriodicArray(data::Array) = PeriodicArray(data), z -> (z,)
 
