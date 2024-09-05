@@ -61,11 +61,14 @@ message_distance2(x::VectorMessage, y::VectorMessage) = distance2(x.i, y.i) + di
 # Automatic differentiation
 Zygote.@adjoint Message(i, o) = Message(i, o), z -> (z.i, z.o)
 Zygote.@adjoint SquareLatticeBonds(V::AbstractMatrix, H::AbstractMatrix) = SquareLatticeBonds(V, H), z -> (z.V, z.H)
-get_data(x::SquareLatticeBonds) = x.V, x.H
+get_data(x::SquareLatticeBonds) = get_data(x.V), get_data(x.H)
 Zygote.@adjoint get_data(x::SquareLatticeBonds) = get_data(x), z -> (SquareLatticeBonds(z[1], z[2]),)
 get_data(x::Message) = x.i, x.o
 Zygote.@adjoint get_data(x::Message) = get_data(x), z -> (Message(z[1], z[2]),)
 
+Zygote.@adjoint PeriodicArray(data::Array) = PeriodicArray(data), z -> (z,)
+get_data(x::PeriodicArray) = x.data
+Zygote.@adjoint get_data(x::PeriodicArray) = get_data(x), z -> (z,)
 
 
 
