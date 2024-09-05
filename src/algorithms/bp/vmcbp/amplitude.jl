@@ -37,8 +37,8 @@ Zygote.@adjoint Ψ_threaded(state::PEPS, x::AbstractMatrix{Int}) = begin
 	end
 end
 
-NNQS.Ψ(state::PEPS, x::AbstractMatrix{Int}) = Ψ_threaded(state, x)
-Zygote.@adjoint NNQS.Ψ(state::PEPS, x::AbstractMatrix{Int}) = Zygote.pullback(Ψ_threaded, state, x)
+NNQS.Ψ(state::PEPS, x::AbstractMatrix{Int}) = (Threads.nthreads() == 1) ? NNQS._Ψ(state, x) : Ψ_threaded(state, x)
+Zygote.@adjoint NNQS.Ψ(state::PEPS, x::AbstractMatrix{Int}) = (Threads.nthreads() == 1) ? Zygote.pullback(NNQS._Ψ, state, x) : Zygote.pullback(Ψ_threaded, state, x)
 
 NNQS._Ψ(state::PEPS, x::AbstractVector{Int}) = _Ψ_util(state, dropgrad(_state_to_index(x)), dropgrad(unit_c_bondmessages(state)))
 
