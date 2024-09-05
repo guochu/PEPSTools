@@ -7,7 +7,7 @@ function spin_half_matrices()
 	return Dict("x"=>s_x, "y"=>s_y, "z"=>s_Z, "+"=>s_SP, "-"=>s_SM)
 end
 
-function heisenberg2D(m::Int, n::Int; J::Real=1, Jzz::Real=1, periodic::Bool=false)
+function heisenberg2D(m::Int, n::Int; J::Real=1, Jzz::Real=J, periodic::Bool=false)
 	p = spin_half_matrices()
 	h = SquareLatticeHamiltonian(Float64, m, n)
 	L = periodic ? size(h,2) : size(h,2)-1
