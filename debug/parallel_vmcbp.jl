@@ -38,13 +38,14 @@ function main_ising(L; hz=1, J=1, D=2)
     for i in 1:epoches
         @time train_loss, grad = parallel_energy_and_grad(ham, state, sampler, n_chain_per_rank=1, λ=1.0e-5)
 
-        bmps_energy = real(energy(h2, state, alg))
+        # bmps_energy = real(energy(h2, state, alg))
 
         Optimise.update!(opt, x0, grad)
         state = re(x0)
 
         push!(losses, train_loss)
-        println("energy at the $i-th step is $(train_loss), bmps energy is $(bmps_energy)")
+        # println("energy at the $i-th step is $(train_loss), bmps energy is $(bmps_energy)")
+        println("energy at the $i-th step is $(train_loss)")
     end
     return losses
 end
@@ -81,13 +82,14 @@ function main_xxx(L; D=2)
     for i in 1:epoches
         @time train_loss, grad = parallel_energy_and_grad(ham, state, sampler, n_chain_per_rank=1, λ=1.0e-5)
 
-        bmps_energy = real(energy(h2, state, alg))
+        # bmps_energy = real(energy(h2, state, alg))
 
         Optimise.update!(opt, x0, grad)
         state = re(x0)
 
         push!(losses, train_loss)
-        println("energy at the $i-th step is $(train_loss), bmps energy is $(bmps_energy)")
+        # println("energy at the $i-th step is $(train_loss), bmps energy is $(bmps_energy)")
+        println("energy at the $i-th step is $(train_loss)")
     end
     return losses
 end
