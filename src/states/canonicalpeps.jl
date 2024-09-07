@@ -26,13 +26,13 @@ function PEPS(x::CanonicalPEPS{T, R}) where {T, R}
 	Vbonds = PeriodicArray(diagm.([sqrt.(item) for item in x.Vbonds.data]))
 	Γs = x.data
 	m, n = size(x)
-	r = PEPS(T, m, n)
+	r = Matrix{Array{T, 5}}(undef, m, n)
 	for i in 1:m
 		for j in 1:n
 			r[i, j] = _absorb_bonds(Γs[i, j], Hbonds[i, j-1], Hbonds[i, j], Vbonds[i-1, j], Vbonds[i, j])
 		end
 	end
-	return r
+	return PEPS(r)
 end
 
 function _absorb_bonds(m::AbstractArray{<:Number, 5}, l::AbstractMatrix, r::AbstractMatrix, u::AbstractMatrix, d::AbstractMatrix)
