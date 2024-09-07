@@ -104,7 +104,7 @@ end
 function main_10_10()
 	m = 10
 	n = 10
-	# main(m, n, D2=2)
+	main(m, n, D2=2)
 	main(m, n, D2=3)
 	main(m, n, D2=4)
 	# main(m, n, D1=100, D2=5)
