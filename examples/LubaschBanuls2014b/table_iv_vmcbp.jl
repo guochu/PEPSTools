@@ -50,7 +50,7 @@ function main(m::Int, n::Int, Dnew::Int, epoches::Int=100;D2::Int, D1::Int=2*D2^
 	end
 	# state = randompeps(ComplexF64, m, n, d=2, D=D2, periodic=false)
 
-	sampler = MetropolisLocal(length(state), n_thermal=100, n_sample_per_chain=500, n_discard=10)
+	sampler = MetropolisLocal(length(state), n_thermal=1000, n_sample_per_chain=5000, n_discard=10)
 	opt = ADAM(lr)
 
 
@@ -61,7 +61,7 @@ function main(m::Int, n::Int, Dnew::Int, epoches::Int=100;D2::Int, D1::Int=2*D2^
 	ham = Heisenberg2D((m, n), J=0.25)
 
     for i in 1:epoches
-        @time train_loss, grad = parallel_energy_and_grad(ham, state, sampler, n_chain_per_rank=1, λ=0)
+        @time train_loss, grad = parallel_energy_and_grad(ham, state, sampler, n_chain_per_rank=1, λ=1.0e-5)
 
         Optimise.update!(opt, x0, grad)
         state = re(x0)
