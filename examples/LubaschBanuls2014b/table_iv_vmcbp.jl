@@ -47,7 +47,7 @@ function main(m::Int, n::Int, Dnew::Int, epoches::Int=100;D2::Int, D1::Int=2*D2^
 
 	x0, re = Flux.destructure(state)
 
-	ham = Heisenberg2D((L, L), J=0.25)
+	ham = Heisenberg2D((m, n), J=0.25)
 
     for i in 1:epoches
         @time train_loss, grad = parallel_energy_and_grad(ham, state, sampler, n_chain=10, λ=1.0e-5)
