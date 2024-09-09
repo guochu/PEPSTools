@@ -14,4 +14,7 @@ println("------------------------------------")
 	peps = randompeps(randn, ComplexF64, 5, 6, d=2, D=2, periodic=true)
 	@test scalartype(peps) == ComplexF64
 	@test is_periodic(peps) == true
+	@test bond_dimension(peps) == 2
+	peps = increase_bond!(peps, D=3)
+	@test bond_dimension(peps) == 3
 end
