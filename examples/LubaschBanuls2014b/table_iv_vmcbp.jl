@@ -21,7 +21,7 @@ function main(m::Int, n::Int, Dnew::Int, epoches::Int=100;D2::Int, D1::Int=2*D2^
 
 	h = heisenberg2D(m, n, periodic=false)
 
-	Random.seed!(3598)
+	# Random.seed!(3598)
 
 	(D2 >= 2) || error("bond dimension D2 should be larger than 1.")
 
