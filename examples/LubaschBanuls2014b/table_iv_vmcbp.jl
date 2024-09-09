@@ -61,7 +61,7 @@ function main(m::Int, n::Int, Dnew::Int, epoches::Int=100;D2::Int, D1::Int=2*D2^
         state = re(x0)
 
         push!(losses, train_loss)
-        println("energy at the $i-th step is $(train_loss), bmps energy is $(bmps_energy)")
+        println("energy at the $i-th step is $(train_loss)")
     end
 
 
