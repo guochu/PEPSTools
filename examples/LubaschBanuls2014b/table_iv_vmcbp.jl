@@ -1,7 +1,8 @@
 include("../../../NNQS/parallel/parallel_nqs.jl")
 
-@everywhere push!(LOAD_PATH, "../../src")
-@everywhere using PEPSTools
+# @everywhere push!(LOAD_PATH, "../../src")
+# @everywhere using PEPSTools
+@everywhere include("../../src/includes.jl")
 
 using Random
 using Serialization, JSON
