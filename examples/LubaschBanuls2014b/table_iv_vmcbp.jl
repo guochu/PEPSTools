@@ -43,6 +43,7 @@ function main(m::Int, n::Int, Dnew::Int, epoches::Int=100;D2::Int, D1::Int=2*D2^
 	if scalartype(state) <: Real
 		state = complex(state)
 	end
+	state = randompeps(ComplexF64, m, n, d=2, D=D2, periodic=false)
 
 	sampler = MetropolisLocal(length(state), n_thermal=100, n_sample_per_chain=500, n_discard=10)
 	opt = ADAM(lr)
