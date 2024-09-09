@@ -40,6 +40,10 @@ function main(m::Int, n::Int, Dnew::Int, epoches::Int=100;D2::Int, D1::Int=2*D2^
 		peps_load_path = peps_path
 	end
 
+	if scalartype(state) <: Real
+		state = complex(state)
+	end
+
 	sampler = MetropolisLocal(length(state), n_thermal=100, n_sample_per_chain=500, n_discard=10)
 	opt = ADAM(lr)
 
