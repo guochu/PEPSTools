@@ -19,7 +19,7 @@ function main(m::Int, n::Int, Dnew::Int, epoches::Int=100;D2::Int, D1::Int=2*D2^
 	println("run simulations for m=$m, n=$n, D1=$D1, D2=$D2, epoches=$(epoches), learn rate=$(lr)")
 	L = m * n
 
-	h = heisenberg2D(m, n, periodic=false)
+	h = squeeze(heisenberg2D(m, n, periodic=false))
 
 	# Random.seed!(3598)
 
@@ -40,7 +40,7 @@ function main(m::Int, n::Int, Dnew::Int, epoches::Int=100;D2::Int, D1::Int=2*D2^
 		alg = BoundaryMPS(D1=D1, D2=D2)
 		bmps_energy = real(energy(h, state, alg))
 		println("bmps energy is $(bmps_energy)")
-		
+
 		state = increase_bond!(state, D=Dnew)
 		peps_load_path = peps_path
 	end
