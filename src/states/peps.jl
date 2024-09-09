@@ -68,6 +68,24 @@ randompeps(ds::AbstractMatrix{Int}; kwargs...) = randompeps(Float64, ds; kwargs.
 randompeps(m::Int, n::Int; kwargs...) = randompeps(Float64, m, n; kwargs...)
 
 
+function increase_bond!(psi::PEPS; D::Int)
+    if bond_dimension(psi) < D
+        T = scalartype(psi)
+        for i in 1:length(psi)
+            s1, s2, s3, s4, d = size(psi[i])
+            s1′ = _increase_bond(s1, D)
+            s2′ = _increase_bond(s2, D)
+            s3′ = _increase_bond(s3, D)
+            s4′ = _increase_bond(s4, D)
+            m = zeros(T, s1′, s2′, s3′, s4′, d)
+            m[1:s1, 1:s2, 1:s3, 1:s4, :] .= psi[i]
+            psi[i] = m
+        end
+    end
+    return psi
+end
+
+_increase_bond(Dold::Int, D::Int) = (Dold == 1) ? 1 : D
 
 sandwich_single(a::AbstractArray{<:Number, 5}) = sandwich_single(a, a)
 function sandwich_single(a::AbstractArray{<:Number, 5}, b::AbstractArray{<:Number, 5})

@@ -10,7 +10,7 @@ export SquareLatticeSites, LocalCObservers, LocalQObservers
 
 # definition of PEPS
 export PEPS, randompeps, prodpeps, randomsquaretn, CanonicalPEPS
-export bond_dimensions, physical_dimensions, bond_dimension
+export bond_dimensions, physical_dimensions, bond_dimension, increase_bond!
 
 
 # environments
