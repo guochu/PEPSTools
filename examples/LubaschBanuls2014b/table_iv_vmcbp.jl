@@ -31,6 +31,10 @@ function main(m::Int, n::Int, Dnew::Int, epoches::Int=100;D2::Int, D1::Int=2*D2^
 		println("read initial vmcbp peps from path $bp_peps_path")
 		state = Serialization.deserialize(bp_peps_path)
 		peps_load_path = bp_peps_path
+
+		alg = BoundaryMPS(D1=D1, D2=D2)
+		bmps_energy = real(energy(h, state, alg))
+		println("bmps energy is $(bmps_energy)")
 	else
 		peps_path = gen_peps_path(m, n, D2) 
 		println("read initial peps from path $peps_path")
@@ -43,7 +47,7 @@ function main(m::Int, n::Int, Dnew::Int, epoches::Int=100;D2::Int, D1::Int=2*D2^
 	if scalartype(state) <: Real
 		state = complex(state)
 	end
-	state = randompeps(ComplexF64, m, n, d=2, D=D2, periodic=false)
+	# state = randompeps(ComplexF64, m, n, d=2, D=D2, periodic=false)
 
 	sampler = MetropolisLocal(length(state), n_thermal=100, n_sample_per_chain=500, n_discard=10)
 	opt = ADAM(lr)
