@@ -1,7 +1,7 @@
 # compute amplitudes
 # _Ψ_util(state::GraphState, x::AbstractVector{Int}, env::AmplitudeEnvironment=environments(state, x, 10, -1)) = get_amplitude(env)
 
-const NNQS_BP_Iterations = 5
+const NNQS_BP_Iterations = 10
 
 # function NNQS._Ψ(state::GraphState, x::AbstractVector{Int})
 # 	env = environments(state, _state_to_index(x), NNQS_BP_Iterations, -1, verbosity=0)
