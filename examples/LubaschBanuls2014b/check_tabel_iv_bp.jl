@@ -15,7 +15,7 @@ gen_bp_result_path(m::Int, n::Int, D2::Int, lr::Real, epoches::Int) = "result/Ta
 
 
 function main(m::Int, n::Int;D2::Int, D1::Int=2*D2^2+10)
-	println("run simulations for m=$m, n=$n, D1=$D1, D2=$D2, epoches=$(epoches), learn rate=$(lr)")
+	println("run simulations for m=$m, n=$n, D1=$D1, D2=$D2")
 	L = m * n
 
 	h = squeeze(heisenberg2D(m, n, periodic=false))
