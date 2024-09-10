@@ -4,6 +4,7 @@ include("../../src/includes.jl")
 
 using Random
 using Serialization, JSON
+using Flux.Optimise
 # include("util.jl")
 
 gen_peps_path(m::Int, n::Int, D2::Int) = "data/Table_iv_m$(m)_n$(n)_D2$(D2)" * ".peps"
