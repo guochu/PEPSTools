@@ -18,7 +18,7 @@ function main(m::Int, n::Int;D2::Int, D1::Int=2*D2^2+10)
 	println("run simulations for m=$m, n=$n, D1=$D1, D2=$D2")
 	L = m * n
 
-	h = squeeze(heisenberg2D(m, n, periodic=false))
+	h = squeeze(heisenberg2D(m, n))
 
 	# Random.seed!(3598)
 
@@ -32,10 +32,10 @@ function main(m::Int, n::Int;D2::Int, D1::Int=2*D2^2+10)
 
 	alg = BoundaryMPS(D1=D1, D2=D2)
 	bmps_energy = real(energy(h, state, alg))
-	println("bmps energy is $(bmps_energy)")
+	println("bmps energy is $(bmps_energy/L)")
 
 	bp_energy = energy(h, state, bp_environments(state, 10, 1.0e-8, verbosity=1))
-	println("bp energy is $(bp_energy)")
+	println("bp energy is $(bp_energy/L)")
 
 	if scalartype(state) <: Real
 		state = complex(state)
@@ -47,18 +47,11 @@ function main(m::Int, n::Int;D2::Int, D1::Int=2*D2^2+10)
 	ham = Heisenberg2D((m, n), J=0.25)
 
 	vmc_bp_energy = NNQS.energy(ham, state, sampler)
-	println("vmc bp energy is $(vmc_bp_energy)")
+	println("vmc bp energy is $(vmc_bp_energy/L)")
 
 
 end
 
-# all the simulations in table IV
-
-function main_10_10()
-	m = 10
-	n = 10
-	main(m, n, 3, D2=2)
-end
 
 
 
