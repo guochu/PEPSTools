@@ -42,7 +42,7 @@ function main(m::Int, n::Int;D2::Int, D1::Int=2*D2^2+10)
 	end
 	# state = randompeps(ComplexF64, m, n, d=2, D=D2, periodic=false)
 
-	sampler = MetropolisLocal(length(state), n_thermal=1000, n_sample_per_chain=5000, n_discard=10)
+	sampler = MetropolisLocal(length(state), n_thermal=100, n_sample_per_chain=1000, n_discard=10)
 
 	ham = Heisenberg2D((m, n), J=0.25)
 
