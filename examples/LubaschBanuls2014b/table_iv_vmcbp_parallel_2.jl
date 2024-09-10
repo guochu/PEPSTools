@@ -24,7 +24,7 @@ function main(m::Int, n::Int, epoches::Int=100; D::Int, lr::Real=0.001)
 
 	# Random.seed!(3598)
 
-	(D2 >= 2) || error("bond dimension D2 should be larger than 1.")
+	# (D2 >= 2) || error("bond dimension D2 should be larger than 1.")
 
 
 	bp_peps_path = gen_bp_peps_path(m, n, D)
