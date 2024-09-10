@@ -34,7 +34,7 @@ function main(m::Int, n::Int, epoches::Int=100; D::Int, lr::Real=0.001)
 		peps_load_path = bp_peps_path
 	else
 		println("generate initial peps randomly")
-		peps = randompeps(ComplexF64, m, n, d=2, D=D)
+		state = randompeps(ComplexF64, m, n, d=2, D=D)
 		peps_load_path = " "
 	end
 
