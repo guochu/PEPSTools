@@ -17,7 +17,7 @@ gen_bp_result_path(m::Int, n::Int, D2::Int, lr::Real, epoches::Int) = "result/Ta
 
 
 function main(m::Int, n::Int, epoches::Int=100; D::Int, lr::Real=0.001)
-	println("run simulations for m=$m, n=$n, D1=$D1, D2=$D2, epoches=$(epoches), learn rate=$(lr)")
+	println("run simulations for m=$m, n=$n, D=$D, epoches=$(epoches), learn rate=$(lr)")
 	L = m * n
 
 	h = squeeze(heisenberg2D(m, n, periodic=false))
@@ -54,6 +54,7 @@ function main(m::Int, n::Int, epoches::Int=100; D::Int, lr::Real=0.001)
 
         Optimise.update!(opt, x0, grad)
         state = re(x0)
+        train_loss /= L
 
         push!(losses, train_loss)
         println("energy at the $i-th step is $(train_loss)")
