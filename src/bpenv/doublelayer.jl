@@ -6,11 +6,11 @@ struct DoubleLayerBPEnv{T <: Number} <: AbstractBPEnvironment
 end
 
 
-bp_environments(state::PEPS, nitr::Int, tol::Real=-1; verbosity::Int=1) = bp_environments(state, unit_q_bondmessages(state), nitr, tol, verbosity=verbosity)
+environments(state::PEPS, alg::BP) = environments(state, _init_q_bondmessages(state, alg.initguess, alg.seed), alg)
 
-function bp_environments(state::PEPS, init_msgs::SquareLatticeBondMessages, nitr::Int, tol::Real=-1; verbosity::Int=1)
+function environments(state::PEPS, init_msgs::SquareLatticeBondMessages, alg::BP)
 	(size(state) === size(init_msgs)) || throw(ArgumentError("graph mismatch"))
 	
-	msgs = fixedpoint_messages(state, init_msgs, FixedNorm(), nitr, tol, verbosity=verbosity)
+	msgs, converged = fixedpoint_messages(state, init_msgs, alg)
 	return DoubleLayerBPEnv(state, msgs)
 end

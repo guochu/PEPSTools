@@ -25,3 +25,5 @@ function contract(state::SquareTN; kwargs...)
 	end
 	return only(ncon(reshape(state.data, length(state)), labels; kwargs...))
 end
+
+exact_amplitude(state::PEPS, basis::AbstractVector{Int}; kwargs...) = contract(amplitude_tn(state, basis); kwargs...)

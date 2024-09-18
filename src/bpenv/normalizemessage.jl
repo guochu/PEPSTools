@@ -44,11 +44,53 @@ end
 # 	return SquareLatticeBonds(V′, H′)
 # end
 function _canonicalize!(m::VectorMessage)
-	sqrt_z = sqrt(mapreduce(*, +, m.i, m.o))
-	m.i ./= sqrt_z
-	m.o ./= sqrt_z
+	# sqrt_z = sqrt(mapreduce(*, +, m.i, m.o))
+	# m.i ./= sqrt_z
+	# m.o ./= sqrt_z
+
+	z = mapreduce(*, +, m.i, m.o)
+	m.o ./= z
 	return m
 end
+
+function mixing(m_out::SquareLatticeBondMessages, m_in::SquareLatticeBondMessages, damping::Real)
+	m_out_V, m_out_H = get_data(m_out)
+	m_in_V, m_in_H = get_data(m_in)
+	V = [mixing(o, i, damping) for (o, i) in zip(m_out_V, m_in_V)]
+	H = [mixing(o, i, damping) for (o, i) in zip(m_out_H, m_in_H)]
+	return SquareLatticeBonds(V, H)
+end
+function mixing!(m_out::SquareLatticeBondMessages, m_in::SquareLatticeBondMessages, damping::Real)
+	for (o, i) in zip(m_out.V, m_in.V)
+		mixing!(o, i, damping)
+	end
+	for (o, i) in zip(m_out.H, m_in.H)
+		mixing!(o, i, damping)
+	end	
+	return m_out
+end
+
+function mixing!(m_out::VectorMessage, m_in::VectorMessage, damping::Real)
+	mixing!(m_out.i, m_in.i, damping)
+	mixing!(m_out.o, m_in.o, damping)
+	return m_out
+end
+
+function mixing(m_out::VectorMessage, m_in::VectorMessage, damping::Real)
+	m_out_i, m_out_o = get_data(m_out)
+	m_in_i, m_in_o = get_data(m_in)
+	i = mixing(m_out_i, m_in_i, damping)
+	o = mixing(m_out_o, m_in_o, damping)
+	return Message(i, o)
+end
+
+function mixing!(m_out::AbstractVector, m_in::AbstractVector, damping::Real)
+	if damping > 0
+		axpby!(damping, m_in, 1 - damping, m_out)
+	end
+	return m_out
+end
+mixing(m_out::AbstractVector, m_in::AbstractVector, damping::Real) = (1 - damping) .* m_out .+ damping .* m_in
 
 function message_distance2(x::SquareLatticeBondMessages, y::SquareLatticeBondMessages) 
 	# f(a, b) = message_distance2(a, b)
@@ -71,6 +113,17 @@ get_data(x::PeriodicArray) = x.data
 Zygote.@adjoint get_data(x::PeriodicArray) = get_data(x), z -> (z,)
 
 
+function Base.:+(x::VectorMessage, y::VectorMessage)
+	xi, xo = get_data(x)
+	yi, yo = get_data(y)
+	return Message(xi + yi, xo + yo)
+end
+
+function Base.:+(x::SquareLatticeBondMessages, y::SquareLatticeBondMessages)
+	xV, xH = get_data(x)
+	yV, yH = get_data(y)
+	return SquareLatticeBonds(xV .+ yV, xH .+ yH)
+end
 
 _normalize(v::Vector, alg::FixedSum) = _normalize_sum(v)
 _normalize(v::Vector, alg::FixedNorm) = normalize(v)
@@ -83,7 +136,11 @@ function _normalize(v::VectorMessage, alg::MessageNormalizationAlgorithm)
 end 
 
 function _canonicalize(m::VectorMessage)
+	# ab, ba = get_data(m)
+	# sqrt_z = sqrt(mapreduce(*, +, ab, ba))
+	# return Message(ab / sqrt_z, ba / sqrt_z)
+
 	ab, ba = get_data(m)
-	sqrt_z = sqrt(mapreduce(*, +, ab, ba))
-	return Message(ab / sqrt_z, ba / sqrt_z)
+	z = mapreduce(*, +, ab, ba)
+	return Message(ab, ba / z)
 end

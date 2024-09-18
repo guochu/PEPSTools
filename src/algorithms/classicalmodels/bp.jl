@@ -1,13 +1,13 @@
 function magnetizations(x::Classical2DModel, alg::BP; β::Real)
 	peps = SquareTN(site_tensors(x, β=β))
-	env = bp_environments(peps, alg.msg_maxiter, alg.msg_tol, verbosity=alg.verbosity)
+	env = environments(peps, alg)
 	return [_local_expectation(magnetization_tensor(x, i, j, β=β), i, j, peps, env, β=β) for i in 1:size(x, 1), j in 1:size(x, 2)]
 end
 
 function magnetization(x::Classical2DModel, i::Int, j::Int, alg::BP; β::Real)
 	peps = SquareTN(site_tensors(x, β=β))
 	mT = magnetization_tensor(x, i, j, β=β)
-	env = bp_environments(peps, alg.msg_maxiter, alg.msg_tol, verbosity=alg.verbosity)
+	env = environments(peps, alg)
 	return _local_expectation(mT, i, j, peps, env)
 end
 

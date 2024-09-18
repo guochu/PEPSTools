@@ -1,5 +1,6 @@
 # variational BP
-function energy(h::SquareLatticeOperator, state::PEPS, env::DoubleLayerBPEnv)
+energy(h::SquareLatticeOperator, state::PEPS, alg::BP) = _energy(h, state, environments(state, alg))
+function _energy(h::SquareLatticeOperator, state::PEPS, env::DoubleLayerBPEnv)
 	(size(h) === size(state) === size(env)) || throw(DimensionMismatch("size mismatch"))
 	
 	energy = zero(scalartype(state))
@@ -27,7 +28,8 @@ function energy(h::SquareLatticeOperator, state::PEPS, env::DoubleLayerBPEnv)
 	return energy
 end
 
-function expectation(h::SquareLatticeOperator, state::PEPS, env::DoubleLayerBPEnv)
+expectation(h::SquareLatticeOperator, state::PEPS, alg::BP) = _expectation(h, state, environments(state, alg))
+function _expectation(h::SquareLatticeOperator, state::PEPS, env::DoubleLayerBPEnv)
 	(size(h) === size(state) === size(env)) || throw(DimensionMismatch("size mismatch"))
 
 	energies = SquareLatticeBonds(zeros(scalartype(state), size(state)), zeros(scalartype(state), size(state)))

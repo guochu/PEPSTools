@@ -10,18 +10,18 @@ const NNQS_BP_Iterations = 10
 
 _state_to_index(x::AbstractVector{Int}) = [(item == -1) ? 2 : 1 for item in x]
 
-function Ψ_threaded(state::PEPS, x::AbstractMatrix{Int})
+function _Ψ_threaded(state::PEPS, x::AbstractMatrix{Int}, alg::BP=BP(FixedSum()))
 	f(r, s, bj, j) = begin
-		r[j] = NNQS._Ψ(s, bj)
+		r[j] = NNQS._Ψ(s, bj, alg)
 	end 
 	amps = zeros(scalartype(state), size(x, 2))
 	fetch.([Threads.@spawn f(amps, state, x[:, j], j) for j in 1:size(x, 2)])
 	return transpose(amps)
 end
 
-Zygote.@adjoint Ψ_threaded(state::PEPS, x::AbstractMatrix{Int}) = begin
+Zygote.@adjoint _Ψ_threaded(state::PEPS, x::AbstractMatrix{Int}, alg::BP=BP(FixedSum())) = begin
 	f(r, bks, s, bj, j) = begin
-		r[j], bks[j] = Zygote.pullback(NNQS._Ψ, s, bj)
+		r[j], bks[j] = Zygote.pullback(NNQS._Ψ, s, bj, alg)
 	end 
 	amps = zeros(scalartype(state), size(x, 2))
 	backs = Vector{Any}(undef, size(x, 2))
@@ -30,24 +30,24 @@ Zygote.@adjoint Ψ_threaded(state::PEPS, x::AbstractMatrix{Int}) = begin
 		state_back = zero.(state.data)
 		tmps = [Threads.@spawn backs[j](z[j]) for j in 1:size(x, 2)]
 		for j in 1:size(x, 2)
-			state_back_j, _ = fetch(tmps[j])
+			state_back_j, _, _ = fetch(tmps[j])
 			axpy!.(true, state_back_j, state_back)
 		end
 		return state_back, nothing
 	end
 end
 
-NNQS.Ψ(state::PEPS, x::AbstractMatrix{Int}) = (Threads.nthreads() == 1) ? NNQS._Ψ(state, x) : Ψ_threaded(state, x)
-Zygote.@adjoint NNQS.Ψ(state::PEPS, x::AbstractMatrix{Int}) = (Threads.nthreads() == 1) ? Zygote.pullback(NNQS._Ψ, state, x) : Zygote.pullback(Ψ_threaded, state, x)
+NNQS.Ψ(state::PEPS, x::AbstractMatrix{Int}, alg::BP=BP(FixedSum())) = (Threads.nthreads() == 1) ? NNQS._Ψ(state, x, alg) : _Ψ_threaded(state, x, alg)
+Zygote.@adjoint NNQS.Ψ(state::PEPS, x::AbstractMatrix{Int}, alg::BP=BP(FixedSum())) = (Threads.nthreads() == 1) ? Zygote.pullback(
+																					NNQS._Ψ, state, x, alg) : Zygote.pullback(_Ψ_threaded, state, x, alg)
 
-NNQS._Ψ(state::PEPS, x::AbstractVector{Int}) = _Ψ_util(state, dropgrad(_state_to_index(x)), dropgrad(unit_c_bondmessages(state)))
+NNQS._Ψ(state::PEPS, x::AbstractVector{Int}, alg::BP=BP(FixedSum())) = _Ψ_util(state, dropgrad(_state_to_index(x)), 
+												dropgrad(_init_c_bondmessages(state, alg.initguess, alg.seed)), dropgrad(alg))
 
-function _Ψ_util(state::PEPS, basis::AbstractVector{Int}, msg::SquareLatticeBondMessages)
+function _Ψ_util(state::PEPS, basis::AbstractVector{Int}, msg_init::SquareLatticeBondMessages, alg::BP)
+	# println("here... ", alg.seed)
 	tn = amplitude_tn(state, basis)
-	for i in 1:NNQS_BP_Iterations
-		msg_2 = update_messages(tn, msg)
-		msg = normalize(msg_2, FixedSum())
-	end
+	msg, converged = fixedpoint_messages(tn, msg_init, alg)
 	msg = canonicalize(msg)
 	return bp_contract(tn, msg)	
 end

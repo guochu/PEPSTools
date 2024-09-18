@@ -45,7 +45,7 @@ export heisenberg2D, ising2D
 
 
 using Base: @boundscheck, front, tail
-using LinearAlgebra, TensorOperations, Strided
+using Random, LinearAlgebra, TensorOperations, Strided
 using Zygote
 using Flux, NNQS
 import NNQS: energy
@@ -106,7 +106,6 @@ include("algorithms/blockbp/expecs.jl")
 include("algorithms/blockbp/rdms.jl")
 
 # bp update
-include("algorithms/bp/bpalg.jl")
 include("algorithms/bp/variationalbp/variationalbp.jl")
 include("algorithms/bp/vmcbp/vmcbp.jl")
 

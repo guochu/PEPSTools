@@ -13,7 +13,7 @@ println("------------------------------------")
 
 		amps1, back1 = Zygote.pullback(NNQS._Ψ, state, basis)
 		state_back1, _ = back1(amps1)
-		amps2, back2 = Zygote.pullback(Ψ_threaded, state, basis)
+		amps2, back2 = Zygote.pullback(_Ψ_threaded, state, basis)
 		state_back2, _ = back2(amps2)
 
 		@test norm(amps1 - amps2) / norm(amps1) < tol

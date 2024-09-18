@@ -6,11 +6,11 @@ struct ClassicalBPEnv{T <: Number} <: AbstractBPEnvironment
 end
 
 
-bp_environments(state::SquareTN, nitr::Int, tol::Real=-1; verbosity::Int=1) = bp_environments(state, unit_c_bondmessages(state), nitr, tol, verbosity=verbosity)
+environments(state::SquareTN, nitr::Int, alg::BP) = environments(state, _init_c_bondmessages(state, alg.initguess, alg.seed), alg)
 
-function bp_environments(state::SquareTN, init_msgs::SquareLatticeBondMessages, nitr::Int, tol::Real=-1; verbosity::Int=1)
+function environments(state::SquareTN, init_msgs::SquareLatticeBondMessages, alg::BP)
 	(size(state) === size(init_msgs)) || throw(ArgumentError("graph mismatch"))
 	
-	msgs = fixedpoint_messages(state, init_msgs, FixedNorm(), nitr, tol, verbosity=verbosity)
+	msgs, converged = fixedpoint_messages(state, init_msgs, alg)
 	return ClassicalBPEnv(state, msgs)
 end

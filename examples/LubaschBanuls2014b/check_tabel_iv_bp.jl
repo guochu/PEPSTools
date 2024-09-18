@@ -34,7 +34,9 @@ function main(m::Int, n::Int;D2::Int, D1::Int=2*D2^2+10)
 	bmps_energy = real(energy(h, state, alg))
 	println("bmps energy is $(bmps_energy/L)")
 
-	bp_energy = energy(h, state, bp_environments(state, 10, 1.0e-8, verbosity=1))
+	bp_alg = BP(FixedSum(), msg_maxiter=10, msg_tol=1.0e-8, verbosity=1, damping=0)
+
+	bp_energy = energy(h, state, environments(state, bp_alg))
 	println("bp energy is $(bp_energy/L)")
 
 	if scalartype(state) <: Real
@@ -42,13 +44,91 @@ function main(m::Int, n::Int;D2::Int, D1::Int=2*D2^2+10)
 	end
 	# state = randompeps(ComplexF64, m, n, d=2, D=D2, periodic=false)
 
-	sampler = MetropolisLocal(length(state), n_thermal=100, n_sample_per_chain=1000, n_discard=10)
+	sampler = MetropolisLocal(length(state), n_thermal=100, n_sample_per_chain=1000, n_discard=100)
 
 	ham = Heisenberg2D((m, n), J=0.25)
 
 	vmc_bp_energy = NNQS.energy(ham, state, sampler)
 	println("vmc bp energy is $(vmc_bp_energy/L)")
 
+end
+
+
+function main_2(m::Int, n::Int;D2::Int, D1::Int=2*D2^2+10)
+	println("run simulations for m=$m, n=$n, D1=$D1, D2=$D2")
+	L = m * n
+
+	h = squeeze(heisenberg2D(m, n))
+
+	# Random.seed!(3598)
+
+	(D2 >= 2) || error("bond dimension D2 should be larger than 1.")
+
+
+	peps_path = gen_peps_path(m, n, D2) 
+	println("read initial peps from path $peps_path")
+	ispath(peps_path) || error("peps path not provided")
+	state = Serialization.deserialize(peps_path)
+
+	basis = rand(1:2, length(state))
+
+
+	# normalize_alg = FixedSum()
+	normalize_alg = FixedSum()
+
+	tn = amplitude_tn(state, basis)
+
+	msg = random_c_bondmessages(state)
+
+	normalize!(msg, normalize_alg)
+
+	alg = BP(normalize_alg, msg_maxiter=100, msg_tol=1.0e-8, verbosity=1, damping=0)
+
+	msg, converged = fixedpoint_messages(tn, msg, alg)
+
+	bp_amp = bp_contract(tn, canonicalize(msg))
+
+	exact_amp = contract(tn)
+
+	println("exact ", exact_amp, " approximate ", bp_amp, " error ", abs((exact_amp - bp_amp) / exact_amp) )
+
+
+	# return Ψ(state, basis)
+end
+
+function main_3(m::Int, n::Int;D2::Int, D1::Int=2*D2^2+10)
+	println("run simulations for m=$m, n=$n, D1=$D1, D2=$D2")
+	L = m * n
+
+	h = squeeze(heisenberg2D(m, n))
+
+	# Random.seed!(3598)
+
+	(D2 >= 2) || error("bond dimension D2 should be larger than 1.")
+
+
+	peps_path = gen_peps_path(m, n, D2) 
+	println("read initial peps from path $peps_path")
+	ispath(peps_path) || error("peps path not provided")
+	state = Serialization.deserialize(peps_path)
+
+
+	basis = rand((-1, 1), length(state))
+
+	# normalize_alg = FixedSum()
+	normalize_alg = FixedSum()
+
+	alg = BP(normalize_alg, msg_maxiter=100, msg_tol=1.0e-8, verbosity=1, damping=0)
+
+	bp_amp = Ψ(state, basis, alg)
+
+	# msg, converged = fixedpoint_messages(tn, msg, alg)
+	# bp_amp = _Ψ_util(state, basis, msg, alg)
+
+
+	exact_amp = exact_amplitude(state, _state_to_index(basis))
+
+	println("exact ", exact_amp, ", approximate ", bp_amp, ", error ", abs((exact_amp - bp_amp) / exact_amp) )
 
 end
 

@@ -4,6 +4,26 @@ unit_c_bondmessages(peps::Abstract2DTN) = _init_bond_messages(ones, peps)
 random_q_bondmessages(peps::Abstract2DTN) = _init_bond_messages(rand_qvector, peps)
 unit_q_bondmessages(peps::Abstract2DTN) = _init_bond_messages(unit_qvector, peps)
 
+function _init_c_bondmessages(peps::Abstract2DTN, initguess::Symbol, seed::Int)
+	if initguess == :rand
+		Random.seed!(seed)
+		return random_c_bondmessages(peps)
+	elseif initguess == :unit
+		return unit_c_bondmessages(peps)
+	else
+		throw(ArgumentError("initguess $(initguess) not implemented"))
+	end
+end
+function _init_q_bondmessages(peps::PEPS, initguess::Symbol, seed::Int)
+	if initguess == :rand
+		Random.seed!(seed)
+		return random_q_bondmessages(peps)
+	elseif initguess == :unit
+		return unit_q_bondmessages(peps)
+	else
+		throw(ArgumentError("initguess $(initguess) not implemented"))
+	end
+end
 
 function _init_bond_messages(f, peps::Abstract2DTN)
 	T = scalartype(peps)

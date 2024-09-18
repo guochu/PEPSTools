@@ -1,5 +1,9 @@
+Zygote.@adjoint energy(h::SquareLatticeOperator, state::PEPS, alg::BP) = begin
+	env = environments(state, alg)
+	return Zygote.pullback(_energy, h, state, env)
+end
 
-Zygote.@adjoint energy(h::SquareLatticeOperator, state::PEPS, env::DoubleLayerBPEnv) = begin
+Zygote.@adjoint _energy(h::SquareLatticeOperator, state::PEPS, env::DoubleLayerBPEnv) = begin
 	(size(h) === size(state) === size(env)) || throw(DimensionMismatch("size mismatch"))
 	
 	energy = zero(real(scalartype(state)))
