@@ -21,7 +21,6 @@ function fixedpoint_messages(tn::Abstract2DTN, msg::SquareLatticeBondMessages, a
 	verbosity = alg.verbosity
 	damping = alg.damping
 	normalize_alg = alg.normalize_alg
-	converged = false
 	while i < nitr
 		msg_2 = update_messages(tn, msg)
 		msg_2 = normalize!(msg_2, normalize_alg)
@@ -32,17 +31,13 @@ function fixedpoint_messages(tn::Abstract2DTN, msg::SquareLatticeBondMessages, a
 		i += 1
 		if (tol > 0) && (err < tol)
 			(verbosity > 0) && println("BP converges in $i iterations, error=", err)
-			return msg, true
+			return msg
 		end
 	end
-	if (verbosity > 0)
-		if tol > 0
-			(i == nitr) && println("BP fails to converge in $(nitr) iterations, error=", err)
-		else
-			println("final BP error after $(nitr) iterations is ", err)
-		end
-	end
-	return msg, converged
+	((tol > 0) && (i == nitr)) && @warn "BP fails to converge in $(nitr) iterations, error=$(err)"
+	((verbosity > 0) && (tol <= 0)) && println("final BP error after $(nitr) iterations is ", err)
+
+	return msg
 end
 
 Zygote.@adjoint fixedpoint_messages(tn::Abstract2DTN, msg::SquareLatticeBondMessages, alg::BP) = begin
@@ -55,7 +50,6 @@ Zygote.@adjoint fixedpoint_messages(tn::Abstract2DTN, msg::SquareLatticeBondMess
 	normalize_alg = alg.normalize_alg
 
 	backs = []
-	converged = false
 	while i < nitr
 		msg_2, back = Zygote.pullback(update_messages_normalized, tn, msg, damping, normalize_alg)
 		push!(backs, back)
@@ -66,7 +60,6 @@ Zygote.@adjoint fixedpoint_messages(tn::Abstract2DTN, msg::SquareLatticeBondMess
 		i += 1
 		if (tol > 0) && (err < tol)
 			(verbosity > 0) && println("BP converges in $i iterations, error=", err)
-			converged = true
 			break
 		end
 	end
@@ -78,8 +71,8 @@ Zygote.@adjoint fixedpoint_messages(tn::Abstract2DTN, msg::SquareLatticeBondMess
 			println("final BP error after $(nitr) iterations is ", err)
 		end
 	end
-	return (msg, converged), z -> begin
-		z_back, z_converged = z
+	return msg, z -> begin
+		z_back = z
 		tn_back = zero.(tn.data)
 		for back in reverse(backs)
 			tn_back_i, z_back, _, _ = back(z_back)

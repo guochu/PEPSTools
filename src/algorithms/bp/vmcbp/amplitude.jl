@@ -47,7 +47,7 @@ NNQS._Ψ(state::PEPS, x::AbstractVector{Int}, alg::BP=BP(FixedSum())) = _Ψ_util
 function _Ψ_util(state::PEPS, basis::AbstractVector{Int}, msg_init::SquareLatticeBondMessages, alg::BP)
 	# println("here... ", alg.seed)
 	tn = amplitude_tn(state, basis)
-	msg, converged = fixedpoint_messages(tn, msg_init, alg)
+	msg = fixedpoint_messages(tn, msg_init, alg)
 	msg = canonicalize(msg)
 	return bp_contract(tn, msg)	
 end

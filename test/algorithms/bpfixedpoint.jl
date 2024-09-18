@@ -23,8 +23,7 @@ println("------------------------------------")
 				@test norm(a-b) / norm(a) < tol
 			end
 
-			msg_out3_all, back3 = Zygote.pullback(fixedpoint_messages, tn, msg, bp_alg)
-			msg_out3, converged = msg_out3_all
+			msg_out3, back3 = Zygote.pullback(fixedpoint_messages, tn, msg, bp_alg)
 			tn_back3, msg_back3, _ = back3(msg_out3_all)
 			@test message_distance2(msg_out1, msg_out3) < tol
 			@test message_distance2(msg_back1, msg_back3) < tol

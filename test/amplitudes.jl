@@ -7,13 +7,15 @@ println("------------------------------------")
 	D = 2
 	tol = 1.0e-8
 
+	alg = BP(FixedSum(), msg_maxiter=5)
+
 	for T in (Float64, ComplexF64)
 		state = randompeps(T, 3, 4, d=2, D=D)
 		basis = rand((-1, 1), length(state), 4)
 
-		amps1, back1 = Zygote.pullback(NNQS._Ψ, state, basis)
+		amps1, back1 = Zygote.pullback(NNQS._Ψ, state, basis, alg)
 		state_back1, _ = back1(amps1)
-		amps2, back2 = Zygote.pullback(_Ψ_threaded, state, basis)
+		amps2, back2 = Zygote.pullback(_Ψ_threaded, state, basis, alg)
 		state_back2, _ = back2(amps2)
 
 		@test norm(amps1 - amps2) / norm(amps1) < tol

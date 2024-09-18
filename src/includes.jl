@@ -1,4 +1,5 @@
 using Base: @boundscheck, front, tail
+using Logging: @warn
 using Random, LinearAlgebra, TensorOperations, Strided
 using Zygote
 using Flux, NNQS

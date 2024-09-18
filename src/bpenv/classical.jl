@@ -11,6 +11,6 @@ environments(state::SquareTN, nitr::Int, alg::BP) = environments(state, _init_c_
 function environments(state::SquareTN, init_msgs::SquareLatticeBondMessages, alg::BP)
 	(size(state) === size(init_msgs)) || throw(ArgumentError("graph mismatch"))
 	
-	msgs, converged = fixedpoint_messages(state, init_msgs, alg)
+	msgs = fixedpoint_messages(state, init_msgs, alg)
 	return ClassicalBPEnv(state, msgs)
 end
