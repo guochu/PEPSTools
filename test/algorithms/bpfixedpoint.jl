@@ -24,7 +24,7 @@ println("------------------------------------")
 			end
 
 			msg_out3, back3 = Zygote.pullback(fixedpoint_messages, tn, msg, bp_alg)
-			tn_back3, msg_back3, _ = back3(msg_out3_all)
+			tn_back3, msg_back3, _ = back3(msg_out3)
 			@test message_distance2(msg_out1, msg_out3) < tol
 			@test message_distance2(msg_back1, msg_back3) < tol
 			for (a, b) in zip(tn_back1, tn_back3)
