@@ -1,5 +1,8 @@
 module PEPSTools
 
+# Message
+export Message, FixedNorm, FixedSum
+
 # # some basic definitions
 # simple definition of Hamiltonian and operators
 export scalartype
@@ -27,7 +30,7 @@ export SimpleUpdate
 # reduced density matrices
 export rdm1s, rdm2s
 # block bp algorithm
-export Message, BlockBP, BlockOperator, BlockLocalOperator, default_splitting, center_splitting, subblock, subblocks
+export BlockBP, BlockOperator, BlockLocalOperator, default_splitting, center_splitting, subblock, subblocks
 # BP algorithm
 export BP
 
