@@ -9,6 +9,8 @@ export scalartype
 export SquareLatticeBonds, SquareLatticeHamiltonian, SquareLatticeOperator, is_periodic, is_nonperiodic
 export squeeze, exponential
 export SquareLatticeSites, LocalCObservers, LocalQObservers
+# matrix product tools
+export IterativeCompression, SVDCompression
 
 
 # definition of PEPS
